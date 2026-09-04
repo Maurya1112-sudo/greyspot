@@ -38,6 +38,11 @@ differ.
 
 Run: `python scripts/run_ucl_comparison_multiyear.py <Borough>`
 
+> **A 13-feature model performs statistically the same** (78.77% vs
+> 79.76%, p=0.3473 - see §3.4). It needs only OS Open Roads geometry and
+> STATS19 crash history: no IMD/Census join, no OSM POI download, no
+> AADF. For reproduction, prefer it.
+
 ### 2.1 Road network
 
 | Property | Value |
@@ -167,6 +172,34 @@ luck.
 *improved* over the previous best (0.8953–0.8961). This matters for the
 government-facing product framing: the uncertainty intervals are
 trustworthy, not decorative.
+
+### 3.4 Feature-count ladder (V10, 2026-09-04)
+
+Groups added in a fixed a-priori order, paired against the 35-feature
+model over the same six windows:
+
+| Config | AccHR@20 | vs 35 | p |
+|---|---|---|---|
+| 13 (geometry + crash history) | 78.77% | -0.99 | 0.3473 |
+| 18 (+ casualty breakdown) | 77.77% | -1.99 | 0.0987 |
+| 21 (+ traffic exposure) | 76.15% | -3.61 | 0.1273 |
+| **26 (+ POI)** | **79.99%** | +0.23 | 0.8875 |
+| 35 (+ socio-demographic) | 79.76% | - | - |
+
+**Nothing on the ladder differs significantly from the full model**, and
+the shape is non-monotonic (down, down, up), with intermediate
+configurations worse than either endpoint. Feature groups interact, so
+**no single group's contribution can be read off in isolation** - report
+ladders, never "feature X is worth Y points".
+
+### 3.5 Validation controls (all passed)
+
+| Control | Result |
+|---|---|
+| **Label shuffle** (targets permuted across segments) | 75.64% -> **23.08%**, i.e. collapses to the random baseline (19.96 +/- 3.46). The model learns crash signal, not artefacts. |
+| **Metric sanity** (constant / random / near-constant predictions) | 10.12% / 16.67% / 19.64% - a constant prediction scores BELOW random, so no score here is a tie-break artefact. |
+| **Network invariance** (random ranker on both networks, 200 seeds) | 19.68% vs 19.96% (+0.28pp); both networks capture the identical 206 crashes. The network gain is model improvement, not task difficulty. |
+| **Reproducibility floor** | Independent runs of an identical config reproduce the 6-window mean to **+/-0.2-0.3 points**. Differences smaller than this are not interpretable. |
 
 ### 3.3 Context: baselines on the same windows (Lambeth)
 
