@@ -5689,3 +5689,46 @@ top RECOVERS it (+3.84, +5.35). Two independent boroughs showing the
 same non-monotonic shape makes this a genuine interaction rather than
 noise - and it reinforces that single feature-group ablations cannot be
 read in isolation.
+
+## 2026-09-05 - C3: the road-class finding DOES NOT REPLICATE - retracting yesterday's claim
+
+| Config | Lambeth | Westminster |
+|---|---|---|
+| 13 features + road class | **-6.87 (p=0.056)** | **-0.37 (p=0.861)** |
+| 35 features + road class | **-4.49 (p=0.016)** | **+2.25 (p=0.380)** |
+
+**The sign flips.** On Lambeth road class was significantly harmful at
+35 features; on Westminster it is mildly helpful. Neither Westminster
+result is close to significant.
+
+### Retraction
+
+The 2026-09-04 entry "V7: road class is not null, it is significantly
+HARMFUL - and a third old null falls" is **RETRACTED**. What it actually
+established is: *road class is harmful on Lambeth and has no detectable
+effect on Westminster.* The general claim was made on one borough and
+does not survive a second.
+
+**This also weakens the broader statement in that entry** that "the
+pre-2026-09-04 null ledger does not transfer". Two of the three
+overturned nulls (2-layer, encoder order) DID replicate on Westminster
+(C1). The third (road class) did not. So the correct statement is:
+*some old nulls are wrong under the final configuration, and each must
+be re-tested individually on at least two boroughs - the ledger cannot
+be dismissed wholesale any more than it can be trusted wholesale.*
+
+### The scoreboard for single-borough claims is now 1 for 6
+
+| Claim | Second borough |
+|---|---|
+| hidden=42/42 | FAILED |
+| architecture ensemble | FAILED |
+| weight_decay=0.01 | FAILED |
+| road class harmful | **FAILED** |
+| 13 features == 35 | DOWNGRADED (-0.99 vs -4.08) |
+| **architecture topology (C1)** | **REPLICATED** |
+
+**One in six single-borough findings survived replication intact.**
+That is the single most important methodological result this project
+has produced, and it is now supported by six independent attempts
+rather than asserted.

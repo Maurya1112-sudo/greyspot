@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 23:30 (C2 partial; C3 running)
+Last updated: 2026-09-05 00:15 (**PHASE 1b COMPLETE**)
 
 ---
 
@@ -60,6 +60,19 @@ at n=31.
 
 ---
 
+## 2b. Single-borough claim scoreboard (the headline methodological result)
+
+| Claim | Tested on 2nd borough | Outcome |
+|---|---|---|
+| hidden=42/42 | yes | FAILED |
+| architecture ensemble | yes | FAILED |
+| weight_decay=0.01 | yes | FAILED |
+| road class harmful | yes | **FAILED** |
+| 13 features == 35 | yes | DOWNGRADED |
+| architecture topology | yes | **REPLICATED** |
+
+**1 of 6 single-borough findings survived replication intact.**
+
 ## 3. Verification ledger — every task, its state, and its cross-check
 
 Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
@@ -90,7 +103,7 @@ three of three single-borough candidates failed replication.
 |---|---|---|---|
 | C1 | Architecture ablation ("topology decisive") | **2 boroughs ☑** | **REPLICATES**: layers -26.46/-43.21, encoder -13.61/-9.42, all p<0.05. First candidate today to survive replication. **2-layer DIVERGES on Westminster (2/6 windows below random) - restate as 'unstable', not 'costs N points'** |
 | C2 | 13 features ≈ 35 features | **2 boroughs ☑** | **PARTIALLY**: Lambeth -0.99 (p=0.35) but Westminster **-4.08 (p=0.092)** -> claim DOWNGRADED, needs a 3rd borough. **BUT: 26 features == 35 on both (p=0.89/0.99) -> socio-demographic can be dropped outright** |
-| C3 | Road class harmful | Lambeth, seed 42 | ◐ replicating on Westminster |
+| C3 | Road class harmful | **2 boroughs ☑** | **DOES NOT REPLICATE - claim RETRACTED.** Lambeth -6.87/-4.49 (p=0.016) but Westminster -0.37/**+2.25** - sign flips. Effect is Lambeth-specific |
 | C4 | Pruning −6.89 | Lambeth, seed 42 | ☐ (superseded by C2 - the ladder is the better test) |
 | C5 | Table-start control | Lambeth, seed 42 | ☐ low priority - it was a negative control, and it agreed with the baseline |
 | C6 | Head-to-head vs their architecture | Lambeth, seed 42 | ☐ replicate if the paper claims it |
@@ -143,7 +156,7 @@ plausible but still need one replication each before publication.
 ## 5. Next action
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
-Currently: **C3 (running)**.
+Currently: **Phase 1b complete.** Next: C6 (head-to-head replication) or Phase 2.
 
 **Phase 2 is deliberately NOT started**: adding five new boroughs tests
 breadth, but the central claim is not yet replicated even once. Depth
