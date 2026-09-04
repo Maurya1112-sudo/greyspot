@@ -114,8 +114,18 @@ def main(borough: str = "Lambeth") -> None:
         for x, y, _ in tr_raw:
             yy = y.copy()
             if shuffle:
-                perm = rng.permutation(yy.shape[0])
-                yy = yy[perm]
+                # y is [horizon, N_segments]. The control must permute the
+                # SEGMENT axis (1), not the time axis (0): permuting days
+                # leaves each segment's crash total unchanged, so the model
+                # learns the same spatial ranking and the control silently
+                # tests nothing. First version of this script made exactly
+                # that error and returned bit-identical scores - caught by
+                # the standing rule that bit-identical results across
+                # different configs mean a bug (docs/MASTER_PLAN.md R3).
+                perm = rng.permutation(yy.shape[1])
+                yy = yy[:, perm]
+            if shuffle:
+                assert not np.array_equal(yy, y), "shuffle did not change the target"
             tri.append((apply_feature_standardizer(x, mean, std), yy.T))
         hx = apply_feature_standardizer(hx_raw, mean, std)
         mod = train_gat_temporal_walkforward(tri, ei, epochs=200, horizon=14, zero_inflated=True,

@@ -5222,3 +5222,55 @@ gain on the finer network, which is expected and not a confound - node
 degree is a genuinely different quantity on a different topology, and a
 finer segmentation legitimately helps a history-based ranker localise
 risk. Only `random` is the invariance test, and it passes.
+
+## 2026-09-04 - Overfitting audit: the model PASSES the label-shuffle control
+
+Three probes on the final 35-feature configuration (Lambeth, window
+2023-10-13).
+
+### Probe 3 (the decisive one): label shuffle
+
+Retrain with the crash target randomly permuted ACROSS SEGMENTS,
+features untouched. A model exploiting genuine crash signal must
+collapse to the random baseline; one exploiting incidental structure
+would not.
+
+| | AccHR@20 |
+|---|---|
+| real targets | **75.64%** |
+| shuffled targets | **23.08%** |
+| verified random baseline | 19.96% +/- 3.46 |
+
+**PASS.** 23.08% is within one standard deviation of random. The model
+is learning crash patterns, not artefacts. This project had never run
+this control; it is the strongest single validation of the headline
+numbers to date.
+
+**The first version of this control was broken, and the standing rule
+caught it.** It permuted `y.shape[0]` - the 14-day horizon axis -
+instead of the segment axis, so each segment's crash total was
+unchanged and the model learned the identical spatial ranking. It
+returned bit-identical scores (0.7564 for both arms), which by this
+project's rule R3 (bit-identical across different configs = bug) was
+treated as a defect rather than a result. Fixed to permute axis 1, and
+an assertion now verifies the shuffle actually changed the target.
+
+### Probe 2: feature-count ladder
+
+| Features | AccHR@20 |
+|---|---|
+| 10 | 75.64% |
+| 20 | 73.72% |
+| 26 | **78.21%** |
+| 35 (final model) | 73.72% |
+
+**Ten features score as well as thirty-five, and 26 scores best.** On a
+single window this is only a hint, but it is consistent with the
+overfitting concern that motivated the audit: 35 columns fitted from
+6-11 temporal instances, where every static column (POI, IMD, length)
+is IDENTICAL across instances, so their effective sample size is closer
+to the instance count than the node count.
+
+Promoted to a Phase-1 ledger item rather than a footnote: if a reduced
+feature set matches or beats the full one across all six windows, the
+published model should be the simpler one.
