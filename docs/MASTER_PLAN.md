@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 11:24 (after architecture-ablation arm 4)
+Last updated: 2026-09-04 12:12 (V4 complete)
 
 ---
 
@@ -60,11 +60,12 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V1 | Config-rebinding bug fix | ☑ | Loop simulated in isolation; 4 scripts patched; `window_config` grepped | Fixed, committed 775fe87 |
 | V2 | Table-start control | ☑ | Arm 1 reproduces baseline to 0.27pts | table start +0.25, horizon +15.87 |
 | V3 | Network metric-confound | ☑ | Random invariant over 200 seeds; identical crash counts | Claim survives |
-| V4 | Architecture ablation (7 arms) | ◐ | Each arm differs in exactly 1 key (verified programmatically) | baseline 79.44; **layers 1->2 = 52.98 (-26.46)**; encoder-order @5e-4 = 65.83 (-13.61); @0.01 = 14.31 (NaN, excluded). Effects EXCEED the 19-pt total gap -> non-additive, interactions present |
-| V5 | Overfitting audit | ☐ | Label-shuffle must collapse to ~20% | built, queued |
+| V4 | Architecture ablation (7 arms) | ☑ | Each arm differs in exactly 1 key (verified programmatically) | **TOPOLOGY matters, CAPACITY does not**: layers 1->2 -26.46 (p=0.0003); encoder order -13.61 (p=0.0135); decoder -3.50 (p=0.27, null); hidden 42/42 -2.87 (p=0.12, null); **weight_decay 0.01 +2.53 (p=0.0800, promising)**. Effects exceed the 19-pt gap -> non-additive |
+| V5 | Overfitting audit | ◐ | Label-shuffle must collapse to ~20% | built, queued |
 | V6 | Re-run pruning test (was ✗) | ☐ | Must differ from baseline now the bug is fixed | — |
 | V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
 | V8 | Multi-seed check on headline | ☐ | 5 seeds on 1 borough; report mean±std | — |
+| V9 | weight_decay=0.01 cross-borough | ☐ | Must replicate on Westminster + Tower Hamlets before adoption | Lambeth +2.53, p=0.0800 |
 
 ### Phase 2 — Strengthening
 
