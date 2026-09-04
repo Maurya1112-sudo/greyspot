@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 19:06 (**PHASE 1 COMPLETE** - V8 forces a headline correction)
+Last updated: 2026-09-04 21:50 (**PHASE 1 + V11 COMPLETE** - all figures seed-averaged)
 
 ---
 
@@ -30,16 +30,17 @@ Last updated: 2026-09-04 19:06 (**PHASE 1 COMPLETE** - V8 forces a headline corr
 
 | Borough | Ours | Gao et al. | Verdict |
 |---|---|---|---|
-| Westminster | **80.03% ± 1.40 (5 seeds)** | 68.98% | **better, p=0.0001** |
-| Tower Hamlets | 83.93% (single-seed) | 72.24% | better, but seed-unadjusted |
-| **Lambeth** | **77.75% ± 1.67 (5 seeds)** | 76.59% | **TIE, p=0.1941** |
-| **Pooled (n=18)** | 80.76% reported / **~79.1% seed-adjusted** | **72.60%** | better; margin shrinks |
+| Westminster | **80.03% ± 1.40** (5 seeds) | 68.98% | **better, p=0.0001** |
+| Tower Hamlets | **82.63% ± 2.01** (5 seeds) | 72.24% | **better, p=0.0003** |
+| Lambeth | **77.75% ± 1.67** (5 seeds) | 76.59% | **TIE, p=0.1941** |
+| **POOLED** | **80.14% ± 1.12** (5 seeds) | **72.60%** | **better, p=0.000115** |
 
-> **V8 correction (2026-09-04)**: seed 42 - used for every reported
-> figure - is +1.69 points optimistic on Lambeth. Westminster and Tower
-> Hamlets seed variance is **UNMEASURED**; their adjusted figures above
-> are extrapolated from Lambeth's bias and must be labelled as such.
-> Single-seed noise band is ~4 points.
+> **All figures above are seed-averaged over 5 seeds with 95% CIs.**
+> Seed-42 bias is borough-specific and flips sign (+1.69 Lambeth,
+> -1.11 Westminster, +1.30 Tower Hamlets), so it cannot be extrapolated
+> between boroughs. Per-borough seed spread is 3.2-4.7 points; the
+> POOLED figure is far more stable (seed-42 bias only +0.63) because
+> per-borough biases partly cancel.
 
 Caveats that must accompany any statement of this: one-sample test only
 (their per-window results unpublished); protocols differ; the ~140x
@@ -82,7 +83,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 
 | ID | Task | State | Notes |
 |---|---|---|---|
-| V11 | Multi-seed Westminster + Tower Hamlets | ◐ | MANDATORY - pooled claim rests on extrapolation until done | **Westminster ☑ 80.03% ± 1.40 (bias -1.11, CONSERVATIVE - opposite sign to Lambeth), p=0.0001 vs UCL.** Seed bias is borough-specific and NOT transferable. Tower Hamlets running |
+| V11 | Multi-seed all three boroughs | ☑ | MANDATORY before any output | **DONE.** WM 80.03±1.40 (p=0.0001), TH 82.63±2.01 (p=0.0003), Lam 77.75±1.67 (tie). **Pooled 80.14±1.12 vs 72.60, p=0.000115.** Seed-42 bias: +1.69/-1.11/+1.30 - borough-specific, not transferable |
 | S1 | 5 more boroughs | ☐ | ~5h. Tests generalisation beyond the 3 benchmark boroughs |
 | S2 | Empirical Bayes baseline | ☐ | Preempts "you rediscovered EB"; connects to HSM literature |
 | S3 | Dense eval of FINAL config | ☐ | ~6h. Previous dense run evaluated a superseded config |

@@ -5570,3 +5570,37 @@ This is the second time today that refusing to extrapolate changed the
 answer - the first being the network metric-confound control, where a
 single-seed random baseline suggested (falsely) that the network gain
 was a metric artefact.
+
+### V11 COMPLETE - all three boroughs seed-averaged; the pooled claim SURVIVES
+
+| Borough | Seed-avg (n=5) | 95% CI | Gao et al. | p | Verdict |
+|---|---|---|---|---|---|
+| Westminster | **80.03% +/- 1.40** | [78.29, 81.77] | 68.98% | **0.0001** | better |
+| Tower Hamlets | **82.63% +/- 2.01** | [80.14, 85.12] | 72.24% | **0.0003** | better |
+| Lambeth | 77.75% +/- 1.67 | [75.68, 79.82] | 76.59% | 0.1941 | **tie** |
+| **POOLED** | **80.14% +/- 1.12** | **[78.74, 81.53]** | **72.60%** | **0.000115** | **better** |
+
+**Seed-42 bias by borough: Lambeth +1.69 | Westminster -1.11 | Tower
+Hamlets +1.30.** Direction is not consistent; magnitude ranges 1.1-1.7
+points; per-borough seed spread ranges 3.24-4.74 points.
+
+**The pooled figure was more robust than any individual borough**
+(seed-42 pooled bias only +0.63) because the per-borough biases partly
+cancel. That is a useful property to state: aggregate figures over
+several evaluation regions are less seed-sensitive than any one region,
+even when each region is individually noisy.
+
+### Final honest position on the benchmark comparison
+
+- **Two of three boroughs are significantly better** than the published
+  figures, with seed-averaged means and proper confidence intervals.
+- **Lambeth is a tie** on every basis tested: n=6 single-seed (p=0.3059),
+  n=31 dense single-seed (p=0.1073), and n=5 seeds (p=0.1941).
+- **Pooled is significantly better**: 80.14% +/- 1.12 vs 72.60%,
+  p=0.000115, CI entirely above their figure.
+
+The standing caveats are unchanged and must accompany any statement of
+this: no PAIRED test against them is possible (their per-window results
+are unpublished); the protocols differ (their within-2019 6:2:2 vs this
+project's multi-year walk-forward); and the ~140x target-density
+discrepancy remains unexplained.
