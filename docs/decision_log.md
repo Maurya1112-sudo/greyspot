@@ -5732,3 +5732,49 @@ be dismissed wholesale any more than it can be trusted wholesale.*
 That is the single most important methodological result this project
 has produced, and it is now supported by six independent attempts
 rather than asserted.
+
+## 2026-09-05 - C7: the history-horizon claim REPLICATES on Westminster
+
+The largest effect in this project (+15.85 on Lambeth) rested on one
+borough. Replicated with everything else held fixed - short history
+(7/14/30d) versus the full ladder (+90/365/730/1095/1825d):
+
+| Borough | Short | Full ladder | Delta |
+|---|---|---|---|
+| Lambeth | 63.59% | 79.44% | **+15.85** |
+| Westminster | 70.17% | 79.87% | **+9.70** |
+
+**Westminster: 6/6 windows improved, paired t p=0.0150, Wilcoxon
+p=0.0312.** Every window, no exceptions.
+
+Magnitude differs substantially (+9.70 vs +15.85), so the effect SIZE is
+borough-dependent and should be reported as a range, not a point
+estimate. Direction and significance replicate.
+
+A useful consistency check fell out of this: Westminster's short-history
+arm scored 70.17%, against the original pre-history-ladder Westminster
+baseline of 70.03% - independent confirmation that the short-history
+configuration is being reconstructed correctly.
+
+### Updated single-borough scoreboard: 2 of 7
+
+| Claim | Second borough |
+|---|---|
+| hidden=42/42 | FAILED |
+| architecture ensemble | FAILED |
+| weight_decay=0.01 | FAILED |
+| road class harmful | FAILED |
+| 13 features == 35 | DOWNGRADED |
+| **architecture topology** | **REPLICATED** |
+| **history horizon** | **REPLICATED** |
+
+The two that replicated are the two LARGEST effects (9-26 points). The
+four failures were all 1-3 point effects - within the ~4-point
+single-seed noise band this project measured independently. **Effect
+size predicted replication perfectly in this sample**: everything above
+the noise band replicated, everything below it failed.
+
+That is a more useful statement than "single-borough results are
+unreliable": it says *how* unreliable, and gives a concrete threshold -
+at this evaluation scale, an effect must exceed roughly the seed-noise
+band before a single-borough result means anything.

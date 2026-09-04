@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 00:15 (**PHASE 1b COMPLETE**)
+Last updated: 2026-09-05 00:40 (C7 REPLICATES - both major claims now on 2+ boroughs)
 
 ---
 
@@ -70,8 +70,14 @@ at n=31.
 | road class harmful | yes | **FAILED** |
 | 13 features == 35 | yes | DOWNGRADED |
 | architecture topology | yes | **REPLICATED** |
+| **history horizon** | yes | **REPLICATED** (+15.85 Lam / +9.70 WM, 6/6 windows) |
 
-**1 of 6 single-borough findings survived replication intact.**
+**2 of 7 single-borough findings survived replication intact — and
+effect size predicted the outcome perfectly.** Both survivors were
+large (9–26 pts, well above the ~4-pt seed-noise band); all four
+failures were small (1–3 pts, inside it). Practical threshold: at this
+evaluation scale a single-borough result is uninformative unless the
+effect exceeds the seed-noise band.
 
 ## 3. Verification ledger — every task, its state, and its cross-check
 
