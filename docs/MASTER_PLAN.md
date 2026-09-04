@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 18:09 (V7 complete; 3 old nulls now overturned)
+Last updated: 2026-09-04 19:06 (**PHASE 1 COMPLETE** - V8 forces a headline correction)
 
 ---
 
@@ -20,6 +20,7 @@ Last updated: 2026-09-04 18:09 (V7 complete; 3 old nulls now overturned)
 | R6 | **Diff mechanically; do not reason from plausibility.** | 5 consecutive wrong hypotheses today; the bug was found by simulating the loop in isolation. |
 | R7 | **Commit after every verified result.** | No git until 2026-09-04; absence of diffs directly caused the longest debugging episode. |
 | R8 | **Verify every doc edit actually applied.** A string-replace that does not match silently does nothing. | The V5 row sat stale at "queued" for 90 minutes after the task had passed, because an update pattern did not match. |
+| R10 | **Multi-seed any number that appears in an output.** Single-seed noise here is ~4 points. | V8: seed 42 was the joint-highest of 5; the headline was 1.69 points optimistic. |
 | R9 | **Attach a Monitor in the SAME action that launches a run.** Never `nohup` a job and add the watcher later (or not at all). | The user cannot see untracked jobs; a Tower Hamlets run finished silently and sat unnoticed for 12 minutes, and V10 was launched invisibly. |
 
 ---
@@ -28,10 +29,16 @@ Last updated: 2026-09-04 18:09 (V7 complete; 3 old nulls now overturned)
 
 | Borough | Ours | Gao et al. | Verdict |
 |---|---|---|---|
-| Westminster | 78.92% | 68.98% | better, p=0.0212 |
-| Tower Hamlets | 83.93% | 72.24% | better, p=0.0026 |
-| Lambeth | 79.44% | 76.59% | tie, p=0.3059 |
-| **Pooled (n=18)** | **80.76%** | **72.60%** | **better, p=0.000042** |
+| Westminster | 78.92% (single-seed) | 68.98% | better, but seed-unadjusted |
+| Tower Hamlets | 83.93% (single-seed) | 72.24% | better, but seed-unadjusted |
+| **Lambeth** | **77.75% ± 1.67 (5 seeds)** | 76.59% | **TIE, p=0.1941** |
+| **Pooled (n=18)** | 80.76% reported / **~79.1% seed-adjusted** | **72.60%** | better; margin shrinks |
+
+> **V8 correction (2026-09-04)**: seed 42 - used for every reported
+> figure - is +1.69 points optimistic on Lambeth. Westminster and Tower
+> Hamlets seed variance is **UNMEASURED**; their adjusted figures above
+> are extrapolated from Lambeth's bias and must be labelled as such.
+> Single-seed noise band is ~4 points.
 
 Caveats that must accompany any statement of this: one-sample test only
 (their per-window results unpublished); protocols differ; the ~140x
@@ -67,7 +74,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V6 | Re-run pruning test (was ✗) | ☑ | Must differ from baseline now the bug is fixed | **-6.89, 0/6 wins, p=0.0014** for that specific 30-feature config. **Interpretation SOFTENED by V10**: adding the same columns to a 13-feature model HURTS, so this is a property of that configuration, not the columns' value |
 | V10 | Feature-count ladder, 6 windows + significance | ☑ | Full ladder + paired tests | **13 features == 35 features** (-0.99, p=0.3473). Nothing on the ladder differs significantly. Non-monotonic -> feature-group attribution unreliable. **Corrects V6's over-read** |
 | V7 | Re-verify null ledger under final config | ☑ | Spot-check road class under BOTH configs | **Road class NOT null - significantly HARMFUL** (-6.87 at 13 feat, -4.49 at 35 feat, 0/6 wins, p=0.0157). **Third old null overturned.** Pre-2026-09-04 ledger does NOT transfer and must not be cited as-is |
-| V8 | Multi-seed check on headline | ☐ | 5 seeds on 1 borough; report mean±std | — |
+| V8 | Multi-seed check on headline | ☑ | 5 seeds on 1 borough; report mean±std | **Seed 42 is +1.69 optimistic.** Lambeth seed-avg **77.75% ± 1.67** (was 79.44%). Spread 3.86 pts. **Lambeth is a TIE vs UCL (p=0.1941).** Single-seed noise band ≈4 pts - effects below that are uninterpretable |
 | V9 | weight_decay=0.01 cross-borough | ☑ | Must replicate before adoption | **NOT ADOPTED**: n=18 pooled **-0.60, p=0.6061**. Effect shrank monotonically with evidence: +2.53 (n=6) -> +0.53 (n=12) -> -0.60 (n=18). Third false positive caught |
 
 ### Phase 2 — Strengthening

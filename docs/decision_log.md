@@ -5474,3 +5474,62 @@ harm from adding such features. Clipped z-scoring was tested once
 (p=0.9899, null) but under the OLD configuration and WITHOUT the added
 sparse features - so it is not evidence either way here. A proper test
 is a legitimate future experiment, not a claim.
+
+## 2026-09-04 - V8 multi-seed: the headline is ~1.7 points optimistic, and Lambeth is a tie
+
+Every AccHR@20 figure in this project came from a single run at
+seed=42. An earlier control had shown CUDA non-determinism does not move
+the metric, but that tested repeated runs at the SAME seed - it says
+nothing about sensitivity to the initialisation itself.
+
+Final configuration, Lambeth, five seeds, same six windows:
+
+| Seed | 6-window mean |
+|---|---|
+| **42 (the reported one)** | **79.44%** |
+| 1 | 79.44% |
+| 7 | 75.59% |
+| 123 | 77.10% |
+| 2024 | 77.19% |
+| **Seed-averaged** | **77.75% +/- 1.67** |
+
+**Spread 3.86 points. Seed 42 is the joint-HIGHEST of the five.**
+
+### Consequences
+
+1. **Lambeth is a tie, not a win.** Seed-averaged 77.75%, 95% CI
+   [75.68, 79.82], versus Gao et al.'s 76.59%: one-sample p=0.1941.
+   (It was already a tie at n=6 and n=31 single-seed; this confirms it
+   on a third basis.)
+
+2. **The seed-42 optimism bias is +1.69 points.** Applying that to the
+   other boroughs - an EXTRAPOLATION, since they were single-seed and
+   their seed variance is unmeasured - gives Westminster ~77.2%
+   (+8.3 vs UCL), Tower Hamlets ~82.2% (+10.0), pooled ~79.1% (+6.5).
+   The pooled claim survives comfortably; the margin shrinks.
+
+3. **The "+/-0.2-0.3 reproducibility floor" measured earlier was
+   measuring the wrong thing.** It compared same-seed runs of identical
+   configs, which is float-accumulation noise only. **The correct floor
+   for single-seed comparisons is ~4 points.**
+
+4. **Effects under ~4 points cannot be interpreted from single-seed
+   runs.** That includes hidden size (-2.87), decoder family (-3.50),
+   and the weight-decay candidate (+2.53, already rejected on other
+   grounds). These should be reported as "not distinguishable from
+   seed noise", not as measured effects.
+
+5. **Large effects are unaffected** and remain well clear of the noise
+   band: layers 1->2 (-26.46), encoder order (-13.61), history horizon
+   (+15.87), network source (+11.59), road class (-4.49 to -6.87),
+   pruning to 30 features (-6.89).
+
+### What must change in every output
+
+- Report the headline as **seed-averaged with a +/-**, not seed 42's
+  single number.
+- Attach the ~4-point single-seed noise band to any comparison quoted.
+- State explicitly that Westminster and Tower Hamlets seed variance is
+  UNMEASURED, and that their adjusted figures are extrapolated.
+- Never again quote a single-seed figure as a headline. Multi-seed is
+  now mandatory for any number that appears in an output.
