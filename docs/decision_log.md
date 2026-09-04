@@ -5338,3 +5338,37 @@ of a spurious finding regressing toward zero, and it is a cleaner
 illustration than any of the previous two of why a p=0.08 at n=6 here
 carries essentially no information. Worth using as the worked example
 in any methodological write-up.
+
+## 2026-09-04 - V6 pruning v2: the casualty columns are LOAD-BEARING (v1 said the opposite, and was wrong)
+
+The original pruning test (2026-09-03) was invalidated by the
+config-rebinding bug. Re-run against the FINAL 35-feature configuration,
+with a per-window assertion that the subset actually applies:
+
+| Config | AccHR@20 |
+|---|---|
+| FINAL (35 features) | 79.76% |
+| pruned (30, casualty breakdown dropped) | **72.87%** |
+
+**-6.89 points, 0/6 windows, paired t p=0.0014, Wilcoxon p=0.0312.**
+Every window got worse.
+
+**This reverses v1's conclusion entirely.** v1 reported -0.69, p=0.3632,
+"null - the model already ignores these columns", with 5 exact ties. The
+ties were the bug (both arms ran identical features); the real effect is
+large, consistent, and significant.
+
+**The reasoning that motivated the pruning test was wrong.** The
+argument was that `n_fatal/serious/slight/pedestrian/cyclist_casualties`
+are a redundant decomposition of `collision_count` - correlations
+0.14-0.85 with it, each 2-50x sparser. Measured: they carry substantial
+independent signal. Severity and road-user composition evidently
+identify risk that the aggregate count does not.
+
+**It also argues against the overfitting hypothesis.** If 35 features
+were overfitting on 6-11 temporal instances, dropping 5 collinear
+columns should have helped or been neutral. It cost 6.89 points. Read
+alongside V5's label-shuffle PASS, the evidence is that this model is
+underfit rather than overfit at its current feature count - which makes
+V10 (the feature-count ladder) more interesting, not less: the
+single-window hint that 26 features beat 35 now looks likely to be noise.
