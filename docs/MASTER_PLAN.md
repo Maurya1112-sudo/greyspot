@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 11:05 (after architecture-ablation arm 2)
+Last updated: 2026-09-04 11:06 (after architecture-ablation arm 3)
 
 ---
 
@@ -60,7 +60,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V1 | Config-rebinding bug fix | ☑ | Loop simulated in isolation; 4 scripts patched; `window_config` grepped | Fixed, committed 775fe87 |
 | V2 | Table-start control | ☑ | Arm 1 reproduces baseline to 0.27pts | table start +0.25, horizon +15.87 |
 | V3 | Network metric-confound | ☑ | Random invariant over 200 seeds; identical crash counts | Claim survives |
-| V4 | Architecture ablation (7 arms) | ◐ | Each arm differs in exactly 1 key (verified programmatically) | baseline 79.44; temporal_first@0.01 = 14.31 (NaN) |
+| V4 | Architecture ablation (7 arms) | ◐ | Each arm differs in exactly 1 key (verified programmatically) | baseline 79.44; encoder-order @5e-4 = 65.83 (**-13.61, dominant factor**); @0.01 = 14.31 (NaN, excluded) |
 | V5 | Overfitting audit | ☐ | Label-shuffle must collapse to ~20% | built, queued |
 | V6 | Re-run pruning test (was ✗) | ☐ | Must differ from baseline now the bug is fixed | — |
 | V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
