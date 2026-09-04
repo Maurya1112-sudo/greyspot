@@ -5604,3 +5604,48 @@ this: no PAIRED test against them is possible (their per-window results
 are unpublished); the protocols differ (their within-2019 6:2:2 vs this
 project's multi-year walk-forward); and the ~140x target-density
 discrepancy remains unexplained.
+
+## 2026-09-04 - C1: the architecture claim REPLICATES on a second borough (the first candidate all day to do so)
+
+The "topology is decisive" claim rested on Lambeth alone at seed 42.
+Replicated on Westminster:
+
+| Arm | Lambeth | Westminster | Replicates? |
+|---|---|---|---|
+| baseline | 79.44% | 79.21% | - |
+| **layers 1 -> 2** | **-26.46 (p=0.0003)** | **-43.21 (p=0.0257)** | **YES** |
+| **encoder -> temporal_first** | **-13.61 (p=0.0135)** | **-9.42 (p=0.0046)** | **YES** |
+
+Both effects are significant on both boroughs in the same direction.
+**This is the first candidate today to survive cross-borough
+replication** - three others (hidden=42/42, the architecture ensemble,
+weight_decay=0.01) failed it.
+
+### The 2-layer mechanism must be restated: it DIVERGES, it does not merely degrade
+
+Westminster per-window: 0.708, 0.789, **0.142, 0.041**, 0.226, 0.254.
+**Two of six windows fall BELOW the 0.20 random baseline**, and 0.041 is
+far below anything a merely-worse model produces. That is the NaN
+tie-break signature this project has catalogued before. Standard
+deviation is 28.39 points versus Lambeth's 10.28.
+
+So the correct claim is **"a 2-layer GAT is numerically unstable at this
+data scale"** - degrading smoothly on Lambeth, diverging outright on
+Westminster - NOT "2 layers costs 26 points". Reporting a point estimate
+would hide the instability, which is the more useful finding: the
+configuration is unusable, not just suboptimal.
+
+This also explains why the original ablation's effects exceeded the
+total head-to-head gap: a diverged arm's mean is not comparable to a
+trained arm's.
+
+### What is now properly supported
+
+| Claim | Boroughs | Status |
+|---|---|---|
+| Encoder order matters (-9 to -14) | 2 | replicated, significant both |
+| 2-layer is unstable/unusable | 2 | replicated, significant both |
+| Network source (+11.59) | 3 | replicated |
+| History horizon (+15.87) | 1 | **still Lambeth-only** |
+| 13 features == 35 | 1 | **still Lambeth-only** |
+| Road class harmful | 1 | **still Lambeth-only** |
