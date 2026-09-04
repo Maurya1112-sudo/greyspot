@@ -12,11 +12,19 @@ and will be read by people who know the reference paper.
 Twice in one session, a large effect was attributed to an interesting
 variable when **two or more variables had changed at once**:
 
-1. **"Long crash history is worth +15.85 points."** FALSE. When the
-   feature table was extended to 2021 to support a 365-day window, that
-   simultaneously fixed truncated rolling features in the earliest
-   training instances. Controlled test: horizon alone is worth
-   **+0.51 points** (5 of 6 windows bit-identical).
+1. **"Long crash history is worth +15.85 points."** Initially thought
+   FALSE, then RESTORED. The apparent refutation came from a
+   config-rebinding bug that silently disabled feature subsetting after
+   the first window, so the "short history" arms were not short at all -
+   which is exactly why 5 of 6 windows came back bit-identical. With the
+   bug fixed, a proper negative control gives: table start +0.25 points,
+   history horizon **+15.87 points**. The original claim stands and is
+   now better supported than before, because it finally has a control.
+
+   **The lesson survives even though the claim did**: two variables DID
+   change together (table start and horizon), and nothing in the
+   original experiment distinguished them. It took a dedicated control
+   to find out which mattered. Run the control first next time.
 
 2. **"Architecture is worth +19 points."** NOT YET ESTABLISHED — and
    currently has the same defect. "Their architecture" differs from

@@ -209,7 +209,7 @@ Every configuration tried, best-first per borough. All figures are
 | Metric-aware top-k hinge loss (weights 0.1/0.5/1.0) | 0.0 / -3.2 / -5.0 points | monotone degradation - the direct ranking objective is too noisy at ~2 positives/day |
 | Dense training pool, aligned eval (64-96 vs 6-11 instances) | -3.38 points | p=0.5780 (n=6), 3/6 wins - null, high variance (+10/-26 same run) |
 | Learning rate sweep for spatial_first (0.003-0.02, never swept before) | best +0.81 points (lr=0.02) | p=0.6129 (n=6), 3/6 wins - null; 0.01 already near-optimal by chance |
-| Feature pruning (drop 5 redundant casualty-severity columns) | -0.69 points | p=0.3632 (n=6), 0/6 wins - null; 5 exact ties, model already ignored them |
+| Feature pruning (drop 5 redundant casualty-severity columns) | **INVALIDATED** | the config-rebinding bug meant both arms ran identical features on 5 of 6 windows; never actually tested |
 | AADF name-propagation (coverage 1.56% -> 28.35%) | **-10.42 points** | p=0.0752 (n=6), 1/6 wins - NEGATIVE; smoothing destroys ranking sharpness |
 | **Long-horizon crash history (+90d/365d, was 30d cap)** | **+6.70 points pooled** | **p=0.001337 (n=18), 16/18 wins - SIGNIFICANT on all three boroughs** |
 
