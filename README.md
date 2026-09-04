@@ -65,9 +65,12 @@ not distinguishable from seed noise.
 versus an OSMnx approximation (+11.59 pooled, p=0.0010), and extending
 crash-history horizon from 30 days to 5 years (+15.87).
 
-**A 13-feature model matches the 35-feature one** (78.77% vs 79.76%,
-p=0.3473), needing only road geometry and crash history — no Census/IMD
-join, no POI download, no traffic counts.
+**Socio-demographic features add nothing.** A 26-feature model is
+statistically indistinguishable from the 35-feature one on *both* tested
+boroughs (+0.23 / −0.03, p=0.887 / 0.987), so the IMD/Census dependency
+can be dropped. A further cut to 13 features (geometry + crash history
+only) is −0.99 on Lambeth but −4.08 on Westminster — plausible, but it
+needs a third borough before being recommended.
 
 ### Validation controls (all passed)
 

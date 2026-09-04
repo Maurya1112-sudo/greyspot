@@ -5649,3 +5649,43 @@ trained arm's.
 | History horizon (+15.87) | 1 | **still Lambeth-only** |
 | 13 features == 35 | 1 | **still Lambeth-only** |
 | Road class harmful | 1 | **still Lambeth-only** |
+
+## 2026-09-04 - C2: the feature ladder on a second borough - one claim survives, one is downgraded
+
+| Config | Lambeth (vs 35) | Westminster (vs 35) | Replicates? |
+|---|---|---|---|
+| 13 features | -0.99 (p=0.347) | **-4.08 (p=0.092)** | direction yes, MAGNITUDE NO |
+| 18 (+casualty) | -1.99 (p=0.099) | -3.74 (p=0.067) | direction yes |
+| 21 (+exposure) | -3.61 (p=0.127) | **-5.38 (p=0.012)** | **YES** |
+| 26 (+POI) | +0.23 (p=0.887) | -0.03 (p=0.987) | **YES - indistinguishable on both** |
+
+### SURVIVES: socio-demographic features add nothing
+
+The 26-feature model is statistically indistinguishable from the
+35-feature model on BOTH boroughs (+0.23 and -0.03, p=0.887/0.987).
+**The IMD/Census dependency can be dropped outright** - that is a clean,
+replicated simplification, and it removes a data source with licensing
+constraints and a 2011-vs-2021 boundary-vintage problem this project
+has documented elsewhere.
+
+### DOWNGRADED: "13 features == 35 features"
+
+Lambeth showed -0.99 (p=0.3473) and the recommendation was written as
+"prefer the 13-feature model for reproduction". Westminster shows
+**-4.08** - four times larger, borderline significant (p=0.0919), and
+at the edge of the ~4-point seed-noise band.
+
+**Two boroughs disagreeing by 3 points on the same comparison means the
+recommendation was over-confident on one borough's evidence.** It is
+downgraded to: *a plausible further simplification requiring a third
+borough before it is recommended.* The README's "prefer it" line must
+be softened accordingly.
+
+### Also replicated: the exposure/POI interaction is real
+
+Adding traffic exposure alone HURTS on both boroughs (-1.62 Lambeth,
+-1.64 Westminster, the latter significant at p=0.012), and adding POI on
+top RECOVERS it (+3.84, +5.35). Two independent boroughs showing the
+same non-monotonic shape makes this a genuine interaction rather than
+noise - and it reinforces that single feature-group ablations cannot be
+read in isolation.
