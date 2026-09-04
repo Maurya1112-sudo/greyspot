@@ -335,3 +335,51 @@ distinctions.
 > **Canonical model specification**: see [`docs/final_model.md`](final_model.md)
 > for the complete reproduction spec, full metric suite, the null ledger,
 > and the limitations that must accompany any claim.
+
+
+---
+
+## 2026-09-04 — Verification day: what survived, what was corrected
+
+A full day spent controlling the claims rather than extending them.
+Four interpretations were corrected, three candidate improvements were
+rejected, and two headline claims survived controls that could have
+killed them.
+
+### Claims that SURVIVED controlled testing
+
+| Claim | Effect | The control that could have killed it |
+|---|---|---|
+| Real OS Open Roads network | +11.59 pooled, p=0.0010 | Random ranker is network-invariant (+0.28pp over 200 seeds) and both networks capture the identical 206 crashes — so the gain is not task difficulty |
+| Long crash-history horizon | +15.87 | Table-start control: the co-varying change (table start) is worth only +0.25 |
+| Model learns real signal | — | Label shuffle collapses it to 23.08% vs 75.64% (random ≈ 19.96%) |
+
+### Interpretations that were CORRECTED
+
+| Original claim | Correction |
+|---|---|
+| "History horizon is worth +15.85" → briefly retracted as "+0.51, it was the table start" | **Retraction withdrawn.** The refutation came from a config bug that silently disabled feature subsetting after window 1. Original claim restored, now with a proper control. |
+| "Data representation dominates architecture" | **False.** Encoder order (−13.61) and layer count (−26.46) are architectural and both significant. Correct claim: *topology is decisive, capacity is inert*. |
+| "Casualty columns are load-bearing (−6.89)" | **Over-read.** Adding those columns to a 13-feature model *hurts*. The −6.89 is a property of one bad 30-feature configuration. |
+| "2 layers = null", "encoder order = equivalent" | **Both overturned** under the final configuration — the old null ledger does not transfer. |
+
+### Candidate improvements REJECTED by cross-borough replication
+
+| Candidate | Single borough | Pooled outcome |
+|---|---|---|
+| hidden=42/42 | Lambeth +1.46 | Westminster −9.97 → rejected |
+| Architecture ensemble | 2 boroughs positive | n=18 p=0.5535 → rejected |
+| weight_decay=0.01 | Lambeth +2.53, **0 losing windows**, p=0.0800 | n=18 **−0.60**, p=0.6061 → rejected |
+
+**Three for three.** Every candidate reaching p≈0.05–0.10 on one borough
+failed replication, and the weight-decay effect shrank monotonically as
+evidence accumulated: **+2.53 (n=6) → +0.53 (n=12) → −0.60 (n=18)**.
+That is the clearest available demonstration of why single-borough
+results at this scale are uninformative.
+
+### A simpler model is available
+
+A **13-feature** model (geometry + crash history) scores 78.77% versus
+the 35-feature model's 79.76% — **p=0.3473, not distinguishable**. It
+drops the IMD/Census, POI and AADF dependencies entirely and should be
+preferred for reproduction.

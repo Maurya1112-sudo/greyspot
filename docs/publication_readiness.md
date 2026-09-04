@@ -1100,3 +1100,36 @@ stricter protocol and sparser target - not beating it.
 > **Canonical model specification**: [`docs/final_model.md`](final_model.md).
 > Note especially §7 (Limitations) before drafting any claim of beating
 > the reference paper — the result is a statistical TIE.
+
+
+---
+
+## 2026-09-04 — Framing correction and current publishable position
+
+**The "data representation dominates architecture" thesis is FALSIFIED**
+and must not be used. The architecture ablation (V4) found two
+architectural changes with large significant effects: layer count
+(−26.46, p=0.0003) and encoder order (−13.61, p=0.0135).
+
+**The defensible replacement claim**: *topology is decisive, capacity is
+inert.* Changing message-passing depth or encoder ordering is
+catastrophic; changing hidden size (−2.87) or decoder family (−3.50) is
+not measurable. This explains why ~20 earlier hyperparameter experiments
+were null — they varied capacity-type axes, which do not matter here.
+
+**The strongest contribution may be methodological rather than
+predictive**, and it is well-evidenced:
+
+1. Three candidate improvements at p≈0.05–0.10 on one borough, all
+   failing replication — with one shrinking monotonically to negative
+   as n grew from 6 to 18.
+2. A config bug that silently disabled feature subsetting after the
+   first window, invalidating three results and briefly producing a
+   false retraction of a correct finding.
+3. A reproducibility floor (±0.2–0.3 points) measured, not assumed.
+4. A validated metric (constant predictions score *below* random) and a
+   passed label-shuffle control.
+5. A demonstration that the reference paper's published hyperparameters
+   do not transfer: lr=0.01 diverges to NaN on independent data, and the
+   predecessor code's lr=1e-5 scores 24.74%; the true optimum (5e-4)
+   appears in neither source.
