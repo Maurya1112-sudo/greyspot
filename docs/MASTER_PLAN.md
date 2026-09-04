@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 21:50 (**PHASE 1 + V11 COMPLETE** - all figures seed-averaged)
+Last updated: 2026-09-04 22:02 (audit found 6 single-borough findings; Phase 1b opened)
 
 ---
 
@@ -79,6 +79,31 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V8 | Multi-seed check on headline | ☑ | 5 seeds on 1 borough; report mean±std | **Seed 42 is +1.69 optimistic.** Lambeth seed-avg **77.75% ± 1.67** (was 79.44%). Spread 3.86 pts. **Lambeth is a TIE vs UCL (p=0.1941).** Single-seed noise band ≈4 pts - effects below that are uninterpretable |
 | V9 | weight_decay=0.01 cross-borough | ☑ | Must replicate before adoption | **NOT ADOPTED**: n=18 pooled **-0.60, p=0.6061**. Effect shrank monotonically with evidence: +2.53 (n=6) -> +0.53 (n=12) -> -0.60 (n=18). Third false positive caught |
 
+### Phase 1b — Coverage gaps found by audit (2026-09-04 22:00)
+
+An audit against this ledger found that **six Phase-1 findings are
+LAMBETH-ONLY and SINGLE-SEED**, which contradicts two things this
+project established the same day: single-seed noise is ~4 points, and
+three of three single-borough candidates failed replication.
+
+| ID | Finding | Coverage | Action |
+|---|---|---|---|
+| C1 | Architecture ablation ("topology decisive") | Lambeth, seed 42 | ◐ replicating key arms on Westminster |
+| C2 | 13 features ≈ 35 features | Lambeth, seed 42 | ☐ replicate |
+| C3 | Road class harmful | Lambeth, seed 42 | ☐ replicate |
+| C4 | Pruning −6.89 | Lambeth, seed 42 | ☐ (superseded by C2 - the ladder is the better test) |
+| C5 | Table-start control | Lambeth, seed 42 | ☐ low priority - it was a negative control, and it agreed with the baseline |
+| C6 | Head-to-head vs their architecture | Lambeth, seed 42 | ☐ replicate if the paper claims it |
+
+**Effects below ~4 points in those tables are NOT trustworthy** and must
+be reported as "not distinguishable from seed noise": hidden size
+(−2.87), decoder family (−3.50), and every intermediate step of the
+feature ladder.
+
+**Effects comfortably above the noise band** — layers (−26.46), encoder
+order (−13.61), history horizon (+15.87), network (+11.59) — are
+plausible but still need one replication each before publication.
+
 ### Phase 2 — Strengthening
 
 | ID | Task | State | Notes |
@@ -117,8 +142,12 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 
 ## 5. Next action
 
-Always the topmost ☐ or ◐ row in §3 Phase 1. Currently: **V4 (running)**,
-then **V5**, then **V6**.
+Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
+Currently: **C1 (running)**, then C2, then C3.
+
+**Phase 2 is deliberately NOT started**: adding five new boroughs tests
+breadth, but the central claim is not yet replicated even once. Depth
+before breadth.
 
 ---
 
