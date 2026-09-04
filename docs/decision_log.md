@@ -5120,3 +5120,51 @@ now running to separate those two effects.
    exact inputs and by simulating the loop in isolation.
 3. **There is no version control on this repo**, so no diff was
    available to find what changed. `git init` before any further work.
+
+### RESOLVED: the table-start confound is NOT the cause - history horizon is
+
+The fixed control (both arms short-features-only, differing ONLY in
+feature-table start) settles the question the buggy run could not:
+
+| Configuration | AccHR@20 |
+|---|---|
+| Original baseline (table 2022, short features) | 63.59% |
+| Control arm 1 (table 2022, short features) | **63.32%** |
+| Control arm 2 (table 2021, short features) | **63.57%** |
+| Multi-year (table 2021, FULL history ladder) | **79.44%** |
+
+**Table start is worth +0.25 points. History horizon is worth +15.87.**
+
+Arm 1 reproducing the original baseline to within 0.27 points also
+confirms the bug fix is correct and the original numbers are sound.
+
+**The +15.85 long-history finding is therefore RESTORED**, and is now
+better supported than it was before this episode: it previously rested
+on a three-run chain with no negative control, and it now has an
+explicit control showing that the co-varying change (table start) does
+essentially nothing.
+
+### The residual float-accumulation artefact, quantified
+
+Arm 1 (63.32%) differs slightly from the original (63.59%) despite
+provably bit-identical instance tensors - all 12 instances, all 30
+columns, verified `maxdiff = 0.0`. The cause is that the control derives
+its 30 columns via `x[:, :, col_idx]`, whose memory layout differs from
+a natively-30-column array, so `np.mean`/`np.std` accumulate in a
+different order. Measured effect on the fitted standardiser: `std` max
+2.057e+03 vs 2.063e+03 (~0.3%).
+
+**Amplified through 200 training epochs, that ~0.3% input difference
+moves single windows by up to ~2.6 points (53.85% vs 56.41%) while
+moving the 6-window mean by only 0.27 points.** Worth reporting as a
+reproducibility caveat: per-window figures at this sparsity are
+sensitive to bit-level numerical details, but window-averaged results
+are stable. It is another instance of the same underlying property this
+project has met repeatedly - a coarse top-k metric on very few positives
+amplifies small numerical differences at the selection boundary.
+
+### Where the day's three positions finally land
+
+1. "+15.85 from history horizon" - **CORRECT** (restored, now with a control)
+2. "no, +0.51, it was the table start" - **WRONG** (artefact of the config bug)
+3. "the confound is untested" - superseded; it is now tested and negative

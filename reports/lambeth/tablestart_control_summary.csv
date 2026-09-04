@@ -1,0 +1,3 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+table starts 2022 (= instance grid start; partial early rolling features),0.6332223332223331,0.10473727423138218,0.5071428571428571,0.7692307692307693,6
+table starts 2021 (complete early rolling features),0.6356948606948606,0.10532136707471627,0.48928571428571427,0.7692307692307693,6
