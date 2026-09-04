@@ -5372,3 +5372,59 @@ alongside V5's label-shuffle PASS, the evidence is that this model is
 underfit rather than overfit at its current feature count - which makes
 V10 (the feature-count ladder) more interesting, not less: the
 single-window hint that 26 features beat 35 now looks likely to be noise.
+
+## 2026-09-04 - V10 feature ladder: 13 features match 35, and V6's interpretation was over-read
+
+Full 6-window ladder, groups added in a fixed a-priori order, paired
+against the 35-feature final model:
+
+| Config | AccHR@20 | vs 35 | p |
+|---|---|---|---|
+| 13 (geometry + crash history) | 78.77% | -0.99 | 0.3473 |
+| 18 (+ casualty breakdown) | 77.77% | -1.99 | 0.0987 |
+| 21 (+ traffic exposure) | 76.15% | -3.61 | 0.1273 |
+| 26 (+ POI) | **79.99%** | +0.23 | 0.8875 |
+| 35 (+ socio-demographic) | 79.76% | - | - |
+
+**Nothing on the ladder is significantly different from the full model.**
+
+### Finding 1: the model can be 13 features instead of 35
+
+Geometry (length, degrees, day-of-week) plus the full crash-history
+ladder reaches 78.77% versus 79.76% - a 0.99-point gap at p=0.3473.
+Every other feature group combined (casualty breakdown, traffic
+exposure, POI, socio-demographic - 22 columns) is worth approximately
+one point, and not significantly.
+
+This is the better model to publish: simpler to describe, cheaper to
+reproduce, far less exposed to the overfitting question, and it drops
+the dependency on IMD/Census and OSM POI data entirely.
+
+### Finding 2: V6's conclusion was over-read, and is corrected here
+
+V6 found that dropping the 5 casualty columns FROM THE FULL 35 costs
+-6.89 points (p=0.0014, 0/6 windows), and this log recorded that as
+"the casualty columns are LOAD-BEARING". **That over-states what the
+experiment showed.** The ladder finds that ADDING those same columns to
+a 13-feature model makes it WORSE (-1.00). Both results cannot mean
+"these columns carry ~7 points of signal".
+
+The consistent reading: the specific 30-feature configuration V6 built
+is unusually bad, and the -6.89 is a property of that configuration
+rather than a measure of the columns' value. The claim is softened
+accordingly.
+
+### Finding 3: feature-group attribution is unreliable in this model
+
+The ladder is non-monotonic - 78.77 -> 77.77 -> 76.15 -> 79.99 -> 79.76
+- with intermediate configurations WORSE than either endpoint, and every
+step inside the noise band. Adding exposure alone costs 2.6 points;
+adding POI on top of it recovers 3.8. These groups interact, so no
+single group's contribution can be read off in isolation.
+
+**Consequence for the write-up**: report feature groups as a ladder with
+confidence intervals, never as "feature X is worth Y points". The
+earlier per-feature nulls in this project's ledger (road class, date,
+POI-20, weather) should be read the same way - as "no detectable effect
+in that configuration", not as evidence about those data sources
+generally.

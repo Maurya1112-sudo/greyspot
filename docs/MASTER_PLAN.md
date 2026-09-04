@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 14:23 (V6 complete)
+Last updated: 2026-09-04 16:13 (V10 complete; V6 interpretation corrected)
 
 ---
 
@@ -64,8 +64,8 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V3 | Network metric-confound | ☑ | Random invariant over 200 seeds; identical crash counts | Claim survives |
 | V4 | Architecture ablation (7 arms) | ☑ | Each arm differs in exactly 1 key (verified programmatically) | **TOPOLOGY matters, CAPACITY does not**: layers 1->2 -26.46 (p=0.0003); encoder order -13.61 (p=0.0135); decoder -3.50 (null); hidden 42/42 -2.87 (null); weight_decay +2.53 -> **later rejected at n=18 (V9)**. Effects exceed the 19-pt gap -> non-additive |
 | V5 | Overfitting audit | ☑ | Label-shuffle must collapse to ~20% | **PASS**: shuffled 23.08% vs real 75.64% (random 19.96±3.46). First version permuted the TIME axis and returned bit-identical scores - caught by R3 |
-| V6 | Re-run pruning test (was ✗) | ☑ | Must differ from baseline now the bug is fixed | **-6.89, 0/6 wins, p=0.0014**. Casualty columns are LOAD-BEARING. Reverses v1's false 'null'. Argues AGAINST overfitting |
-| V10 | Feature-count ladder, 6 windows + significance | ◐ | 26 features beat 35 on one window - needs full test | single-window hint only |
+| V6 | Re-run pruning test (was ✗) | ☑ | Must differ from baseline now the bug is fixed | **-6.89, 0/6 wins, p=0.0014** for that specific 30-feature config. **Interpretation SOFTENED by V10**: adding the same columns to a 13-feature model HURTS, so this is a property of that configuration, not the columns' value |
+| V10 | Feature-count ladder, 6 windows + significance | ☑ | Full ladder + paired tests | **13 features == 35 features** (-0.99, p=0.3473). Nothing on the ladder differs significantly. Non-monotonic -> feature-group attribution unreliable. **Corrects V6's over-read** |
 | V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
 | V8 | Multi-seed check on headline | ☐ | 5 seeds on 1 borough; report mean±std | — |
 | V9 | weight_decay=0.01 cross-borough | ☑ | Must replicate before adoption | **NOT ADOPTED**: n=18 pooled **-0.60, p=0.6061**. Effect shrank monotonically with evidence: +2.53 (n=6) -> +0.53 (n=12) -> -0.60 (n=18). Third false positive caught |
