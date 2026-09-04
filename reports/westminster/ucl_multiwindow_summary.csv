@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 (validating on a second borough),0.5013878978164692,0.07317443863351508,0.4064102564102564,0.5954545454545455,6

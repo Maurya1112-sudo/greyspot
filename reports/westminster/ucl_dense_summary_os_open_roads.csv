@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + POI + socio-demographic + REAL OS Open Roads network, DENSE protocol",0.628047778940636,0.08631350169551161,0.5206959706959707,0.7794784580498867,6

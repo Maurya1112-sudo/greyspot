@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio-demographic + REAL OS Open Roads network + TCR target + ZITD/Tweedie decoder,0.6349874662374663,0.11273599053623685,0.48928571428571427,0.7948717948717949,6

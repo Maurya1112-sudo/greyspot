@@ -1,0 +1,3 @@
+confidence_level,empirical_coverage,mean_interval_width,n_test,model
+0.9,0.9085010593220338,0.8831197077698731,7552,xgboost
+0.9,0.8844014830508474,0.9671509265899658,7552,gat_temporal

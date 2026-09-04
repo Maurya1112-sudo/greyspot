@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + POI + socio-demographic + REAL OS Open Roads network, 5-seed ENSEMBLE",0.6249361749361748,0.1138716345374489,0.45,0.7564102564102563,6

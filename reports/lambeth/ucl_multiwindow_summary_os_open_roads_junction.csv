@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio-demographic + REAL OS network + JUNCTION redistribution,0.5342837717837717,0.026556296545101065,0.5128205128205128,0.5897435897435896,6

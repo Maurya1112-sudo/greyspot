@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "apps/web/src/App.css"
+        ],
+        "createdAt": "2026-09-01T11:14:47.054Z",
+        "reason": "queue-row--selected::before is a genuine selection-state indicator on a list row, not a decorative card accent - same sanctioned exception the prior GOV.UK system documented and carried forward explicitly in DESIGN.md/style-notes.md ('the one legitimate accent bar in the system is the priority queue's selected row')"
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+# Large data - never committed (multi-GB, redownloadable from public sources)
+data/raw/
+data/interim/
+data/processed/
+oproad_gpkg_gb/
+*.graphml
+*.gpkg
+
+# Model/report outputs are regenerable; keep the CSVs that back claims
+reports/**/*.html
+reports/figures/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Local scratch
+/tmp/
+*.log
+
+# Large source archives and caches (redownloadable; must never be committed)
+*.zip
+*.pdf
+cache/
+data/

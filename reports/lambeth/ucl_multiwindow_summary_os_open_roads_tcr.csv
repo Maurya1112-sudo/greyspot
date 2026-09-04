@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio-demographic + REAL OS Open Roads network + TCR target,0.6165029415029415,0.11524424085884646,0.48928571428571427,0.7692307692307693,6

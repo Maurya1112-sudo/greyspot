@@ -1,0 +1,3 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + early_stopping(patience=10, val_instances=2, max_epochs=300)",0.25090451424580734,0.05771382464872607,0.15254237288135594,0.34782608695652173,6
+"heads=3 + early_stopping(patience=10, val_instances=3, max_epochs=300)",0.27803210461477207,0.038351581501520765,0.22033898305084745,0.3269230769230769,6

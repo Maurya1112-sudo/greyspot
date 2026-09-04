@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3, input_window=14 (symmetric, matches predecessor paper)",0.42308629183565066,0.0789224076978424,0.3333333333333333,0.5531914893617021,6

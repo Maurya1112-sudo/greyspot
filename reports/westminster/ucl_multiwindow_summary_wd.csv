@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + weight_decay=1e-4 (isolated),0.47087006355220923,0.053201674514715205,0.391304347826087,0.5576923076923077,6

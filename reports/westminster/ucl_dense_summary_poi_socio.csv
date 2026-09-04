@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + POI + socio-demographic, DENSE protocol (paper's own N=20/p=14/stride=14, calendar-spread windows)",0.4334717861503576,0.10316535865549743,0.29472789115646253,0.5595238095238095,6

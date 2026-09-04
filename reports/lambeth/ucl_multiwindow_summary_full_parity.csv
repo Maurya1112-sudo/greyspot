@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+FULL Table 7.2 PARITY: REAL OS network + POI 20-class + socio 8 + road class 8 + date 4,0.5975758038258038,0.07606961956565475,0.5180555555555556,0.741025641025641,6

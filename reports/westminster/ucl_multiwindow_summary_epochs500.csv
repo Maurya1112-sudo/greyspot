@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3, epochs=500 (vs 200)",0.43929417425372863,0.0533196325022375,0.34782608695652173,0.5,6

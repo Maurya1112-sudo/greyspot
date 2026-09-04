@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + REAL OS network + hidden=42/42 (paper's own stated size),0.6005645148502291,0.11813436237663019,0.48882783882783887,0.8064102564102564,6

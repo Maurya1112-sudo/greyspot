@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + POI + socio-demographic + consolidated network (~4,324 segments)",0.5260022385022385,0.09897357936521395,0.36538461538461536,0.644047619047619,6

@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio + REAL OS network + ROAD CLASS (8) + DATE (4) features,0.637408424908425,0.04546343621996449,0.5750000000000001,0.7115384615384615,6

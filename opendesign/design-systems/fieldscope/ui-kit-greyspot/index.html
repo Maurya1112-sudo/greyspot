@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fieldscope — Greyspot UI kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+@import url("../tokens/colors_and_type.css");
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--paper-0);
+  color: var(--ink-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- kit chrome (not part of the shipped product) ------------------- */
+.kit-intro {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  max-width: 720px;
+}
+.kit-intro h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-2);
+}
+.kit-intro p {
+  font-size: var(--text-base);
+  color: var(--ink-2);
+  line-height: var(--leading-base);
+  margin: 0 0 var(--space-2);
+}
+.kit-intro code { font-family: var(--font-mono); font-size: 0.85em; background: var(--paper-2); padding: 1px 5px; border-radius: var(--radius-sm); }
+
+/* ---- app shell -------------------------------------------------------- */
+.app-shell { display: flex; flex-direction: column; border-top: 1px solid var(--paper-line); }
+
+/* ---- header (chassis) -------------------------------------------------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: var(--chassis-0);
+  box-shadow: var(--shadow-chassis-glow);
+  border-bottom: 1px solid var(--chassis-line);
+  position: relative;
+}
+.app-header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 40%, transparent 100%);
+  opacity: 0.85;
+}
+.app-header-left { display: flex; align-items: center; gap: var(--space-4); }
+.app-logo {
+  display: flex; align-items: baseline; gap: var(--space-2); margin: 0;
+  font-family: var(--font-display); font-weight: 600;
+}
+.app-logo-mark { font-size: var(--text-xl); color: var(--fog-1); letter-spacing: var(--tracking-tight); }
+.app-logo-suffix { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: var(--fog-3); }
+.phase-tag {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-body); font-weight: 700; font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label); text-transform: uppercase;
+  color: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+}
+.borough-select {
+  font: inherit; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600;
+  padding: 7px var(--space-3);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--chassis-1);
+  color: var(--fog-1);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.borough-select:hover { background: var(--chassis-2); border-color: var(--accent); }
+
+.app-header-right { display: flex; align-items: center; gap: var(--space-5); }
+.audit-item { display: inline-flex; flex-direction: column; line-height: 1.3; gap: 2px; }
+.audit-label { font-family: var(--font-body); color: var(--fog-3); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+.audit-value { font-family: var(--font-mono); color: var(--fog-1); font-weight: 600; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+
+/* ---- main grid --------------------------------------------------------- */
+.app-main { display: grid; grid-template-columns: 1fr 360px 400px; min-height: 640px; }
+
+/* ---- map column (chassis) ---------------------------------------------- */
+.map-column { position: relative; background: var(--chassis-2); border-right: 1px solid var(--paper-line); display: flex; flex-direction: column; }
+.map-view-wrapper { position: relative; flex: 1; overflow: hidden; }
+.map-canvas-placeholder {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in oklch, var(--chassis-1) 70%, transparent), transparent 55%),
+    repeating-linear-gradient(115deg, var(--chassis-1) 0px, var(--chassis-1) 42px, var(--chassis-2) 42px, var(--chassis-2) 84px);
+}
+.map-canvas-placeholder svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-legend {
+  position: absolute; left: var(--space-4); bottom: var(--space-4); z-index: 2;
+  background: oklch(24% 0.019 250 / 0.92);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs); color: var(--fog-2);
+  box-shadow: var(--shadow-chassis-glow);
+  backdrop-filter: blur(6px);
+}
+.map-legend-title { font-weight: 700; color: var(--fog-1); margin-bottom: 6px; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+.map-legend-bar { height: 6px; width: 170px; border-radius: var(--radius-sm); background: linear-gradient(to right, var(--risk-low), var(--risk-mid), var(--risk-high)); }
+.map-legend-row { display: flex; justify-content: space-between; margin-top: 4px; }
+.map-legend-nodata { display: flex; align-items: center; gap: 6px; margin-top: var(--space-2); }
+.map-legend-nodata-swatch { width: 14px; height: 4px; border-radius: 2px; background: var(--risk-none); }
+
+.map-3d-toggle {
+  position: absolute; top: var(--space-4); left: var(--space-4); z-index: 2;
+  font: inherit; font-family: var(--font-body); font-size: var(--text-xs); font-weight: 700;
+  background: oklch(24% 0.019 250 / 0.92); color: var(--fog-1);
+  border: 1px solid var(--chassis-line-strong); border-radius: var(--radius-md);
+  padding: 7px 13px; cursor: pointer;
+  box-shadow: var(--shadow-chassis-glow);
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+.map-3d-toggle:hover { background: var(--chassis-1); transform: translateY(-1px); }
+.map-3d-toggle[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent); color: var(--paper-1); }
+
+.map-streetview-chip {
+  position: absolute; bottom: var(--space-4); right: var(--space-4); z-index: 2;
+  font-size: var(--text-xs); font-weight: 700; text-decoration: none;
+  background: oklch(24% 0.019 250 / 0.92); color: var(--accent-soft);
+  border: 1px solid var(--chassis-line-strong); border-radius: var(--radius-md);
+  padding: 7px 13px;
+  box-shadow: var(--shadow-chassis-glow);
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.map-streetview-chip:hover { background: var(--chassis-1); color: var(--accent); }
+
+.map-hover-card {
+  position: absolute; z-index: 3; left: 46%; top: 38%; pointer-events: none;
+  background: var(--paper-1); border: 1px solid var(--paper-line);
+  border-radius: var(--radius-md); padding: 10px 13px; min-width: 190px;
+  box-shadow: var(--shadow-paper-2);
+  font-size: var(--text-sm);
+  animation: hover-card-in var(--duration-fast) var(--ease-decelerate);
+}
+@keyframes hover-card-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.map-hover-card-title { font-weight: 700; margin-bottom: 4px; color: var(--ink-1); }
+.map-hover-card-row { display: flex; align-items: center; gap: 8px; }
+.map-hover-card-type { text-transform: capitalize; color: var(--ink-2); font-size: var(--text-xs); }
+.map-hover-card-score { font-family: var(--font-mono); font-weight: 600; margin-left: auto; color: var(--ink-1); }
+
+.disclaimer-bar {
+  padding: var(--space-2) var(--space-4); font-size: var(--text-xs); color: var(--fog-3);
+  background: var(--chassis-0); border-top: 1px solid var(--chassis-line); text-align: center;
+}
+
+/* ---- shared panel chrome (paper) ---------------------------------------- */
+.panel-header { margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--paper-line-strong); }
+.panel-header h2 { margin: 0 0 2px; font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg); color: var(--ink-1); }
+.panel-subtitle { margin: 0; font-size: var(--text-sm); color: var(--ink-2); }
+
+/* ---- priority queue (paper) --------------------------------------------- */
+.priority-queue { background: var(--paper-0); padding: var(--space-4); overflow-y: auto; border-right: 1px solid var(--paper-line); }
+.queue-list { list-style: none; margin: 0; padding: 0; }
+.queue-row {
+  width: 100%; display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  border: none; border-bottom: 1px solid var(--paper-line);
+  background: transparent; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  border-radius: var(--radius-sm);
+  position: relative;
+  opacity: 0; transform: translateY(6px);
+  animation: row-in var(--duration-fast) var(--ease-decelerate) forwards;
+  transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+@keyframes row-in { to { opacity: 1; transform: translateY(0); } }
+.queue-row:hover { background: var(--paper-1); transform: translateX(2px); }
+.queue-row--selected { background: var(--accent-wash); }
+.queue-row--selected::before {
+  content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px;
+  background: var(--accent); border-radius: 2px;
+  animation: sweep-in var(--duration-fast) var(--ease-emphasized);
+}
+@keyframes sweep-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.queue-rank { width: 22px; flex-shrink: 0; font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; color: var(--ink-3); text-align: right; }
+.queue-details { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.queue-road-type { font-size: var(--text-base); font-weight: 600; text-transform: capitalize; color: var(--ink-1); }
+.queue-segment-id { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-score-group { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; }
+.queue-score { font-family: var(--font-mono); font-weight: 700; font-size: var(--text-md); min-width: 30px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.tag { display: inline-flex; align-items: center; font-weight: 700; font-size: var(--text-xs); border-radius: var(--radius-sm); padding: 3px 9px 2px; white-space: nowrap; }
+.tag--green { background: var(--risk-low-wash); color: var(--risk-low-on-paper); }
+.tag--orange { background: var(--risk-mid-wash); color: var(--risk-mid-on-paper); }
+.tag--red { background: var(--risk-high-wash); color: var(--risk-high-on-paper); }
+.tag--grey { background: var(--risk-none-wash); color: var(--ink-2); }
+
+/* ---- evidence panel (paper) --------------------------------------------- */
+.evidence-panel { background: var(--paper-0); padding: var(--space-5); overflow-y: auto; }
+.score-hero {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-4); margin-bottom: var(--space-5);
+  background: var(--paper-2); border-radius: var(--radius-lg);
+}
+.score-hero-number {
+  font-family: var(--font-display); font-weight: 600; font-size: var(--text-hero); line-height: 1;
+  color: var(--ink-1); font-variant-numeric: tabular-nums; letter-spacing: var(--tracking-tight);
+}
+.score-hero-label { font-size: var(--text-sm); color: var(--ink-2); line-height: var(--leading-base); }
+.score-hero-label .mono { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3); }
+
+.evidence-section { margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 1px solid var(--paper-line); }
+.evidence-section:last-child { border-bottom: none; margin-bottom: 0; }
+.evidence-section h3 { margin: 0 0 var(--space-3); font-family: var(--font-body); font-size: var(--text-2xs); font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+
+.component-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.component-bars li { display: grid; grid-template-columns: 132px 1fr 40px; align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
+.component-label { color: var(--ink-2); }
+.component-bar-track { height: 7px; background: var(--paper-2); border-radius: 4px; overflow: hidden; }
+.component-bar-fill {
+  display: block; height: 100%; width: 100%; background: var(--accent); border-radius: 4px;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 1s var(--ease-decelerate);
+}
+.component-value { text-align: right; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3) var(--space-4); margin: 0; }
+.evidence-grid dt { font-size: var(--text-xs); color: var(--ink-2); margin-bottom: 2px; }
+.evidence-grid dd { margin: 0; font-family: var(--font-mono); font-size: var(--text-base); font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; }
+
+.warning-text { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); background: var(--risk-mid-wash); border-radius: var(--radius-md); border: 1px solid var(--paper-line-strong); }
+.warning-text__icon {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--risk-mid-on-paper); color: var(--paper-0);
+  font-weight: 700; font-size: var(--text-sm); display: flex; align-items: center; justify-content: center;
+}
+.warning-text__text { font-size: var(--text-sm); line-height: var(--leading-base); color: var(--ink-1); }
+.warning-text__text ul { margin: 4px 0 0; padding-left: 1.1em; font-weight: 400; }
+
+@media (max-width: 1100px) {
+  .app-main { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="kit-intro">
+  <h1>Fieldscope — Greyspot UI kit</h1>
+  <p>A static, interactive recreation of the four real Greyspot surfaces — <code>Header</code>, <code>MapView</code>, <code>PriorityQueue</code>, <code>EvidencePanel</code> — restyled in the Fieldscope system. Structure and copy are taken directly from <code>apps/web/src/components/</code>; the map's live tiles are a labelled placeholder (see <code>brand/style-notes.md</code> — never hand-draw a real basemap). Reload the page to replay the entrance motion.</p>
+</div>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="app-header-left">
+      <h1 class="app-logo">
+        <span class="app-logo-mark">Greyspot</span>
+        <span class="app-logo-suffix">Government Edition</span>
+      </h1>
+      <span class="phase-tag">Beta</span>
+      <select class="borough-select" aria-label="Select borough">
+        <option>Westminster</option>
+        <option>Lambeth</option>
+        <option>Camden</option>
+      </select>
+    </div>
+    <div class="app-header-right">
+      <span class="audit-item"><span class="audit-label">Model</span><span class="audit-value">xgboost-temporal-v1</span></span>
+      <span class="audit-item"><span class="audit-label">Test year</span><span class="audit-value">2024</span></span>
+      <span class="audit-item"><span class="audit-label">Segments</span><span class="audit-value">7,552</span></span>
+      <span class="audit-item"><span class="audit-label">90% coverage</span><span class="audit-value">90.9%</span></span>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="map-column">
+      <div class="map-view-wrapper">
+        <div class="map-canvas-placeholder">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="none">
+            <line x1="40" y1="60" x2="360" y2="90" stroke="var(--risk-high)" stroke-width="3" opacity="0.9" />
+            <line x1="70" y1="140" x2="330" y2="120" stroke="var(--risk-mid)" stroke-width="3" opacity="0.9" />
+            <line x1="30" y1="220" x2="300" y2="260" stroke="var(--risk-low)" stroke-width="3" opacity="0.9" />
+            <line x1="120" y1="40" x2="150" y2="360" stroke="var(--risk-mid)" stroke-width="3" opacity="0.9" />
+            <line x1="220" y1="30" x2="260" y2="380" stroke="var(--risk-none)" stroke-width="3" opacity="0.7" />
+            <line x1="60" y1="300" x2="340" y2="320" stroke="var(--risk-high)" stroke-width="3" opacity="0.9" />
+          </svg>
+        </div>
+        <div class="map-hover-card" role="status">
+          <div class="map-hover-card-title">Park Lane</div>
+          <div class="map-hover-card-row">
+            <span class="map-hover-card-type">primary</span>
+            <span class="tag tag--red">Higher</span>
+            <span class="map-hover-card-score">78</span>
+          </div>
+        </div>
+        <button type="button" class="map-3d-toggle" aria-pressed="false">3D buildings</button>
+        <a class="map-streetview-chip" href="#" onclick="return false;">Street View: Park Lane ↗</a>
+        <div class="map-legend" aria-hidden="true">
+          <div class="map-legend-title">Priority score</div>
+          <div class="map-legend-bar"></div>
+          <div class="map-legend-row"><span>Lower</span><span>Higher</span></div>
+          <div class="map-legend-nodata"><span class="map-legend-nodata-swatch"></span><span>No recent modelled estimate</span></div>
+        </div>
+      </div>
+      <div class="disclaimer-bar">Research signal only — not a safety guarantee. Grey roads have no recent modelled estimate.</div>
+    </div>
+
+    <section class="priority-queue" aria-label="Priority queue">
+      <header class="panel-header">
+        <h2>Priority queue</h2>
+        <p class="panel-subtitle">Ranked by transparent priority score, highest first</p>
+      </header>
+      <ol class="queue-list" id="queue-list">
+        <!-- rows injected by script below, so animation-delay can stagger cleanly -->
+      </ol>
+    </section>
+
+    <aside class="evidence-panel" aria-label="Evidence panel">
+      <header class="panel-header">
+        <h2>Why this road?</h2>
+        <p class="panel-subtitle mono">56472509_34578701_0</p>
+      </header>
+
+      <div class="score-hero">
+        <span class="score-hero-number" id="score-hero-number">0</span>
+        <span class="score-hero-label">
+          priority score <span class="tag tag--red">Higher</span>
+          <br /><span class="mono">default-v1</span>
+        </span>
+      </div>
+
+      <section class="evidence-section">
+        <h3>Score breakdown</h3>
+        <ul class="component-bars" id="component-bars">
+          <li><span class="component-label">Risk signal</span><span class="component-bar-track"><span class="component-bar-fill" data-value="82"></span></span><span class="component-value">0.82</span></li>
+          <li><span class="component-label">Severity</span><span class="component-bar-track"><span class="component-bar-fill" data-value="64"></span></span><span class="component-value">0.64</span></li>
+          <li><span class="component-label">Vulnerable users</span><span class="component-bar-track"><span class="component-bar-fill" data-value="71"></span></span><span class="component-value">0.71</span></li>
+          <li><span class="component-label">Recent trend</span><span class="component-bar-track"><span class="component-bar-fill" data-value="38"></span></span><span class="component-value">0.38</span></li>
+          <li><span class="component-label">Network importance</span><span class="component-bar-track"><span class="component-bar-fill" data-value="90"></span></span><span class="component-value">0.90</span></li>
+          <li><span class="component-label">Data confidence</span><span class="component-bar-track"><span class="component-bar-fill" data-value="55"></span></span><span class="component-value">0.55</span></li>
+        </ul>
+      </section>
+
+      <section class="evidence-section">
+        <h3>Observed history (prior year)</h3>
+        <dl class="evidence-grid">
+          <div><dt>Collisions</dt><dd>6</dd></div>
+          <div><dt>Fatal casualties</dt><dd>0</dd></div>
+          <div><dt>Serious casualties</dt><dd>2</dd></div>
+          <div><dt>Pedestrian casualties</dt><dd>1</dd></div>
+          <div><dt>Cyclist casualties</dt><dd>1</dd></div>
+        </dl>
+      </section>
+
+      <section class="evidence-section">
+        <h3>Exposure</h3>
+        <dl class="evidence-grid">
+          <div><dt>Motor vehicles/day (AADF)</dt><dd>24,180</dd></div>
+          <div><dt>Pedal cycles/day (AADF)</dt><dd>310</dd></div>
+        </dl>
+      </section>
+
+      <section class="evidence-section">
+        <h3>Model evidence</h3>
+        <dl class="evidence-grid">
+          <div><dt>Predicted relative risk</dt><dd>1.94</dd></div>
+          <div><dt>90% interval width</dt><dd>0.87</dd></div>
+          <div><dt>Model version</dt><dd class="mono">xgboost-temporal-v1</dd></div>
+        </dl>
+      </section>
+
+      <section class="evidence-section evidence-section--limitations">
+        <h3>Limitations</h3>
+        <div class="warning-text" role="note">
+          <span class="warning-text__icon" aria-hidden="true">!</span>
+          <div class="warning-text__text">
+            <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Warning</span>
+            <ul>
+              <li>Model trained on 2019–2023 collisions; may not reflect very recent road changes.</li>
+              <li>Priority score is a decision-support signal, not a certified risk assessment.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<script>
+// Demo-only wiring: replays the entrance/selection/count-up motion described
+// in brand/style-notes.md so the system can be reviewed without the real
+// React app running. None of this logic ships — the real motion lives in
+// apps/web/src/components/*.tsx and App.css.
+const rows = [
+  { rank: 1, type: "Primary", id: "56472509_34578701_0", band: "red", label: "Higher", score: 78, selected: true },
+  { rank: 2, type: "Residential", id: "1961861475_1974138060_0", band: "red", label: "Higher", score: 72 },
+  { rank: 3, type: "Unclassified", id: "101842_101877_0", band: "red", label: "Higher", score: 71 },
+  { rank: 4, type: "Residential", id: "108275_1607421000_0", band: "red", label: "Higher", score: 69 },
+  { rank: 5, type: "Primary", id: "107786_107790_0", band: "orange", label: "Medium", score: 65 },
+  { rank: 6, type: "Tertiary", id: "25508644_25508642_0", band: "orange", label: "Medium", score: 60 },
+  { rank: 7, type: "Primary", id: "9791482_25500709_0", band: "orange", label: "Medium", score: 53 },
+  { rank: 8, type: "Unclassified", id: "473685478_473685487_0", band: "orange", label: "Medium", score: 49 },
+];
+const list = document.getElementById("queue-list");
+rows.forEach((r, i) => {
+  const li = document.createElement("li");
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "queue-row" + (r.selected ? " queue-row--selected" : "");
+  btn.style.animationDelay = (i * 26) + "ms";
+  btn.innerHTML = `
+    <span class="queue-rank">${r.rank}</span>
+    <span class="queue-details">
+      <span class="queue-road-type">${r.type}</span>
+      <span class="queue-segment-id">${r.id}</span>
+    </span>
+    <span class="queue-score-group">
+      <span class="tag tag--${r.band}">${r.label}</span>
+      <span class="queue-score">${r.score}</span>
+    </span>`;
+  li.appendChild(btn);
+  list.appendChild(li);
+});
+
+// Score hero count-up (mirrors the "selection handshake" pattern).
+const target = 78;
+const el = document.getElementById("score-hero-number");
+const start = performance.now();
+const duration = 900;
+function tick(now) {
+  const t = Math.min(1, (now - start) / duration);
+  const eased = 1 - Math.pow(1 - t, 3);
+  el.textContent = Math.round(eased * target);
+  if (t < 1) requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+// Score-breakdown bars fill on paint.
+requestAnimationFrame(() => {
+  document.querySelectorAll(".component-bar-fill").forEach((el, i) => {
+    setTimeout(() => { el.style.transform = `scaleX(${el.dataset.value / 100})`; }, 200 + i * 40);
+  });
+});
+</script>
+</body>
+</html>

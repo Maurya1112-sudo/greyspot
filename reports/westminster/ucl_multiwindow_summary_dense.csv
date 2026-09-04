@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 (dense protocol, 3-window - see this file's own docstring)",0.43444749694749696,0.0931159164118005,0.3125,0.5384615384615384,3

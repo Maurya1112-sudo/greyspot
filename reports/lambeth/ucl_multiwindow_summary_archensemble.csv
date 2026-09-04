@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"ARCHITECTURE ENSEMBLE: rank-average of hidden 16/32, 42/42, and 2-layer",0.6537434787434787,0.08423757839879273,0.5428571428571428,0.7628205128205128,6

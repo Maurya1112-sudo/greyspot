@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + REAL OS network + POI + socio + WEATHER (re-test on the real network),0.6447677322677322,0.12109556763778705,0.4916666666666667,0.7727272727272727,6

@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + REAL OS network + POI at 20-CLASS granularity (paper Table 7.2 parity) + socio,0.6130353442853442,0.06809866739482266,0.5369047619047619,0.6969696969696969,6

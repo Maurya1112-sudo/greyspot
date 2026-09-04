@@ -1,0 +1,13 @@
+/* Minimal reset only - all real styling lives in App.css. The Vite
+   scaffold's default index.css centred #root at a fixed width with
+   text-align:center, which fights this app's full-height flex layout. */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}

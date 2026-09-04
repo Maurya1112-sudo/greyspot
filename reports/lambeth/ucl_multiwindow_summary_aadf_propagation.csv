@@ -1,0 +1,3 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"current best (has_aadf 1.56% coverage, real DfT points only)",0.6289488289488289,0.10794432854361537,0.5071428571428571,0.7692307692307693,6
+AADF name-propagation (has_aadf 28.35% coverage),0.5247120934620934,0.06541236616653817,0.4708333333333334,0.6602564102564101,6

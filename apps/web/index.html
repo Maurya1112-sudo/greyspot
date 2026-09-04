@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greyspot: Government Edition</title>
+    <meta name="description" content="Uncertainty-aware road-risk prioritisation for London borough road-safety analysts." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!--
+      IMPECCABLE DIRECTION CONTRACT (2026-09-01, "Fieldscope" redesign -
+      full creative departure from the 2026-08-31 GOV.UK pass, requested
+      explicitly via the OpenDesign plugin: "redesign my whole project...
+      be as much creative as you want, animation all the stuff, it should
+      not look like AI slop... keep in mind the flow and also the backend
+      works." Full rationale: DESIGN.md and
+      opendesign/design-systems/fieldscope/README.md.)
+      THESIS: Greyspot reads as a precision survey instrument, not a
+      government form and not a SaaS dashboard - one physical object with
+      two zones (a warm "paper" analysis surface, a dark "chassis" bezel),
+      not a single flat theme.
+      OWN-WORLD: paper tokens (--paper-*, --ink-*) for the priority queue
+      and evidence panel; chassis tokens (--chassis-*, --fog-*) for the
+      header and map; a single verdigris accent (--accent) reserved for
+      identity/interaction, never risk data; RAG (red/amber/green)
+      preserved exactly as the one risk-severity language; STIX Two Text
+      (display, chosen for its academic/publication association) + Archivo
+      (UI) + IBM Plex Mono (data).
+      STORY: an analyst reads the map and queue as one live instrument,
+      watches a selection travel between them (camera move, row scroll,
+      score count-up) as one synchronised event rather than three separate
+      UI updates, and never mistakes "no modelled estimate" for "safe."
+      FIRST VIEWPORT: dark chassis header (wordmark + accent-bordered Beta
+      tag + borough select + audit trail) above a three-column layout -
+      chassis map with a floating glass legend, paper priority queue with
+      staggered entrance, paper evidence panel closing on a warning-text
+      limitations block.
+      FINISH: unreviewed and undocumented is unfinished; this build ends
+      with live-browser verification (motion actually firing, contrast
+      actually checked, MapLibre actually able to parse the colours it's
+      given) and DESIGN.md updated to match what shipped.
+    -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

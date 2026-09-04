@@ -1,0 +1,3 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"current best (30 features, incl. 5 redundant casualty-severity columns)",0.6358932733932733,0.10278672877994605,0.5071428571428571,0.7692307692307693,6
+"pruned (25 features, casualty-severity breakdown dropped)",0.6289488289488289,0.10794432854361537,0.5071428571428571,0.7692307692307693,6

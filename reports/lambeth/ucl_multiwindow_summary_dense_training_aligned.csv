@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + REAL OS network + DENSE TRAINING (stride=14 pool, same 6 eval windows)",0.602056277056277,0.0915707806329472,0.5064102564102564,0.7575757575757575,6

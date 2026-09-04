@@ -1,0 +1,5 @@
+split,model,n,n_with_collision,pr_auc,spearman_rank_corr,precision_at_10,precision_at_25,precision_at_50
+temporal,gat_best_config,7552,859,0.4235716932231822,0.3568367364658538,0.9,0.92,0.78
+spatiotemporal,gat_best_config,1510,192,0.3495518098546179,0.3107320773520271,0.6,0.56,0.5
+temporal,gat_no_graph (1 head),7552,859,0.3361700489641223,0.2797646311972765,1.0,0.76,0.64
+temporal,gat_no_temporal (1 head + residual),7552,859,0.27663905472548045,0.1305439137638128,0.8,0.76,0.64

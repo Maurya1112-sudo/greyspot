@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio-demographic (Table 7.2 feature parity attempt),0.5557670504099076,0.15171256506193265,0.37820512820512814,0.8472527472527474,6

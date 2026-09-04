@@ -1,0 +1,950 @@
+/* ==========================================================================
+   Greyspot design tokens - "Fieldscope": a precision survey instrument.
+   Full creative departure from the project's earlier GOV.UK identity
+   (2026-09-01, requested via the OpenDesign plugin - see DESIGN.md for the
+   concept and docs/decision_log.md for the applied history). Canonical
+   source: opendesign/design-systems/fieldscope/tokens/colors_and_type.css
+   - kept in sync manually since this app doesn't build across that path.
+   ========================================================================== */
+
+:root {
+  /* ---- Paper zone (queue, evidence panel, disclaimer bar) ------------- */
+  --paper-0: oklch(97.5% 0.006 80);
+  --paper-1: oklch(99% 0.004 80);
+  --paper-2: oklch(93.5% 0.009 80);
+  --paper-line: oklch(87% 0.012 80);
+  --paper-line-strong: oklch(78% 0.014 80);
+
+  --ink-1: oklch(21% 0.012 75);
+  --ink-2: oklch(42% 0.014 75);
+  --ink-3: oklch(55% 0.012 75); /* darkened from 60% 2026-09-01: measured 3.68:1 on --paper-0, below AA's 4.5:1 for the small mono text it's used on (segment IDs) */
+
+  /* ---- Chassis zone (header, map) -------------------------------------- */
+  --chassis-0: oklch(19% 0.018 250);
+  --chassis-1: oklch(24.5% 0.019 250);
+  --chassis-2: oklch(14.5% 0.017 250);
+  --chassis-line: oklch(33% 0.02 250);
+  --chassis-line-strong: oklch(42% 0.022 250);
+
+  --fog-1: oklch(94% 0.006 250);
+  --fog-2: oklch(74% 0.012 250);
+  --fog-3: oklch(60% 0.014 250); /* lightened from 55% 2026-09-01: measured 3.81:1 on --chassis-0, below AA's 4.5:1 for the small audit-label text it's used on */
+
+  /* ---- Brand accent (verdigris) - identity/interaction only, never risk */
+  --accent-l: 58%;
+  --accent-c: 0.084;
+  --accent-h: 196;
+  --accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  --accent-strong: oklch(calc(var(--accent-l) - 16%) calc(var(--accent-c) + 0.01) var(--accent-h));
+  --accent-soft: oklch(calc(var(--accent-l) + 30%) calc(var(--accent-c) - 0.045) var(--accent-h));
+  --accent-wash: oklch(calc(var(--accent-l) + 37%) 0.025 var(--accent-h));
+
+  /* ---- RAG risk scale (semantic, not decorative) ----------------------- */
+  --risk-low: oklch(52% 0.135 152);
+  --risk-low-on-paper: oklch(38% 0.11 152);
+  --risk-low-wash: oklch(93% 0.045 152);
+  --risk-mid: oklch(68% 0.15 55);
+  --risk-mid-on-paper: oklch(42% 0.13 48);
+  --risk-mid-wash: oklch(92% 0.06 60);
+  --risk-high: oklch(55% 0.19 25);
+  --risk-high-on-paper: oklch(42% 0.18 25);
+  --risk-high-wash: oklch(92% 0.06 20);
+  --risk-none: oklch(62% 0.01 250);
+  --risk-none-wash: oklch(90% 0.006 250);
+  --error: var(--risk-high-on-paper);
+  --error-wash: var(--risk-high-wash);
+
+  /* MapLibre's own paint-property colour parser understands hex/rgb/hsl,
+     not CSS oklch() strings - and it never asks the browser to resolve a
+     custom property for us (paint colours are compiled to GPU uniforms,
+     not read through getComputedStyle's normal value-resolution path,
+     which is precisely why MapView.tsx's cssColor() helper exists - it
+     substitutes a literal if the property is unreadable). These hex
+     mirrors are computed directly from the oklch tokens above (same
+     OKLab->sRGB math a browser performs) purely so the map's RAG lines
+     and selection outline can read a colour MapLibre can actually parse.
+     If the oklch tokens above ever change, recompute these too - see the
+     conversion script noted in docs/decision_log.md's Fieldscope entry. */
+  --risk-low-hex: #067e3f;
+  --risk-mid-hex: #dd7b2b;
+  --risk-high-hex: #c92f33;
+  --risk-none-hex: #82878c;
+  --selection-outline-hex: #fdfbf9; /* = --paper-1, used for the selected-segment outline on the map */
+
+  /* ---- Type -------------------------------------------------------------
+     STIX Two Text (display) / Archivo (body+UI) / IBM Plex Mono (data) -
+     see DESIGN.md's Typography section for why each face does one job. */
+  --font-display: "STIX Two Text", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Archivo", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.375rem;
+  --text-xl: 2rem;
+  --text-hero: 3.75rem;
+
+  --tracking-label: 0.06em;
+  --tracking-tight: -0.01em;
+  --leading-base: 1.45;
+
+  /* ---- Space, shape, elevation ------------------------------------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 40px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  --shadow-paper-1: 0 1px 2px oklch(21% 0.012 75 / 0.06), 0 2px 8px oklch(21% 0.012 75 / 0.06);
+  --shadow-paper-2: 0 2px 4px oklch(21% 0.012 75 / 0.08), 0 8px 24px oklch(21% 0.012 75 / 0.1);
+  --shadow-chassis-glow: 0 0 0 1px oklch(100% 0 0 / 0.04), 0 1px 0 oklch(100% 0 0 / 0.05) inset;
+
+  /* ---- Motion - named by intent, reused everywhere; --duration-map
+     matches the MapLibre easeTo() duration already used in MapView.tsx so
+     UI and camera motion share one rhythm. */
+  --duration-instant: 100ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+  --duration-map: 700ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphasized: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper-0);
+  color: var(--ink-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+a {
+  color: var(--accent-strong);
+}
+a:hover {
+  color: color-mix(in oklch, var(--accent-strong) 80%, black);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+.small {
+  font-size: var(--text-sm);
+}
+.muted {
+  color: var(--ink-2);
+  font-size: var(--text-base);
+}
+.error-text {
+  color: var(--error);
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.govuk-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+.caveat {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  background: var(--paper-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* --- Risk tags --------------------------------------------------------- */
+.govuk-tag {
+  display: inline-block;
+  font-weight: 700;
+  font-size: var(--text-xs);
+  line-height: 1.2;
+  border-radius: var(--radius-sm);
+  padding: 3px var(--space-2) 2px;
+  white-space: nowrap;
+}
+.govuk-tag--green {
+  background: var(--risk-low-wash);
+  color: var(--risk-low-on-paper);
+}
+.govuk-tag--orange {
+  background: var(--risk-mid-wash);
+  color: var(--risk-mid-on-paper);
+}
+.govuk-tag--red {
+  background: var(--risk-high-wash);
+  color: var(--risk-high-on-paper);
+}
+.govuk-tag--grey {
+  background: var(--risk-none-wash);
+  color: var(--ink-2);
+}
+
+/* --- Warning text -------------------------------------------------------- */
+.govuk-warning-text {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--risk-mid-wash);
+  border: 1px solid var(--paper-line-strong);
+  border-radius: var(--radius-md);
+}
+.govuk-warning-text__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--risk-mid-on-paper);
+  color: var(--paper-1);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.govuk-warning-text__text {
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  color: var(--ink-1);
+}
+.govuk-warning-text__text ul {
+  margin: var(--space-1) 0 0 0;
+  padding-left: 1.1em;
+  font-weight: 400;
+}
+
+/* --- App shell ------------------------------------------------------ */
+
+.app-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chassis header - dark, cool graphite, framing the wordmark and the
+   live audit-trail readout. A soft accent gradient traces the seam below
+   it rather than a flat brand-colour bar, matching the chassis zone's
+   "backlit instrument glass" language instead of a government service
+   banner's flat identity stripe. */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: var(--chassis-0);
+  box-shadow: var(--shadow-chassis-glow);
+  border-bottom: 1px solid var(--chassis-line);
+  position: relative;
+  flex-shrink: 0;
+  z-index: 4;
+}
+.app-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 40%, transparent 100%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.app-logo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.app-logo-mark {
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fog-1);
+}
+.app-logo-suffix {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fog-3);
+}
+
+.phase-tag {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent-soft);
+  font-weight: 700;
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  padding: 1px 7px;
+  text-transform: uppercase;
+}
+
+.borough-select {
+  font: inherit;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: 7px var(--space-3);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--chassis-1);
+  color: var(--fog-1);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.borough-select:hover {
+  background: var(--chassis-2);
+  border-color: var(--accent);
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.audit-item {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.3;
+  gap: 2px;
+}
+.audit-label {
+  color: var(--fog-3);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+.audit-value {
+  font-family: var(--font-mono);
+  color: var(--fog-1);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.banner {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+}
+
+.banner--error {
+  background: var(--error-wash);
+  color: var(--error);
+  border-bottom: 3px solid var(--error);
+  font-weight: 700;
+}
+
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 360px 400px;
+  min-height: 0;
+}
+
+/* --- Map (chassis) ------------------------------------------------------ */
+
+.map-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--chassis-2);
+  border-right: 1px solid var(--paper-line);
+}
+
+.map-view-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.map-view {
+  position: absolute;
+  inset: 0;
+  /* OpenFreeMap's "liberty" style has no dark variant - a CSS filter is a
+     well-known, cheap technique for tinting a light vector basemap toward
+     a dark theme without forking the style JSON. Kept modest (not
+     inverted) so the RAG line colours drawn on top stay recognisably
+     red/amber/green, just deepened to match the chassis zone's glass.
+     Strengthened 2026-09-01 (verification pass): brightness(0.8) still
+     read as a barely-tinted light basemap on screen (near-white tiles *
+     0.8 is still near-white) - failed the brief's explicit "should NOT
+     look like a plain untouched light basemap" check. Lowered brightness
+     further and added a small hue-rotate to push the residual cream tone
+     toward the chassis zone's cool graphite rather than a darkened beige;
+     saturate/contrast raised slightly to keep the RAG road lines (already
+     mid-tone, not near-white) visually separated from the now-darker
+     background instead of also flattening toward black. */
+  filter: brightness(0.55) saturate(1.15) contrast(1.12) hue-rotate(3deg);
+}
+
+.map-legend {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 1;
+  background: color-mix(in oklch, var(--chassis-1) 92%, transparent);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--fog-2);
+  box-shadow: var(--shadow-chassis-glow);
+  backdrop-filter: blur(6px);
+}
+.map-legend-title {
+  font-weight: 700;
+  color: var(--fog-1);
+  margin-bottom: 6px;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+.map-legend-bar {
+  height: 6px;
+  width: 160px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(to right, var(--risk-low), var(--risk-mid), var(--risk-high));
+}
+.map-legend-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  margin-top: 4px;
+}
+.map-legend-nodata {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+.map-legend-nodata-swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--risk-none);
+  flex-shrink: 0;
+}
+
+/* Hover preview - stays a *paper*-toned card even though it floats over
+   the chassis map (see DESIGN.md's "Map" component notes): it's borrowed
+   reading surface, not instrument chrome, so it keeps the light-panel
+   legibility of the rest of the analysis surfaces. */
+.map-hover-card {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--paper-1);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-paper-2);
+  padding: 10px 13px;
+  min-width: 180px;
+  max-width: 260px;
+  font-size: var(--text-sm);
+  animation: hover-card-in var(--duration-fast) var(--ease-decelerate);
+}
+@keyframes hover-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.map-hover-card-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--ink-1);
+}
+.map-hover-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.map-hover-card-type {
+  text-transform: capitalize;
+  color: var(--ink-2);
+  font-size: var(--text-xs);
+}
+.map-hover-card-score {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  margin-left: auto;
+  color: var(--ink-1);
+}
+
+.map-3d-toggle {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 1;
+  font: inherit;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  background: color-mix(in oklch, var(--chassis-1) 92%, transparent);
+  color: var(--fog-1);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  padding: 7px 13px;
+  cursor: pointer;
+  box-shadow: var(--shadow-chassis-glow);
+  transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+.map-3d-toggle:hover {
+  background: var(--chassis-1);
+  transform: translateY(-1px);
+}
+.map-3d-toggle[aria-pressed="true"] {
+  background: var(--accent-strong);
+  border-color: var(--accent);
+  color: var(--paper-1);
+}
+
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: color-mix(in oklch, var(--chassis-2) 82%, transparent);
+  color: var(--fog-1);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 700;
+  backdrop-filter: blur(2px);
+}
+.map-loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--chassis-line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: map-spin 0.8s linear infinite;
+}
+@keyframes map-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-loading-spinner {
+    animation: none;
+    border-top-color: var(--chassis-line-strong);
+  }
+}
+
+.map-streetview-chip {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 1;
+  display: inline-block;
+  max-width: calc(100% - 2 * var(--space-4));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  background: color-mix(in oklch, var(--chassis-1) 92%, transparent);
+  color: var(--accent-soft);
+  border: 1px solid var(--chassis-line-strong);
+  border-radius: var(--radius-md);
+  padding: 7px 13px;
+  box-shadow: var(--shadow-chassis-glow);
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.map-streetview-chip:hover {
+  background: var(--chassis-1);
+  color: var(--accent);
+}
+
+.disclaimer-bar {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--fog-3);
+  background: var(--chassis-0);
+  border-top: 1px solid var(--chassis-line);
+  text-align: center;
+}
+
+/* --- Shared panel chrome (paper) ------------------------------------- */
+
+.panel-header {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--paper-line-strong);
+}
+
+.panel-header h2 {
+  margin: 0 0 2px 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  color: var(--ink-1);
+}
+
+.panel-subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* --- Priority queue (paper) -------------------------------------------- */
+
+.priority-queue {
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--paper-0);
+  border-right: 1px solid var(--paper-line);
+}
+
+.queue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.queue-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  border: none;
+  border-bottom: 1px solid var(--paper-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  position: relative;
+  /* Panel-entrance stagger - see DESIGN.md's Motion section. Each row's
+     JSX sets `animationDelay` from its own index so a fresh borough's
+     rows read as newly arrived data, not a static block. */
+  opacity: 0;
+  transform: translateY(6px);
+  animation: row-in var(--duration-fast) var(--ease-decelerate) forwards;
+  transition: background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+@keyframes row-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.queue-row:hover {
+  background: var(--paper-1);
+  transform: translateX(2px);
+}
+
+.queue-row--selected {
+  background: var(--accent-wash);
+}
+.queue-row--selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: sweep-in var(--duration-fast) var(--ease-emphasized);
+}
+@keyframes sweep-in {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.queue-rank {
+  width: 22px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-3);
+  text-align: right;
+}
+
+.queue-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.queue-road-type {
+  font-size: var(--text-base);
+  text-transform: capitalize;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+
+.queue-segment-id {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-score-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.queue-score {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-md);
+  min-width: 30px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Evidence panel (paper) ---------------------------------------------- */
+
+.evidence-panel {
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--paper-0);
+}
+
+.evidence-panel--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.score-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  background: var(--paper-2);
+  border-radius: var(--radius-lg);
+}
+
+.score-hero-number {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-hero);
+  color: var(--ink-1);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+}
+
+.score-hero-label {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  line-height: var(--leading-base);
+}
+
+.evidence-section {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--paper-line);
+}
+
+.evidence-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.evidence-section h3 {
+  margin: 0 0 var(--space-3) 0;
+  font-family: var(--font-body);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+.component-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.component-bars li {
+  display: grid;
+  grid-template-columns: 132px 1fr 40px;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.component-label {
+  color: var(--ink-2);
+}
+
+.component-bar-track {
+  height: 7px;
+  background: var(--paper-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Fills via `transform: scaleX()`, not `width` - animating width/height
+   triggers layout on every frame; transform is composited on the GPU and
+   costs nothing extra regardless of how many bars animate at once. The
+   scale starts at 0 in EvidencePanel.tsx's inline style and is flipped to
+   the real value one frame after mount, so the fill genuinely animates in
+   rather than snapping to place (see DESIGN.md's Motion section, pattern 4). */
+.component-bar-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transform-origin: left;
+  transition: transform var(--duration-slow) var(--ease-decelerate);
+}
+
+.component-value {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+}
+
+.evidence-grid dt {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  margin-bottom: 2px;
+}
+
+.evidence-grid dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--ink-1);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1100px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(300px, 1fr) auto auto;
+  }
+  .map-column,
+  .priority-queue {
+    border-right: none;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .app-header {
+    flex-wrap: wrap;
+  }
+  .app-header-right {
+    order: 3;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-top: var(--space-2);
+    gap: var(--space-4);
+  }
+  .audit-item {
+    flex-shrink: 0;
+  }
+}

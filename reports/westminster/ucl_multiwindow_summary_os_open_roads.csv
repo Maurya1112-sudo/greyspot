@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + POI + socio-demographic, REAL OS Open Roads network (~5,549 links/11,098 directed edges)",0.7003054485197343,0.06556471160299956,0.6301020408163265,0.8318681318681319,6

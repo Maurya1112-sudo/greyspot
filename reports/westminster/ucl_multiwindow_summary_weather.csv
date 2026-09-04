@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+"heads=3 + weather (Met Office-derived, via Open-Meteo)",0.47814103214031345,0.07951849654544557,0.34782608695652173,0.6153846153846154,6

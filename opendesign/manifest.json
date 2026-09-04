@@ -1,0 +1,22 @@
+{
+  "generated": "2026-09-01T11:11:58.955Z",
+  "sections": [
+    {
+      "id": "design-systems",
+      "label": "Design Systems",
+      "groups": [
+        {
+          "slug": "fieldscope",
+          "files": [
+            { "label": "README.md", "path": "design-systems/fieldscope/README.md" },
+            { "label": "SKILL.md", "path": "design-systems/fieldscope/SKILL.md" },
+            { "label": "voice-and-tone.md", "path": "design-systems/fieldscope/brand/voice-and-tone.md" },
+            { "label": "style-notes.md", "path": "design-systems/fieldscope/brand/style-notes.md" },
+            { "label": "colors_and_type.css", "path": "design-systems/fieldscope/tokens/colors_and_type.css" },
+            { "label": "ui-kit-greyspot/index.html", "path": "design-systems/fieldscope/ui-kit-greyspot/index.html" }
+          ]
+        }
+      ]
+    }
+  ]
+}

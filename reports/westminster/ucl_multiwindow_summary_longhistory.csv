@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + POI + socio + LONG crash history (90d/365d added),0.7539133485562056,0.07702287719261165,0.6556122448979591,0.868181818181818,6

@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + REAL OS network + CLIPPED z-scoring (+/-5 sigma),0.6361305361305362,0.07978628042572368,0.5333333333333333,0.7424242424242423,6

@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+heads=3 + rate_link=exp (paper's own reference-code log-link),0.4765238729524444,0.07977199211927617,0.3615384615384615,0.5924242424242424,6

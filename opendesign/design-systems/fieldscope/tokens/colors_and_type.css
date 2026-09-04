@@ -1,0 +1,166 @@
+/* ==========================================================================
+   Fieldscope — design tokens for Greyspot (Government Edition)
+   A full creative departure from the project's earlier GOV.UK identity.
+   See ../README.md for the rationale and ../brand/ for voice + style notes.
+
+   Concept: a precision survey instrument, not a government form. The
+   product reads as two zones of one physical object — a warm "paper"
+   workspace (queue, evidence, analysis) framed by a dark "chassis" bezel
+   (header, map viewport) — the way a real optical or scientific instrument
+   pairs a bright measurement surface with a dark machined housing. RAG risk
+   colour stays the one semantic language across every surface; the accent
+   (verdigris teal) is reserved for brand and interaction, never risk data,
+   so the two are never visually confused with each other.
+   ========================================================================== */
+
+:root {
+  /* ---- Raw palette (oklch; both zones share it) ---------------------- */
+
+  /* Paper zone — warm, not clinical white. Chroma stays low (~0.006-0.01)
+     so it still reads as a neutral, just warmed rather than the common
+     "pure white / pure grey" default. */
+  --paper-0: oklch(97.5% 0.006 80);   /* page background */
+  --paper-1: oklch(99% 0.004 80);     /* card / panel surface, lifted */
+  --paper-2: oklch(93.5% 0.009 80);   /* recessed well (score hero, bars) */
+  --paper-line: oklch(87% 0.012 80);  /* hairline borders on paper */
+  --paper-line-strong: oklch(78% 0.014 80);
+
+  --ink-1: oklch(21% 0.012 75);       /* primary text on paper */
+  --ink-2: oklch(42% 0.014 75);       /* secondary text on paper */
+  --ink-3: oklch(55% 0.012 75);       /* faint / captions on paper - darkened 2026-09-01 from 60% after measuring 3.68:1 on --paper-0 (below AA's 4.5:1 for the small mono text it's used on); 55% clears 4.5:1 */
+
+  /* Chassis zone — cool graphite, deliberately a different temperature
+     from paper (warm vs cool) rather than a plain lighten/darken of one
+     grey. This temperature split *is* the "instrument" read. */
+  --chassis-0: oklch(19% 0.018 250);   /* header / map bezel base */
+  --chassis-1: oklch(24.5% 0.019 250); /* elevated chassis surface, hover */
+  --chassis-2: oklch(14.5% 0.017 250); /* recessed chassis (map viewport well) */
+  --chassis-line: oklch(33% 0.02 250);
+  --chassis-line-strong: oklch(42% 0.022 250);
+
+  --fog-1: oklch(94% 0.006 250);      /* primary text on chassis */
+  --fog-2: oklch(74% 0.012 250);      /* secondary text on chassis */
+  --fog-3: oklch(60% 0.014 250);      /* faint text on chassis - lightened 2026-09-01 from 55% after measuring 3.81:1 on --chassis-0 (below AA's 4.5:1 for the small audit-label text it's used on); 60% clears 4.5:1 */
+
+  /* Brand accent — a single hue (verdigris), shared L/C so any future
+     second accent only ever varies hue, never intensity. Reserved for
+     identity + interaction (links, focus, selection, the wordmark) —
+     never used for risk data, so it can never be mistaken for a RAG band. */
+  --accent-l: 58%;
+  --accent-c: 0.084;
+  --accent-h: 196;
+  --accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  --accent-strong: oklch(calc(var(--accent-l) - 16%) calc(var(--accent-c) + 0.01) var(--accent-h));
+  --accent-soft: oklch(calc(var(--accent-l) + 30%) calc(var(--accent-c) - 0.045) var(--accent-h));
+  --accent-wash: oklch(calc(var(--accent-l) + 37%) 0.025 var(--accent-h)); /* tinted background, e.g. selected row */
+
+  /* ---- RAG risk scale (semantic, not decorative) ---------------------
+     Kept as the one non-negotiable colour language across map, queue and
+     evidence panel — same discipline as the previous system, re-tuned for
+     legibility on *both* paper and chassis surfaces (the map lives on
+     chassis; the queue/evidence tags live on paper), which the old
+     single-surface GOV.UK tokens never had to do. */
+  --risk-low: oklch(52% 0.135 152);        /* graphic line / on-chassis text */
+  --risk-low-on-paper: oklch(38% 0.11 152); /* AA text on paper-0/-1 */
+  --risk-low-wash: oklch(93% 0.045 152);   /* tag background on paper */
+
+  --risk-mid: oklch(68% 0.15 55);
+  --risk-mid-on-paper: oklch(42% 0.13 48);
+  --risk-mid-wash: oklch(92% 0.06 60);
+
+  --risk-high: oklch(55% 0.19 25);
+  --risk-high-on-paper: oklch(42% 0.18 25);
+  --risk-high-wash: oklch(92% 0.06 20);
+
+  --risk-none: oklch(62% 0.01 250);        /* "no modelled estimate" — desaturated on purpose */
+  --risk-none-wash: oklch(90% 0.006 250);
+
+  --error: var(--risk-high-on-paper);
+  --error-wash: var(--risk-high-wash);
+
+  /* ---- Type ------------------------------------------------------------
+     Three faces, each doing one job — never interchanged:
+     STIX Two Text → display: wordmark, score hero, section numerals. A
+                  serif built for scientific/academic typesetting (the
+                  face LaTeX/journal papers reach for), not a UI dashboard
+                  face — chosen over a more common display serif (Fraunces
+                  and similar now read as the "safe AI choice" for this
+                  exact role) specifically because it ties directly to
+                  this project's publication ambition rather than just
+                  looking distinctive for its own sake.
+     Archivo    → every interface label, body line, button, table cell.
+                  A grotesk with more character than the Inter/Roboto
+                  default, still disappears at data-density sizes.
+     IBM Plex Mono → segment IDs, coordinates, model versions, tabular
+                  numerals — instrument-readout register. */
+  --font-display: "STIX Two Text", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Archivo", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --text-2xs: 0.6875rem;   /* 11px — audit labels, captions */
+  --text-xs: 0.75rem;      /* 12px — tags, mono ids */
+  --text-sm: 0.8125rem;    /* 13px — secondary body, dt/dd labels */
+  --text-base: 0.9375rem;  /* 15px — body default */
+  --text-md: 1.0625rem;    /* 17px — queue score, emphasis */
+  --text-lg: 1.375rem;     /* 22px — panel headings (display face) */
+  --text-xl: 2rem;         /* 32px — wordmark */
+  --text-hero: 3.75rem;    /* 60px — score hero numeral (display face) */
+
+  --tracking-label: 0.06em;   /* uppercase micro-labels */
+  --tracking-tight: -0.01em;  /* display numerals */
+
+  --leading-tight: 1.15;
+  --leading-base: 1.45;
+
+  /* ---- Space, shape, elevation ---------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 40px;
+  --space-8: 56px;
+
+  /* Machined, not bubbly: a small consistent radius reads as precision-cut
+     metal/glass, not a SaaS card. Never above 6px anywhere in the system. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  --shadow-paper-1: 0 1px 2px oklch(21% 0.012 75 / 0.06), 0 2px 8px oklch(21% 0.012 75 / 0.06);
+  --shadow-paper-2: 0 2px 4px oklch(21% 0.012 75 / 0.08), 0 8px 24px oklch(21% 0.012 75 / 0.1);
+  --shadow-chassis-glow: 0 0 0 1px oklch(100% 0 0 / 0.04), 0 1px 0 oklch(100% 0 0 / 0.05) inset;
+  --shadow-focus: 0 0 0 2px var(--paper-0), 0 0 0 4px var(--accent);
+  --shadow-focus-chassis: 0 0 0 2px var(--chassis-0), 0 0 0 4px var(--accent-soft);
+
+  /* ---- Motion ------------------------------------------------------------
+     Named per intent, not per element, so any component can borrow the
+     right feel. `-map` matches MapLibre's own easeTo/flyTo duration
+     already used in code — kept identical so camera moves and UI motion
+     stay in the same rhythm. */
+  --duration-instant: 100ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+  --duration-map: 700ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
+  /* A snappier exponential decelerate for discrete, infrequent state
+     changes (the selection-sweep accent edge) — no overshoot. An earlier
+     draft used a bounce/spring curve here; real objects decelerate
+     smoothly, an elastic overshoot reads as dated regardless of how
+     rarely it fires, so this stays exponential like every other curve in
+     the system, just faster-arriving. */
+  --ease-emphasized: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* This system is deliberately not a dark-mode/light-mode toggle — the
+       paper/chassis split IS the "theme", constant regardless of OS
+       preference (an instrument doesn't relight itself when the room
+       does). No overrides needed; declared for clarity only. */
+  }
+}
