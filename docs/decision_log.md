@@ -5533,3 +5533,40 @@ Final configuration, Lambeth, five seeds, same six windows:
   UNMEASURED, and that their adjusted figures are extrapolated.
 - Never again quote a single-seed figure as a headline. Multi-seed is
   now mandatory for any number that appears in an output.
+
+## 2026-09-04 - V11: seed bias is BOROUGH-SPECIFIC and flips sign - extrapolation would have been wrong
+
+After V8 found seed 42 to be +1.69 points optimistic on Lambeth, the
+obvious shortcut was to apply that correction to the other two boroughs
+and adjust the pooled figure downward. **That would have been wrong.**
+
+| Borough | Reported (seed 42) | Seed-averaged (n=5) | Seed-42 bias | vs Gao et al. |
+|---|---|---|---|---|
+| Lambeth | 79.44% | **77.75% +/- 1.67** | **+1.69 optimistic** | tie, p=0.1941 |
+| Westminster | 78.92% | **80.03% +/- 1.40** | **-1.11 CONSERVATIVE** | **better, p=0.0001** |
+| Tower Hamlets | 83.93% | running | ? | ? |
+
+**The bias flips sign between boroughs.** Seed 42 was the joint-highest
+of five on Lambeth and the LOWEST of five on Westminster. Spread is
+comparable (3.86 vs 3.24 points) but direction is not transferable.
+
+### Consequences
+
+1. **Westminster's result strengthens under proper measurement**:
+   80.03% +/- 1.40, 95% CI [78.29, 81.77], versus 68.98% -
+   **p=0.0001**, up from p=0.0212 single-seed.
+
+2. **The pooled figure cannot be seed-corrected by extrapolation.**
+   Any adjusted pooled number requires all three boroughs measured;
+   Tower Hamlets is running.
+
+3. **A transferable methodological finding**: single-seed results on
+   small held-out sets cannot be corrected by measuring the seed bias
+   once and applying it elsewhere. The bias is a property of the
+   (borough, seed) pair, not of the seed. Every reported figure needs
+   its own seed distribution.
+
+This is the second time today that refusing to extrapolate changed the
+answer - the first being the network metric-confound control, where a
+single-seed random baseline suggested (falsely) that the network gain
+was a metric artefact.

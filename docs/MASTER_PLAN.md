@@ -20,7 +20,7 @@ Last updated: 2026-09-04 19:06 (**PHASE 1 COMPLETE** - V8 forces a headline corr
 | R6 | **Diff mechanically; do not reason from plausibility.** | 5 consecutive wrong hypotheses today; the bug was found by simulating the loop in isolation. |
 | R7 | **Commit after every verified result.** | No git until 2026-09-04; absence of diffs directly caused the longest debugging episode. |
 | R8 | **Verify every doc edit actually applied.** A string-replace that does not match silently does nothing. | The V5 row sat stale at "queued" for 90 minutes after the task had passed, because an update pattern did not match. |
-| R10 | **Multi-seed any number that appears in an output.** Single-seed noise here is ~4 points. | V8: seed 42 was the joint-highest of 5; the headline was 1.69 points optimistic. |
+| R10 | **Multi-seed any number that appears in an output, per borough.** Noise is ~4 points and the bias is NOT transferable between boroughs - it flips sign. | V8/V11: seed 42 was joint-highest of 5 on Lambeth (+1.69) and LOWEST of 5 on Westminster (-1.11). |
 | R11 | **Never stop at a milestone.** Completing a phase is not a stopping point - launch the next item in the SAME action as reporting the result. If the work identifies its own next step, no decision is needed. | Phase 1 completion was reported without launching the multi-seed follow-up it had just identified as mandatory. |
 | R9 | **Attach a Monitor in the SAME action that launches a run.** Never `nohup` a job and add the watcher later (or not at all). | The user cannot see untracked jobs; a Tower Hamlets run finished silently and sat unnoticed for 12 minutes, and V10 was launched invisibly. |
 
@@ -30,7 +30,7 @@ Last updated: 2026-09-04 19:06 (**PHASE 1 COMPLETE** - V8 forces a headline corr
 
 | Borough | Ours | Gao et al. | Verdict |
 |---|---|---|---|
-| Westminster | 78.92% (single-seed) | 68.98% | better, but seed-unadjusted |
+| Westminster | **80.03% ± 1.40 (5 seeds)** | 68.98% | **better, p=0.0001** |
 | Tower Hamlets | 83.93% (single-seed) | 72.24% | better, but seed-unadjusted |
 | **Lambeth** | **77.75% ± 1.67 (5 seeds)** | 76.59% | **TIE, p=0.1941** |
 | **Pooled (n=18)** | 80.76% reported / **~79.1% seed-adjusted** | **72.60%** | better; margin shrinks |
@@ -82,7 +82,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 
 | ID | Task | State | Notes |
 |---|---|---|---|
-| V11 | Multi-seed Westminster + Tower Hamlets | ◐ | MANDATORY before any output - pooled claim currently rests on extrapolating Lambeth's bias | Westminster running |
+| V11 | Multi-seed Westminster + Tower Hamlets | ◐ | MANDATORY - pooled claim rests on extrapolation until done | **Westminster ☑ 80.03% ± 1.40 (bias -1.11, CONSERVATIVE - opposite sign to Lambeth), p=0.0001 vs UCL.** Seed bias is borough-specific and NOT transferable. Tower Hamlets running |
 | S1 | 5 more boroughs | ☐ | ~5h. Tests generalisation beyond the 3 benchmark boroughs |
 | S2 | Empirical Bayes baseline | ☐ | Preempts "you rediscovered EB"; connects to HSM literature |
 | S3 | Dense eval of FINAL config | ☐ | ~6h. Previous dense run evaluated a superseded config |
