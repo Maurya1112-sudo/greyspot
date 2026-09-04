@@ -5168,3 +5168,57 @@ amplifies small numerical differences at the selection boundary.
 1. "+15.85 from history horizon" - **CORRECT** (restored, now with a control)
 2. "no, +0.51, it was the table start" - **WRONG** (artefact of the config bug)
 3. "the confound is untested" - superseded; it is now tested and negative
+
+## 2026-09-04 - The OS Open Roads network claim, properly controlled: it SURVIVES
+
+The project's strongest claim (+11.59 points pooled, p=0.0010) had the
+same structural weakness as the long-history claim: the comparison
+changed TWO things at once - road geometry AND segment count
+(OSMnx 8,238 directed edges -> OS Open Roads 11,596, about 41% more).
+A finer segmentation changes the ranking task itself, so part of the
+"network effect" could have been a property of the metric.
+
+**Control: score parameter-free rankers on BOTH networks.** A trivial
+ranker has no model and cannot exploit better topology, so any gain it
+shows is pure task difficulty.
+
+First attempt, single random seed (Lambeth):
+
+| Ranker | OSMnx | OS Open Roads | Delta |
+|---|---|---|---|
+| random | 16.36% | 21.29% | **+4.94** |
+| length | 32.88% | 29.29% | -3.59 |
+| degree | 19.83% | 24.91% | +5.08 |
+| history 365d | 47.45% | 50.50% | +3.05 |
+| GNN | 57.72% | 63.59% | +5.86 |
+
+That random gain of +4.94 - nearly the whole GNN gain - looked like the
+claim collapsing. **It was single-seed noise.** Re-measured across 200
+seeds per network:
+
+| | OSMnx | OS Open Roads | Delta |
+|---|---|---|---|
+| random (200 seeds) | 19.68% +/- 3.63 | 19.96% +/- 3.46 | **+0.28** |
+| crashes captured | 206 | **206** | 0 |
+
+**The metric is network-invariant**: random scores ~20% on both, as
+theory requires, and both networks capture exactly the same 206 crashes
+in the evaluation windows, so the denominators match and the two
+evaluations were always directly comparable.
+
+**Conclusion: the +5.86 (Lambeth) / +11.59 (pooled) network effect is
+genuine model improvement, not task difficulty.** The claim stands,
+and now has an explicit control behind it.
+
+**Process note worth keeping.** A single-seed random baseline has a
+per-seed std of ~3.6 points here, so one draw can land 5 points from
+the truth. This diagnostic was itself underpowered and nearly produced
+a false retraction of the project's best result - the same
+single-sample trap that has recurred throughout this work. Baselines
+need the same statistical care as the models they are compared against.
+
+**Also worth noting**: `degree` (+5.08) and `history_365d` (+3.05) DO
+gain on the finer network, which is expected and not a confound - node
+degree is a genuinely different quantity on a different topology, and a
+finer segmentation legitimately helps a history-based ranker localise
+risk. Only `random` is the invariance test, and it passes.
