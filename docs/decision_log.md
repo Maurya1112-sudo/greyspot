@@ -5320,3 +5320,21 @@ That sets a floor on interpretability: the weight-decay effect (+2.53
 on Lambeth) is well above it, while the hidden-size (-2.87) and decoder
 (-3.50) effects are only marginally so - which is consistent with both
 of those testing as null.
+
+### V9 closed at n=18: the effect regressed monotonically to zero
+
+Tower Hamlets completed the set: 83.93% -> 81.06%, **-2.86 points**.
+
+| Borough | Delta | p |
+|---|---|---|
+| Lambeth | +2.53 | 0.0800 |
+| Westminster | -1.47 | 0.4885 |
+| Tower Hamlets | -2.86 | 0.2610 |
+| **Pooled n=18** | **-0.60** | **0.6061** |
+
+**The estimate shrank monotonically as evidence accumulated: +2.53
+(n=6) -> +0.53 (n=12) -> -0.60 (n=18).** That is the textbook signature
+of a spurious finding regressing toward zero, and it is a cleaner
+illustration than any of the previous two of why a p=0.08 at n=6 here
+carries essentially no information. Worth using as the worked example
+in any methodological write-up.
