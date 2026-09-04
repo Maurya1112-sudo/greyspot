@@ -19,6 +19,7 @@ Last updated: 2026-09-04 14:00 (V9 closed at n=18; V6 running)
 | R5 | **One GPU job at a time.** | 4 CUDA OOM crashes. |
 | R6 | **Diff mechanically; do not reason from plausibility.** | 5 consecutive wrong hypotheses today; the bug was found by simulating the loop in isolation. |
 | R7 | **Commit after every verified result.** | No git until 2026-09-04; absence of diffs directly caused the longest debugging episode. |
+| R8 | **Verify every doc edit actually applied.** A string-replace that does not match silently does nothing. | The V5 row sat stale at "queued" for 90 minutes after the task had passed, because an update pattern did not match. |
 
 ---
 
@@ -60,8 +61,8 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V1 | Config-rebinding bug fix | ☑ | Loop simulated in isolation; 4 scripts patched; `window_config` grepped | Fixed, committed 775fe87 |
 | V2 | Table-start control | ☑ | Arm 1 reproduces baseline to 0.27pts | table start +0.25, horizon +15.87 |
 | V3 | Network metric-confound | ☑ | Random invariant over 200 seeds; identical crash counts | Claim survives |
-| V4 | Architecture ablation (7 arms) | ☑ | Each arm differs in exactly 1 key (verified programmatically) | **TOPOLOGY matters, CAPACITY does not**: layers 1->2 -26.46 (p=0.0003); encoder order -13.61 (p=0.0135); decoder -3.50 (p=0.27, null); hidden 42/42 -2.87 (p=0.12, null); **weight_decay 0.01 +2.53 (p=0.0800, promising)**. Effects exceed the 19-pt gap -> non-additive |
-| V5 | Overfitting audit | ◐ | Label-shuffle must collapse to ~20% | built, queued |
+| V4 | Architecture ablation (7 arms) | ☑ | Each arm differs in exactly 1 key (verified programmatically) | **TOPOLOGY matters, CAPACITY does not**: layers 1->2 -26.46 (p=0.0003); encoder order -13.61 (p=0.0135); decoder -3.50 (null); hidden 42/42 -2.87 (null); weight_decay +2.53 -> **later rejected at n=18 (V9)**. Effects exceed the 19-pt gap -> non-additive |
+| V5 | Overfitting audit | ☑ | Label-shuffle must collapse to ~20% | **PASS**: shuffled 23.08% vs real 75.64% (random 19.96±3.46). First version permuted the TIME axis and returned bit-identical scores - caught by R3 |
 | V6 | Re-run pruning test (was ✗) | ◐ | Must differ from baseline now the bug is fixed | script built (pruning_v2, with anti-regression assertion) |
 | V10 | Feature-count ladder, 6 windows + significance | ☐ | 26 features beat 35 on one window - needs full test | single-window hint only |
 | V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
