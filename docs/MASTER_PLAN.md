@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 16:13 (V10 complete; V6 interpretation corrected)
+Last updated: 2026-09-04 18:09 (V7 complete; 3 old nulls now overturned)
 
 ---
 
@@ -66,7 +66,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V5 | Overfitting audit | ☑ | Label-shuffle must collapse to ~20% | **PASS**: shuffled 23.08% vs real 75.64% (random 19.96±3.46). First version permuted the TIME axis and returned bit-identical scores - caught by R3 |
 | V6 | Re-run pruning test (was ✗) | ☑ | Must differ from baseline now the bug is fixed | **-6.89, 0/6 wins, p=0.0014** for that specific 30-feature config. **Interpretation SOFTENED by V10**: adding the same columns to a 13-feature model HURTS, so this is a property of that configuration, not the columns' value |
 | V10 | Feature-count ladder, 6 windows + significance | ☑ | Full ladder + paired tests | **13 features == 35 features** (-0.99, p=0.3473). Nothing on the ladder differs significantly. Non-monotonic -> feature-group attribution unreliable. **Corrects V6's over-read** |
-| V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
+| V7 | Re-verify null ledger under final config | ☑ | Spot-check road class under BOTH configs | **Road class NOT null - significantly HARMFUL** (-6.87 at 13 feat, -4.49 at 35 feat, 0/6 wins, p=0.0157). **Third old null overturned.** Pre-2026-09-04 ledger does NOT transfer and must not be cited as-is |
 | V8 | Multi-seed check on headline | ☐ | 5 seeds on 1 borough; report mean±std | — |
 | V9 | weight_decay=0.01 cross-borough | ☑ | Must replicate before adoption | **NOT ADOPTED**: n=18 pooled **-0.60, p=0.6061**. Effect shrank monotonically with evidence: +2.53 (n=6) -> +0.53 (n=12) -> -0.60 (n=18). Third false positive caught |
 
@@ -101,6 +101,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 - "Beats them on every borough" — Lambeth is a tie
 - "Our architecture is better than theirs" — only that these choices matter *in this pipeline*; their published model on their data scores 76.59%
 - Anything from an invalidated run (§3 rows marked ✗)
+- **Any pre-2026-09-04 null, unless re-measured.** Three have been overturned (2-layer, encoder order, road class); the old ledger was measured under the superseded 30-feature/30-day-cap config.
 
 ---
 

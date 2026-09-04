@@ -5428,3 +5428,49 @@ earlier per-feature nulls in this project's ledger (road class, date,
 POI-20, weather) should be read the same way - as "no detectable effect
 in that configuration", not as evidence about those data sources
 generally.
+
+## 2026-09-04 - V7: road class is not null, it is significantly HARMFUL - and a third old null falls
+
+Re-tested under the final configuration, and under the V10 13-feature
+model, because V10 showed geometry+history is essentially the whole
+model and road class is a geometry-type feature. The stated hypothesis
+was that it might now HELP. It does the opposite.
+
+| Config | without | with road class | Delta | wins | t-p | W-p |
+|---|---|---|---|---|---|---|
+| 13 features | 78.77% | 71.90% | **-6.87** | 0/6 | 0.0556 | 0.0312 |
+| 35 features | 79.76% | 75.28% | **-4.49** | 0/6 | **0.0157** | 0.0312 |
+
+The old ledger recorded road class as a clean null (63.59% -> 63.74%,
+p=0.9725). **It is significantly harmful in both configurations, on
+every window.**
+
+### Three old nulls have now been overturned
+
+| Old finding | Under the final config |
+|---|---|
+| "2 layers = null" | **-26.46, p=0.0003** |
+| "encoder order = equivalent (p=0.2832)" | **-13.61, p=0.0135** |
+| "road class = null (p=0.9725)" | **-4.49 to -6.87, p=0.0157** |
+
+**The pre-2026-09-04 null ledger does not transfer to the final
+configuration and must not be cited as-is.** Every null quoted in any
+output needs re-measurement, or explicit labelling as "measured under
+the superseded 30-feature / 30-day-cap configuration".
+
+### The emerging mechanism, stated as a hypothesis not a finding
+
+Three separate additions of sparse columns to the compact model have now
+hurt: road class (-6.87), traffic exposure (-2.62 in the V10 ladder),
+casualty breakdown (-1.00 in the ladder). The plausible mechanism is one
+this project has measured before: z-scoring near-constant sparse columns
+produces extreme standardised values (absmax ~1179 measured on real
+Lambeth data), and each added sparse column dilutes the standardised
+representation of the features that actually carry signal.
+
+This is a HYPOTHESIS. It predicts that a scaling scheme robust to sparse
+columns (max-scaling, or clipped z-scores) would reduce or remove the
+harm from adding such features. Clipped z-scoring was tested once
+(p=0.9899, null) but under the OLD configuration and WITHOUT the added
+sparse features - so it is not evidence either way here. A proper test
+is a legitimate future experiment, not a claim.
