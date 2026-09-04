@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-04 12:22 (V5 complete, V9 running)
+Last updated: 2026-09-04 13:27 (V9 complete)
 
 ---
 
@@ -66,7 +66,7 @@ Legend: ☐ not started · ◐ running · ☑ done+verified · ✗ invalidated
 | V10 | Feature-count ladder, 6 windows + significance | ☐ | 26 features beat 35 on one window - needs full test | single-window hint only |
 | V7 | Re-verify null ledger under final config | ☐ | Spot-check 3 nulls, not all 20 | — |
 | V8 | Multi-seed check on headline | ☐ | 5 seeds on 1 borough; report mean±std | — |
-| V9 | weight_decay=0.01 cross-borough | ◐ | Must replicate on Westminster + Tower Hamlets before adoption | Lambeth +2.53, p=0.0800 |
+| V9 | weight_decay=0.01 cross-borough | ☑ | Must replicate before adoption | **NOT ADOPTED**: Lambeth +2.53 (p=0.08) but Westminster -1.47; pooled +0.53, p=0.6792. Third false positive caught by this policy |
 
 ### Phase 2 — Strengthening
 

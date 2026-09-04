@@ -5274,3 +5274,49 @@ to the instance count than the node count.
 Promoted to a Phase-1 ledger item rather than a footnote: if a reduced
 feature set matches or beats the full one across all six windows, the
 published model should be the simpler one.
+
+## 2026-09-04 - weight_decay=0.01: the third false positive caught by cross-borough replication
+
+The architecture ablation's only arm to BEAT the baseline was Gao et
+al.'s own weight decay (0.01, vs this project's 0.0): Lambeth
+79.44% -> 81.97%, **+2.53 points, 4 wins / 2 exact ties / 0 losses,
+p=0.0800**. The "never worse on any window" profile looked stronger
+than either previously-caught false positive.
+
+**It does not replicate.**
+
+| Borough | wd=0.0 | wd=0.01 | Delta | p |
+|---|---|---|---|---|
+| Lambeth | 79.44% | 81.97% | +2.53 | 0.0800 |
+| Westminster | 79.12% | 77.65% | **-1.47** | 0.4885 |
+| **Pooled (n=12)** | **79.28%** | **79.81%** | **+0.53** | **0.6792** |
+
+7/12 windows - a coin flip. Not adopted.
+
+### This is now a pattern worth reporting in its own right
+
+| Candidate | Single-borough | Cross-borough outcome |
+|---|---|---|
+| hidden=42/42 | Lambeth +1.46 | Westminster -9.97 -> rejected |
+| architecture ensemble | 2 boroughs positive, p=0.10 at n=12 | Tower Hamlets -1.90, p=0.5535 at n=18 -> rejected |
+| weight_decay=0.01 | Lambeth +2.53, p=0.0800, 0 losses | Westminster -1.47, p=0.6792 pooled -> rejected |
+
+**Three for three.** Every candidate that reached p ~ 0.05-0.10 on a
+single borough has failed replication. That is not a run of bad luck -
+it is the expected behaviour of a 6-window evaluation with ~30 crashes
+per window, where the noise floor swamps effects below roughly 3
+points. It is also a much stronger justification for the replication
+protocol than citing convention: this project can show, empirically,
+that single-borough results at this scale are uninformative.
+
+### A reproducibility figure worth quoting
+
+Westminster's wd=0.0 arm scored 79.12% here versus 78.92% in the
+earlier multi-year run - identical configuration, different script, no
+feature subsetting involved. **Independent runs of the same
+configuration reproduce the 6-window mean to about +/-0.2-0.3 points.**
+
+That sets a floor on interpretability: the weight-decay effect (+2.53
+on Lambeth) is well above it, while the hidden-size (-2.87) and decoder
+(-3.50) effects are only marginally so - which is consistent with both
+of those testing as null.
