@@ -21,19 +21,27 @@ AccHR@20 — the share of crashes falling in the top 20% of
 predicted-risk road segments, averaged per day, on six held-out 14-day
 windows per borough (expanding-window walk-forward, 2022–2024).
 
-| Borough | This project | Gao et al. | Verdict |
-|---|---|---|---|
-| Lambeth | **77.75% ± 1.67** (5 seeds) | 76.59% | **tie** (p=0.1941) |
-| Westminster | 78.92% (single seed) | 68.98% | better, seed-unadjusted |
-| Tower Hamlets | 83.93% (single seed) | 72.24% | better, seed-unadjusted |
+All figures are **averaged over 5 random seeds** with 95% confidence
+intervals — single-seed numbers are not reported, for reasons given below.
+
+| Borough | This project | 95% CI | Gao et al. | Verdict |
+|---|---|---|---|---|
+| Westminster | **80.03% ± 1.40** | [78.29, 81.77] | 68.98% | **better**, p=0.0001 |
+| Tower Hamlets | **82.63% ± 2.01** | [80.14, 85.12] | 72.24% | **better**, p=0.0003 |
+| Lambeth | **77.75% ± 1.67** | [75.68, 79.82] | 76.59% | **tie**, p=0.1941 |
+| **Pooled** | **80.14% ± 1.12** | **[78.74, 81.53]** | **72.60%** | **better**, p=0.000115 |
 
 ### Read these caveats before quoting any number
 
-1. **Single-seed figures are ~1.7 points optimistic.** Seed 42 was used
-   for all reported runs and is the joint-highest of five tested on
-   Lambeth. Seed spread is **3.86 points**, so differences under ~4
-   points from single-seed runs are not interpretable. Westminster and
-   Tower Hamlets multi-seed measurement is in progress.
+1. **Seed variance is large and its direction is borough-specific.**
+   Per-borough spread across 5 seeds is 3.2–4.7 points. The bias of any
+   single seed *flips sign between boroughs* — seed 42 is +1.69
+   optimistic on Lambeth, −1.11 conservative on Westminster, +1.30 on
+   Tower Hamlets — so a seed's bias measured on one region **cannot be
+   used to correct another**. Differences under ~4 points from
+   single-seed runs are not interpretable. The pooled figure is
+   considerably more stable (seed-42 bias +0.63) because per-borough
+   biases partly cancel.
 2. **The comparison is not like-for-like.** Gao et al. evaluate within
    2019 on a 6:2:2 split; this project uses multi-year expanding
    walk-forward over 2022–2024, a stricter protocol. No *paired* test
