@@ -192,6 +192,28 @@ configurations worse than either endpoint. Feature groups interact, so
 **no single group's contribution can be read off in isolation** - report
 ladders, never "feature X is worth Y points".
 
+### 3.4b The model does not beat a trivial baseline (added 2026-09-05)
+
+This belongs at the top of any honest reading of the results.
+
+| Ranker | Lambeth | Westminster | Tower Hamlets | Mean |
+|---|---|---|---|---|
+| Sort by cumulative crash count (~8 yr) | 83.20% | 81.25% | 87.37% | **83.94%** |
+| Empirical Bayes (HSM method) | 82.11% | 81.93% | 87.48% | 83.84% |
+| Same count, capped to this model's 5-yr horizon | 80.81% | 76.46% | 85.69% | 80.99% |
+| **This model** | 77.75% | 80.03% | 82.63% | **80.14%** |
+
+**At matched history depth the model and a parameter-free sort differ by
++0.85 points with mixed signs** — statistically indistinguishable. Given
+three MORE years of history, the sort gains +2.95 while this model gains
+−0.72 with rising variance (S5, p=0.7438).
+
+So the graph structure, the 35 features, the conformal intervals and the
+200 training epochs do not outperform sorting road segments by how often
+they have already crashed. The uncertainty quantification remains
+genuinely useful (PICP ≈ 0.901, §3.2) and a sort provides none — but the
+*ranking* claim must be stated with this baseline alongside it.
+
 ### 3.5 Validation controls (all passed)
 
 | Control | Result |
@@ -352,6 +374,16 @@ Test suite: **207 passing** (`python -m pytest tests/ -q`).
    are one-run results; paired comparisons are unaffected because both
    arms run under identical conditions.
 
-7. **The evaluation metric is noisy by construction.** Windows contain
+7. **Most single-borough findings do not replicate.** Of nine findings
+   that appeared significant on one borough, three survived a second.
+   Effect size predicted the outcome for main effects (everything above
+   the ~4-point seed-noise band replicated) but NOT for interactions —
+   one +25-point interaction reversed sign between boroughs.
+
+8. **Seed bias is borough-specific and flips sign.** +1.69 optimistic on
+   Lambeth, −1.11 conservative on Westminster, +1.30 on Tower Hamlets. A
+   seed's bias measured on one region cannot correct another.
+
+9. **The evaluation metric is noisy by construction.** Windows contain
    only ~27–59 crashes each; per-window std is ~8 points. Differences
    under ~3 points are not resolvable at n=18.
