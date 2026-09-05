@@ -5967,3 +5967,43 @@ This is the fourth time today a control has overturned or halved a
 finding before it was recorded as a claim (after the history-horizon
 retraction, the network metric-confound scare, and the substitution
 effect).
+
+## 2026-09-05 - S1: a SILENT partial-download corruption caught mid-run
+
+Wandsworth completed the generalisation run at 73.35%. The log showed
+Overpass API failures (read timeouts, connection resets) during the POI
+download, so the result was checked before being recorded.
+
+| Borough | POI cache rows | Total POIs |
+|---|---|---|
+| Westminster | 3,608 | 16,108 |
+| Camden | 2,587 | 11,367 |
+| Tower Hamlets | 2,647 | 11,659 |
+| Lambeth | 2,513 | 8,386 |
+| Kensington and Chelsea | 2,038 | 7,451 |
+| **Wandsworth** | **656** | **1,637** |
+
+Wandsworth is LARGER by area than Camden, so it should have MORE POIs,
+not one-seventh as many. The Overpass timeouts produced a **partial
+download that was then written to cache as though complete**.
+
+**This is the dangerous failure mode**: not a crash, but a plausible
+-looking artefact that persists on disk and would have been silently
+reused by every future Wandsworth run. The borough would have carried a
+quietly wrong feature set indefinitely.
+
+**Actions taken**:
+- Corrupt cache quarantined to
+  `data/interim/CORRUPT_wandsworth_poi_partial_download.csv.bak`
+- Wandsworth's results moved to `reports/_invalid/` with a
+  `_PARTIAL_POI` suffix rather than deleted, so the episode stays visible
+- Wandsworth excluded from the generalisation result until re-run
+
+**A real gap in the pipeline this exposes**: `download_borough_pois`
+caches whatever it receives without validating completeness. A partial
+Overpass response is indistinguishable from a small borough. It should
+assert a plausible POI density (POIs per unit area, or per segment)
+against the other boroughs before writing the cache - otherwise this
+recurs on any flaky network night.
+
+Recorded as a pipeline defect to fix, not merely an incident.

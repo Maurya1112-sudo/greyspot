@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 02:15 (S2 done; S1 Camden 84.66%, K&C running)
+Last updated: 2026-09-05 02:46 (S1: Camden 84.66, K&C 74.54, **Wandsworth INVALID - partial POI download**, Brent running)
 
 ---
 
@@ -21,6 +21,7 @@ Last updated: 2026-09-05 02:15 (S2 done; S1 Camden 84.66%, K&C running)
 | R7 | **Commit after every verified result.** | No git until 2026-09-04; absence of diffs directly caused the longest debugging episode. |
 | R8 | **Verify every doc edit actually applied.** A string-replace that does not match silently does nothing. | The V5 row sat stale at "queued" for 90 minutes after the task had passed, because an update pattern did not match. |
 | R10 | **Multi-seed any number that appears in an output, per borough.** Noise is ~4 points and the bias is NOT transferable between boroughs - it flips sign. | V8/V11: seed 42 was joint-highest of 5 on Lambeth (+1.69) and LOWEST of 5 on Westminster (-1.11). |
+| R14 | **Validate downloaded data against its peers before caching it.** A partial network response looks identical to a small borough. | Wandsworth's POI download timed out and cached 1,637 POIs vs Camden's 11,367 for a LARGER borough - a silent corruption that would have been reused forever. |
 | R13 | **Never claim an INTERACTION between two factors from fewer than 3 boroughs, whatever its size.** Effect size predicts replication for main effects only. | The substitution effect was +25.04 vs +9.70 - far outside the ~4-pt noise band - and still reversed sign between Westminster and Tower Hamlets. |
 | R12 | **Any number quoted in a doc needs a script in the repo.** An inline diagnostic that prints to console is not a reproducible artefact. | The metric sanity check (a load-bearing claim) existed only as console output until the 2026-09-05 audit. |
 | R11 | **Never stop at a milestone.** Completing a phase is not a stopping point - launch the next item in the SAME action as reporting the result. If the work identifies its own next step, no decision is needed. | Phase 1 completion was reported without launching the multi-seed follow-up it had just identified as mandatory. |
