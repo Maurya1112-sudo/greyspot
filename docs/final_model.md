@@ -203,10 +203,30 @@ This belongs at the top of any honest reading of the results.
 | Same count, capped to this model's 5-yr horizon | 80.81% | 76.46% | 85.69% | 80.99% |
 | **This model** | 77.75% | 80.03% | 82.63% | **80.14%** |
 
-**At matched history depth the model and a parameter-free sort differ by
-+0.85 points with mixed signs** — statistically indistinguishable. Given
-three MORE years of history, the sort gains +2.95 while this model gains
-−0.72 with rising variance (S5, p=0.7438).
+Every model figure is a 5-seed mean. The comparisons below are **paired
+window-by-window** across the same 18 held-out windows (6 × 3 boroughs);
+the baselines are deterministic, so all sampling variation is on the
+model's side (`scripts/run_s2_paired_comparison.py`).
+
+| Model vs | Δ (points) | paired *t* | Wilcoxon | model wins |
+|---|---|---|---|---|
+| Empirical Bayes (HSM method) | **−3.71** | 0.0146 | 0.0237 | 6/18 |
+| Cumulative crash count | **−3.80** | 0.0289 | 0.0342 | 5/18 |
+| Same count, capped to the 5-yr horizon | −0.85 | 0.6398 | 0.7987 | 9/18 |
+
+**At matched history depth the model and a parameter-free sort are
+statistically indistinguishable** (−0.85, p=0.6398, 9/18 windows).
+Uncapped, both trivial baselines beat it *significantly*. Given three
+MORE years of history the sort gains +2.95 while this model gains −0.72
+with rising variance (S5, p=0.7438).
+
+> **Correction (2026-09-05).** This section previously recorded the
+> matched-horizon gap as **+0.85 in the model's favour**. It is −0.85,
+> against: the earlier figure came from a single-seed score compared
+> against baseline means, with the subtraction the wrong way round. The
+> conclusion — a tie — is unchanged, since p=0.64 either way. Seed
+> averaging and paired testing made the *uncapped* comparison
+> significant, where the earlier method could produce no p-value at all.
 
 So the graph structure, the 35 features, the conformal intervals and the
 200 training epochs do not outperform sorting road segments by how often

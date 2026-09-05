@@ -77,12 +77,29 @@ interaction was +25 points and still reversed sign between boroughs.
 | Same count, capped to the GNN's 5yr | 80.81% | 76.46% | 85.69% | 80.99% |
 | **Our GNN** | 77.75% | 80.03% | 82.63% | **80.14%** |
 
-At **matched history depth** the GNN and a parameter-free sort differ by
-+0.85 points with mixed signs — statistically indistinguishable. Given
-*more* history the sort gains +2.95; the GNN gains −0.72 with rising
-variance. A graph network with 35 features, conformal intervals and 200
+Every GNN figure above is a 5-seed mean, and every comparison below is
+**paired window-by-window** on the same 18 held-out windows (6 windows ×
+3 boroughs); the baselines are deterministic, so all sampling variation
+sits on the GNN side.
+
+| GNN vs | Δ (points) | paired *t* | Wilcoxon | GNN wins |
+|---|---|---|---|---|
+| Empirical Bayes (HSM) | **−3.71** | 0.0146 | 0.0237 | 6/18 |
+| Cumulative crash count | **−3.80** | 0.0289 | 0.0342 | 5/18 |
+| Count capped to the GNN's 5yr | −0.85 | 0.6398 | 0.7987 | 9/18 |
+
+At **matched history depth** the GNN and a parameter-free sort are
+statistically indistinguishable (−0.85, *p* = 0.64, 9 of 18 windows).
+Uncapped, both trivial baselines beat it *significantly*. Given *more*
+history the sort gains +2.95; the GNN gains −0.72 with rising variance
+(§5). A graph network with 35 features, conformal intervals and 200
 training epochs does not beat sorting segments by how often they have
-crashed.
+crashed — and given history it cannot use, loses to it outright.
+
+We note that seed-averaging and paired testing made this result
+*stronger*, not weaker. The earlier single-seed comparison of means could
+produce no *p*-value at all and recorded the matched-horizon gap with the
+sign reversed.
 
 ## 4. Measurement properties practitioners should know
 

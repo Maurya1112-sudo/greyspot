@@ -66,9 +66,12 @@ segments by their past crash count.**
 | Same count, capped to this model's 5-yr horizon | 80.99% |
 | **This GNN** | **80.14%** |
 
-The capped baseline and the GNN differ by +0.85 points with mixed signs —
-statistically indistinguishable. Given three more years of history the
-sort gains +2.95; the GNN gains −0.72.
+Paired window-by-window over 18 held-out windows, with the GNN
+seed-averaged over 5 seeds: at **matched** history depth the two are
+statistically indistinguishable (−0.85, p=0.64, 9/18 windows). Uncapped,
+both trivial baselines beat the GNN *significantly* (Empirical Bayes
+−3.71, p=0.015; raw count −3.80, p=0.029). Given three more years of
+history the sort gains +2.95; the GNN gains −0.72.
 
 The model does provide calibrated uncertainty intervals (PICP ≈ 0.901)
 that a sort cannot, and that has real value for prioritisation. But the
