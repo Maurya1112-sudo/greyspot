@@ -48,6 +48,13 @@ def test_bbox_area_is_unpacked_positionally_not_by_range():
     assert bbox_area_km2(swapped) != pytest.approx(bbox_area_km2(WESTMINSTER_BBOX))
 
 
+def test_density_guard_accepts_outer_london_density():
+    """Brent measured 62.3/km2 and is COMPLETE (two byte-identical
+    downloads). An inner-London-calibrated floor wrongly rejected it."""
+    counts = _counts(int(62.3 * bbox_area_km2(WESTMINSTER_BBOX)))
+    assert assert_poi_counts_plausible(counts, "Brent", WESTMINSTER_BBOX) > 40
+
+
 def test_density_guard_accepts_a_verified_borough_level_density():
     # Westminster measured 357.5 adjacencies/km2 when verified by hand.
     counts = _counts(int(357.5 * bbox_area_km2(WESTMINSTER_BBOX)))
@@ -55,7 +62,7 @@ def test_density_guard_accepts_a_verified_borough_level_density():
 
 
 def test_density_guard_refuses_a_truncated_download():
-    """The real Wandsworth failure measured 23.6/km2 against a floor of 75."""
+    """The real Wandsworth failure measured 23.6/km2 against a floor of 40."""
     counts = _counts(int(23.6 * bbox_area_km2(WESTMINSTER_BBOX)))
     with pytest.raises(PoiDownloadError, match="below the calibrated floor"):
         assert_poi_counts_plausible(counts, "Wandsworth", WESTMINSTER_BBOX)

@@ -56,20 +56,38 @@ POI_COUNT_COLUMNS = [f"poi_{category}_count" for category in POI_TAG_CATEGORIES]
 _OVERPASS_TIMEOUT_S = 300  # generous, though the bbox queries this module actually uses complete in well under a minute
 
 # Minimum plausible POI-adjacency density (sum of per-segment POI counts
-# per km2 of borough bbox). CALIBRATED, not guessed - measured on the five
-# boroughs whose downloads were verified complete and on the one download
-# known to be truncated:
+# per km2 of borough bbox). CALIBRATED, not guessed:
 #
-#   Westminster            357.5     Tower Hamlets   280.9
-#   Kensington & Chelsea   232.1     Camden          227.6
-#   Lambeth                151.7     | Wandsworth (TRUNCATED)  23.6
+#   COMPLETE downloads          | TRUNCATED download
+#   Westminster           357.5 | Wandsworth (amenity dropped)  23.6
+#   Tower Hamlets         280.9 |
+#   Kensington & Chelsea  232.1 |
+#   Camden                227.6 |
+#   Lambeth               151.7 |
+#   Brent (OUTER London)   62.3 |
 #
-# The floor sits at half the lowest verified borough and 3.2x above the
-# known-bad one, so it separates the two populations with margin on both
-# sides. Recompute it (scripts/check_poi_density.py) if boroughs outside
-# inner/outer London are ever added - a genuinely rural area could sit
-# below this legitimately.
-_MIN_POI_ADJACENCY_PER_KM2 = 75.0
+# **Brent is why this is 40 and not 75.** The first version of this guard
+# used 75, calibrated on the five verified boroughs - every one of them
+# INNER London. It then refused Brent at 62.3/km2. That refusal was a false
+# positive: two independent downloads of Brent returned byte-identical
+# results (9,905 raw POIs, identical per-category counts), and a truncated
+# Overpass response cannot be reproducible, because the cut falls in a
+# different place each time. Outer London is genuinely less POI-dense than
+# inner London, and a floor calibrated on inner boroughs does not transfer.
+# See scripts/check_poi_density_calibration.py, which performs that test.
+#
+# 40 sits 1.7x above the known-truncated download and 1.6x below the
+# lowest verified one. That is a thinner margin than the original, and it
+# is deliberate: this check is only the BACKSTOP. The primary guard is the
+# per-category failure check, which catches the dominant real failure mode
+# directly (a dropped category) rather than inferring it from volume - it
+# is what actually caught Wandsworth on both occasions. This floor exists
+# for the residual case where every category returns but each is truncated.
+#
+# A borough measuring below this should be run through
+# check_poi_density_calibration.py before being either trusted or
+# discarded, rather than assumed one way.
+_MIN_POI_ADJACENCY_PER_KM2 = 40.0
 
 
 def _download_category_with_retry(bbox, category: str, osm_place: str, attempts: int = 4):
@@ -213,9 +231,11 @@ def assert_poi_counts_plausible(poi_counts: pd.DataFrame, osm_place: str, bbox=N
     if density < _MIN_POI_ADJACENCY_PER_KM2:
         raise PoiDownloadError(
             f"{osm_place}: {total:.0f} POI adjacencies over ~{area_km2:.1f} km2 = {density:.1f}/km2, "
-            f"below the calibrated floor of {_MIN_POI_ADJACENCY_PER_KM2:.0f}/km2 (verified boroughs "
-            f"range 151.7-357.5; the known truncated Wandsworth download measured 23.6). Nothing "
-            f"errored, but the volume says the Overpass response was incomplete. Refusing to cache."
+            f"below the calibrated floor of {_MIN_POI_ADJACENCY_PER_KM2:.0f}/km2 (complete "
+            f"downloads measured 62.3-357.5; the truncated Wandsworth one measured 23.6). Nothing "
+            f"errored, but the volume suggests the Overpass response was incomplete. Refusing to "
+            f"cache. If this borough may be genuinely low-density, confirm with "
+            f"scripts/check_poi_density_calibration.py before trusting or discarding it."
         )
     logger.info("POI density check PASSED for %s: %.0f adjacencies over ~%.1f km2 = %.1f/km2",
                 osm_place, total, area_km2, density)

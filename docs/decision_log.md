@@ -6308,3 +6308,39 @@ confirms no conclusion depends on that window (-0.85 -> -1.03 matched;
 **Per-window seed spread is large**: median std 0.038, max 0.085 across the
 5 seeds. Any per-window effect smaller than ~4 points is noise, which is
 consistent with the ~4-point run-level noise band established in V8.
+
+## 2026-09-05 - POI density floor recalibrated (my own false positive)
+
+The density guard added earlier today refused **Brent** at 62.3
+adjacencies/km2 against a floor of 75. That refusal was wrong, and the fault
+was in the calibration, not the data: all five boroughs used to set the
+floor (Camden, Kensington & Chelsea, Lambeth, Tower Hamlets, Westminster)
+are **inner** London. Brent is outer London, which is genuinely less
+POI-dense. A threshold calibrated on inner boroughs does not transfer.
+
+**How it was settled without guessing.** `scripts/check_poi_density_calibration.py`
+downloads a borough's POIs twice and compares. A truncated Overpass response
+is a transport failure, so the cut falls in a different place each time and
+repeated downloads disagree; a complete response is deterministic. Brent
+returned **byte-identical results across two runs** - 9,905 raw POIs, 4,992
+adjacencies, identical per-category counts (shop 1,915 / amenity 6,574 /
+leisure 1,182 / tourism 234). That is only possible if the response is
+complete.
+
+Floor lowered 75 -> 40, which sits 1.7x above the known-truncated Wandsworth
+download (23.6) and 1.6x below the lowest complete one (Brent, 62.3). The
+margin is thinner than before, deliberately: the density check is only the
+BACKSTOP. The primary guard is the per-category failure check, which detects
+the dominant real failure mode directly rather than inferring it from volume
+- and it is what actually caught Wandsworth, twice.
+
+**Wandsworth remains genuinely broken**, for the third time: Overpass drops
+the `amenity` category mid-response (`ChunkedEncodingError: Response ended
+prematurely`) while the other three succeed and the API reports free slots.
+Category downloads now retry 4x with exponential backoff.
+
+**Net effect of the guard on its first day:** one true positive (Wandsworth,
+which would otherwise have been cached and silently corrupted a third
+borough result), one false positive (Brent, caught within minutes and traced
+to my own inner-London calibration). Both are documented rather than either
+being quietly adjusted away.
