@@ -95,7 +95,7 @@ from greyspot.ingest.boroughs import get_borough, slug  # noqa: E402
 from greyspot.ingest.exposure import load_local_authority_aadf  # noqa: E402
 from greyspot.ingest.network import graph_to_edges_gdf, redistribute_junction_crashes, snap_collisions_to_graph, snap_points_to_graph  # noqa: E402
 from greyspot.ingest.os_open_roads import borough_bbox_wgs84, borough_polygon_wgs84, build_borough_graph_os_open_roads  # noqa: E402
-from greyspot.ingest.poi import POI_COUNT_COLUMNS, count_pois_near_segments, download_borough_pois  # noqa: E402
+from greyspot.ingest.poi import POI_COUNT_COLUMNS, assert_poi_counts_plausible, count_pois_near_segments, download_borough_pois  # noqa: E402
 from greyspot.ingest.socio_demographic import (  # noqa: E402
     SOCIO_DEMOGRAPHIC_COLUMNS,
     load_lsoa_boundaries,
@@ -211,6 +211,7 @@ def build_instances(borough_name: str):
     else:
         pois = download_borough_pois(borough.osm_place)
         poi_counts = count_pois_near_segments(pois, graph)
+        assert_poi_counts_plausible(poi_counts, borough.osm_place)
         poi_counts.to_csv(poi_cache_path, index=False)
         logger.info("Cached POI counts to %s", poi_cache_path)
     table = attach_poi_features(table, poi_counts)

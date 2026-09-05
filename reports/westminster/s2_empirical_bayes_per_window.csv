@@ -1,0 +1,19 @@
+borough,baseline,held_out_start,AccHR
+Westminster,EB (HSM method),2023-07-15,0.8653061224489795
+Westminster,EB (HSM method),2023-10-13,0.7636054421768709
+Westminster,EB (HSM method),2024-01-11,0.8681818181818183
+Westminster,EB (HSM method),2024-04-10,0.7666666666666667
+Westminster,EB (HSM method),2024-07-09,0.8967032967032968
+Westminster,EB (HSM method),2024-10-07,0.755128205128205
+Westminster,raw count (no shrinkage),2023-07-15,0.8795918367346939
+Westminster,raw count (no shrinkage),2023-10-13,0.7874149659863946
+Westminster,raw count (no shrinkage),2024-01-11,0.8878787878787878
+Westminster,raw count (no shrinkage),2024-04-10,0.7474358974358974
+Westminster,raw count (no shrinkage),2024-07-09,0.8793040293040294
+Westminster,raw count (no shrinkage),2024-10-07,0.6935897435897436
+Westminster,raw count CAPPED at 1825d (matched to GNN),2023-07-15,0.7897959183673471
+Westminster,raw count CAPPED at 1825d (matched to GNN),2023-10-13,0.7636054421768709
+Westminster,raw count CAPPED at 1825d (matched to GNN),2024-01-11,0.8318181818181819
+Westminster,raw count CAPPED at 1825d (matched to GNN),2024-04-10,0.8012820512820512
+Westminster,raw count CAPPED at 1825d (matched to GNN),2024-07-09,0.731868131868132
+Westminster,raw count CAPPED at 1825d (matched to GNN),2024-10-07,0.6692307692307692

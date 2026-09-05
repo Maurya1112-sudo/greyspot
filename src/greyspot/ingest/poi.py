@@ -40,6 +40,7 @@ from __future__ import annotations
 import logging
 
 import geopandas as gpd
+import numpy as np
 import osmnx as ox
 import pandas as pd
 
@@ -53,8 +54,37 @@ POI_COUNT_COLUMNS = [f"poi_{category}_count" for category in POI_TAG_CATEGORIES]
 
 _OVERPASS_TIMEOUT_S = 300  # generous, though the bbox queries this module actually uses complete in well under a minute
 
+# Minimum plausible POI-adjacency density (sum of per-segment POI counts
+# per km2 of borough bbox). CALIBRATED, not guessed - measured on the five
+# boroughs whose downloads were verified complete and on the one download
+# known to be truncated:
+#
+#   Westminster            357.5     Tower Hamlets   280.9
+#   Kensington & Chelsea   232.1     Camden          227.6
+#   Lambeth                151.7     | Wandsworth (TRUNCATED)  23.6
+#
+# The floor sits at half the lowest verified borough and 3.2x above the
+# known-bad one, so it separates the two populations with margin on both
+# sides. Recompute it (scripts/check_poi_density.py) if boroughs outside
+# inner/outer London are ever added - a genuinely rural area could sit
+# below this legitimately.
+_MIN_POI_ADJACENCY_PER_KM2 = 75.0
 
-def download_borough_pois(osm_place: str) -> gpd.GeoDataFrame:
+
+class PoiDownloadError(RuntimeError):
+    """An Overpass response that must NOT be cached as if it were complete.
+
+    Raised rather than warned because the failure mode is silent: a partial
+    download produces a plausible-looking POI file, gets cached, and every
+    subsequent run reuses it. That happened twice on 2026-09-05 (Wandsworth
+    cached 1,637 adjacencies against an expected ~10,000; Brent cached 0)
+    and both borough results had to be quarantined and discarded. Rule R14
+    in docs/MASTER_PLAN.md exists because of it - this is that rule
+    enforced in code rather than by memory.
+    """
+
+
+def download_borough_pois(osm_place: str, *, strict: bool = True) -> gpd.GeoDataFrame:
     """Fetches OSM POI features (points, lines, or polygons - a park's
     `leisure=park` boundary is as valid a POI here as a shop's point) for
     one OSMnx-geocodable place's bounding box, one tag category at a
@@ -68,11 +98,13 @@ def download_borough_pois(osm_place: str) -> gpd.GeoDataFrame:
     ox.settings.requests_timeout = _OVERPASS_TIMEOUT_S
     bbox = borough_bbox_wgs84(osm_place)
     frames = []
+    failed: list[str] = []
     for category in POI_TAG_CATEGORIES:
         try:
             gdf = ox.features_from_bbox(bbox, {category: True})
         except Exception:
-            logger.warning("POI category '%s' failed to download for %s - skipping", category, osm_place, exc_info=True)
+            logger.warning("POI category '%s' failed to download for %s", category, osm_place, exc_info=True)
+            failed.append(category)
             continue
         if gdf.empty:
             logger.info("POI category '%s' returned 0 features for %s", category, osm_place)
@@ -96,9 +128,71 @@ def download_borough_pois(osm_place: str) -> gpd.GeoDataFrame:
         gdf["poi_tag_value"] = gdf[category] if category in gdf.columns else pd.NA
         logger.info("Downloaded %d '%s' POIs for %s", len(gdf), category, osm_place)
         frames.append(gdf)
+    if strict and failed:
+        raise PoiDownloadError(
+            f"{osm_place}: Overpass failed for POI categor{'y' if len(failed) == 1 else 'ies'} "
+            f"{failed}. The other categories downloaded fine, so the result LOOKS valid while "
+            f"missing whole feature classes. Refusing to return a partial download - retry when "
+            f"Overpass recovers (https://overpass-api.de/api/status)."
+        )
     if not frames:
+        if strict:
+            raise PoiDownloadError(
+                f"{osm_place}: every POI category returned zero features. No London borough has no "
+                f"shops, amenities, leisure or tourism POIs - this is an Overpass failure, not an "
+                f"empty borough."
+            )
         return gpd.GeoDataFrame({"geometry": [], "poi_category": []}, geometry="geometry", crs="epsg:4326")
     return gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=frames[0].crs)
+
+
+def bbox_area_km2(bbox) -> float:
+    """Approximate area of a `borough_bbox_wgs84` bbox.
+
+    That function returns `GeoDataFrame.total_bounds`, documented and fixed
+    as (minx, miny, maxx, maxy) = (west, south, east, north), so the values
+    are unpacked positionally. An earlier version tried to identify which
+    pair were latitudes by numeric range and silently picked wrong in
+    London, where latitude (~51.5) and longitude (~-0.1) both sit inside
+    +/-90.
+
+    Equirectangular approximation: precision is irrelevant against a
+    threshold the two populations straddle by 3x or more. The bbox exceeds
+    the true borough polygon, so this under-states density and the guard
+    errs toward caution.
+    """
+    west, south, east, north = (float(v) for v in bbox)
+    height_km = abs(north - south) * 110.574
+    width_km = abs(east - west) * 111.320 * float(np.cos(np.deg2rad((north + south) / 2.0)))
+    return max(height_km * width_km, 1e-6)
+
+
+def assert_poi_counts_plausible(poi_counts: pd.DataFrame, osm_place: str, bbox=None) -> float:
+    """Guard the SNAPPED counts before they are cached.
+
+    Catches the case the download-time checks cannot: every category
+    returned data and nothing raised, but each response was truncated. This
+    runs on the quantity the model actually consumes, and its threshold is
+    calibrated on real verified and known-bad downloads (see
+    `_MIN_POI_ADJACENCY_PER_KM2`). Returns the measured density.
+    """
+    total = float(poi_counts[POI_COUNT_COLUMNS].to_numpy().sum())
+    # bbox is optional so the ~50 run scripts can call this with one line,
+    # regardless of whether they happen to hold a bbox in scope. Geocoding
+    # costs one lightweight Nominatim lookup against an Overpass POI
+    # download measured in minutes.
+    area_km2 = bbox_area_km2(bbox if bbox is not None else borough_bbox_wgs84(osm_place))
+    density = total / area_km2
+    if density < _MIN_POI_ADJACENCY_PER_KM2:
+        raise PoiDownloadError(
+            f"{osm_place}: {total:.0f} POI adjacencies over ~{area_km2:.1f} km2 = {density:.1f}/km2, "
+            f"below the calibrated floor of {_MIN_POI_ADJACENCY_PER_KM2:.0f}/km2 (verified boroughs "
+            f"range 151.7-357.5; the known truncated Wandsworth download measured 23.6). Nothing "
+            f"errored, but the volume says the Overpass response was incomplete. Refusing to cache."
+        )
+    logger.info("POI density check PASSED for %s: %.0f adjacencies over ~%.1f km2 = %.1f/km2",
+                osm_place, total, area_km2, density)
+    return density
 
 
 def count_pois_near_segments(pois: gpd.GeoDataFrame, graph, max_distance_m: float = 50.0) -> pd.DataFrame:

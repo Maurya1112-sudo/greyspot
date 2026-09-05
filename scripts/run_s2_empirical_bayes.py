@@ -122,12 +122,33 @@ def main(borough: str = "Lambeth") -> None:
     print()
     print("=== S2: EMPIRICAL BAYES BASELINE (%s, same 6 windows) ===" % borough)
     for name, vals in results.items():
-        print("  %-28s AccHR@20 = %.4f  (windows: %s)" % (name, float(np.mean(vals)),
-              " ".join("%.3f" % v for v in vals)))
+        print("  %-42s AccHR@20 = %.4f  (windows: %s)" % (name, float(np.mean(vals)),
+              " ".join("%.4f" % v for v in vals)))
+
+    # PER-WINDOW OUTPUT (added 2026-09-05). Previously this script printed
+    # its per-window values and kept nothing, so the paired comparison
+    # against the GNN could not be computed without re-running it - and the
+    # one run that included the matched-horizon arm had its log lost to a
+    # machine restart. Rule R12: any number quoted in a doc needs a script
+    # in the repo that regenerates it.
+    out_dir = ROOT / "reports" / slug(b.name)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    rows = [
+        {"borough": b.name, "baseline": name, "held_out_start": start, "AccHR": float(v)}
+        for name, vals in results.items()
+        for start, v in zip(EVAL_STARTS, vals)
+    ]
+    out_path = out_dir / "s2_empirical_bayes_per_window.csv"
+    pd.DataFrame(rows).to_csv(out_path, index=False)
     print()
-    print("  For comparison on the same windows:")
-    print("    GNN final model (Lambeth)  0.7944")
-    print("    random baseline            0.1996")
+    print("  per-window results written to %s" % out_path)
+    # NOTE: the GNN comparison is deliberately NOT printed here. This script
+    # previously printed a hardcoded "GNN final model (Lambeth) 0.7944" for
+    # EVERY borough, so a Westminster or Tower Hamlets run displayed
+    # Lambeth's score under its own heading - and 0.7944 is additionally a
+    # single-seed figure, superseded by the 5-seed mean (V8/V11). The
+    # comparison now lives in scripts/run_s2_paired_comparison.py, which
+    # pairs these windows against the per-seed GNN windows properly.
 
 
 if __name__ == "__main__":

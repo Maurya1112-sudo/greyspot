@@ -1,0 +1,19 @@
+borough,baseline,held_out_start,AccHR
+Tower Hamlets,EB (HSM method),2023-07-15,0.8472222222222222
+Tower Hamlets,EB (HSM method),2023-10-13,0.9404761904761905
+Tower Hamlets,EB (HSM method),2024-01-11,0.8404761904761904
+Tower Hamlets,EB (HSM method),2024-04-10,0.7714285714285715
+Tower Hamlets,EB (HSM method),2024-07-09,0.9397435897435897
+Tower Hamlets,EB (HSM method),2024-10-07,0.9097222222222222
+Tower Hamlets,raw count (no shrinkage),2023-07-15,0.8159722222222222
+Tower Hamlets,raw count (no shrinkage),2023-10-13,0.9404761904761905
+Tower Hamlets,raw count (no shrinkage),2024-01-11,0.8047619047619047
+Tower Hamlets,raw count (no shrinkage),2024-04-10,0.8190476190476189
+Tower Hamlets,raw count (no shrinkage),2024-07-09,0.958974358974359
+Tower Hamlets,raw count (no shrinkage),2024-10-07,0.9027777777777777
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2023-07-15,0.7777777777777777
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2023-10-13,0.9404761904761905
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2024-01-11,0.8047619047619047
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2024-04-10,0.8666666666666666
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2024-07-09,0.8628205128205126
+Tower Hamlets,raw count CAPPED at 1825d (matched to GNN),2024-10-07,0.8888888888888888

@@ -1,0 +1,19 @@
+borough,baseline,held_out_start,AccHR
+Lambeth,EB (HSM method),2023-07-15,0.856060606060606
+Lambeth,EB (HSM method),2023-10-13,0.8333333333333333
+Lambeth,EB (HSM method),2024-01-11,0.7555555555555555
+Lambeth,EB (HSM method),2024-04-10,0.75
+Lambeth,EB (HSM method),2024-07-09,0.9047619047619048
+Lambeth,EB (HSM method),2024-10-07,0.8269230769230769
+Lambeth,raw count (no shrinkage),2023-07-15,0.8378787878787879
+Lambeth,raw count (no shrinkage),2023-10-13,0.8717948717948717
+Lambeth,raw count (no shrinkage),2024-01-11,0.7555555555555555
+Lambeth,raw count (no shrinkage),2024-04-10,0.8461538461538461
+Lambeth,raw count (no shrinkage),2024-07-09,0.9047619047619048
+Lambeth,raw count (no shrinkage),2024-10-07,0.7756410256410257
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2023-07-15,0.856060606060606
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2023-10-13,0.814102564102564
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2024-01-11,0.6722222222222222
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2024-04-10,0.8333333333333334
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2024-07-09,0.8333333333333333
+Lambeth,raw count CAPPED at 1825d (matched to GNN),2024-10-07,0.8397435897435896

@@ -6253,3 +6253,58 @@ suite stays NaN for those 21 windows - absent, not back-filled.
 `evaluate_config` confirming that a restart with 4 of 6 windows checkpointed
 performs exactly 2 trainings, returns all 6 results in the right date order,
 and refuses a foreign fingerprint. Full suite: 220 passed.
+
+
+## 2026-09-05 - S2b: the trivial-baseline comparison, seed-averaged and paired
+
+The GNN-vs-trivial-baseline result is the most consequential claim in the
+write-up, and it was the weakest-evidenced: a single-seed GNN score compared
+against baseline MEANS, with no paired test and therefore no p-value. Rule
+R10 requires any published number to be multi-seeded per borough. Redone
+properly in `scripts/run_s2_paired_comparison.py` (5 seeds x 6 windows x 3
+boroughs = 90 GNN measurements; the baselines are deterministic).
+
+| GNN (5-seed) vs | pooled diff | t-test p | Wilcoxon p | GNN wins |
+|---|---|---|---|---|
+| EB (HSM method) | **-3.71** | 0.0146 | 0.0237 | 6/18 |
+| raw count, no shrinkage | **-3.80** | 0.0289 | 0.0342 | 5/18 |
+| raw count CAPPED at 1825d (matched horizon) | -0.85 | 0.6398 | 0.7987 | 9/18 |
+
+**What changed and what did not.** The headline conclusion is unchanged and
+now rests on a proper paired test: at matched history depth the GNN is
+statistically indistinguishable from sorting segments by past crash count
+(9/18 windows, p=0.64). Given three more years of history the sort gains
++2.95 (83.94 vs 80.99) - reproducing the previously recorded figure exactly
+- while the GNN cannot use that information at all (S5: -0.72, p=0.74).
+
+**A sign error corrected.** The matched-horizon gap was recorded as "+0.85
+in the GNN's favour". It is -0.85: the baseline is ahead, not behind. The
+magnitude matching to two decimals across a recomputation makes a
+subtraction-order error much likelier than coincidence. It does not change
+the interpretation - p=0.64 is a tie in either direction - but the sign was
+wrong in MASTER_PLAN and is now fixed.
+
+**Seed-averaging made the uncapped result STRONGER, not weaker.** Both
+uncapped baselines are now significant at p<0.05, where the single-seed
+comparison could not produce a p-value at all. The convenient direction was
+not the one that materialised.
+
+**Cross-check.** The pooled seed-averaged GNN score computed here, 80.13,
+independently reproduces V11's 80.14 from a different code path and input
+file - confirming the log-parsed per-window data describes the same runs.
+
+**One same-seed discrepancy found, investigated, and reported.** The
+seed-42 cross-check against the committed per-window CSV flagged Westminster
+2023-10-13: log 0.8110 vs CSV 0.7993 (+0.0117), with the other five windows
+agreeing to 4 decimal places. A configuration difference would move every
+window, so this is not one. The likely mechanism is that AccHR@20 is a step
+function of the ranking: with 94%+ of segments tied at zero recent crashes,
+a numerically tiny change reorders the tie group and moves a block of
+segments across the top-20% cut at once. **Same-seed reruns are therefore
+not bit-identical on this metric.** A leave-one-out sensitivity check
+confirms no conclusion depends on that window (-0.85 -> -1.03 matched;
+-3.71 -> -4.05 EB; all p-values unmoved).
+
+**Per-window seed spread is large**: median std 0.038, max 0.085 across the
+5 seeds. Any per-window effect smaller than ~4 points is noise, which is
+consistent with the ~4-point run-level noise band established in V8.
