@@ -394,10 +394,14 @@ Test suite: **207 passing** (`python -m pytest tests/ -q`).
    are one-run results; paired comparisons are unaffected because both
    arms run under identical conditions.
 
-7. **Most single-borough findings do not replicate.** Of nine findings
-   that appeared significant on one borough, three survived a second.
-   Effect size predicted the outcome for main effects (everything above
-   the ~4-point seed-noise band replicated) but NOT for interactions —
+7. **Most single-borough findings do not replicate.** Of ten findings
+   that appeared significant on one borough, three survived a second
+   (six failed, one unresolved). Effect size predicts non-replication
+   only: below the ~4-point seed-noise band 0 of 3 replicated, above it
+   just 4 of 6 (`scripts/check_effect_size_heuristic.py`). Two supra-noise
+   MAIN effects failed — road class (−6.87, sign reversed) and
+   rank-transform scaling (+5.80 → −39.7) — so a large effect is not
+   licence to believe a single-borough result. Interactions are worse:
    one +25-point interaction reversed sign between boroughs.
 
 8. **Seed bias is borough-specific and flips sign.** +1.69 optimistic on

@@ -126,11 +126,16 @@ time.**
 
 ## Why the decision log is part of the contribution
 
-Of **nine** findings that looked significant on a single borough, only
-**three survived replication on a second**. Effect size predicted the
-outcome for main effects — everything above the measured ~4-point
-seed-noise band replicated, everything below it failed — but **not for
-interactions**: one +25-point interaction reversed sign between boroughs.
+Of **ten** findings that looked significant on a single borough, only
+**three survived replication on a second** (six failed, one unresolved).
+
+Effect size predicts non-replication, but not replication. Every effect
+below the measured ~4-point seed-noise band failed (3 of 3), so a small
+single-borough result can be discarded without further runs. But only
+**4 of 6** effects above the band survived: road class (−6.87) reversed
+sign, and rank-transform scaling went from the best result recorded here
+(+5.80) to the worst (−39.7). Interactions are less reliable still — one
++25-point interaction reversed sign between boroughs.
 
 One candidate shrank monotonically from +2.53 (n=6) to −0.60 (n=18) as
 evidence accumulated. One configuration scored best-ever on one borough
