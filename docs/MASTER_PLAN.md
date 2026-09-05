@@ -178,42 +178,34 @@ plausible but still need one replication each before publication.
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
 
-### ⚠ FIRST ACTION AFTER RESTART (machine shut down 2026-09-05 ~10:30)
+### Live state — 2026-09-05 15:05 (post-restart)
 
-S3 (Westminster dense eval) was killed by the shutdown at **21 of 38
-windows**. Those windows are saved in
-`reports/westminster/s3_dense_partial_recovered.csv` (AccHR recovered
-from the run log; the rest of the metric suite is unavailable for them).
+**Running now** (both visible as Monitors):
+- S1 resume: City of London training (Camden ☑ 84.66, K&C ☑ 74.54 already done)
+- Chained retry: Wandsworth + Brent, starts automatically when S1 exits
+  (waits rather than running concurrently — R5)
 
-Resume it - this re-uses the 21 and trains only the remaining 17,
-saving ~3 hours:
+**Done since the restart:**
+- R14 codified as a real guard (`greyspot.ingest.poi`) and wired into 50
+  scripts. One true positive (Wandsworth, 3rd Overpass failure) and one
+  false positive (Brent — my floor was calibrated on inner-London boroughs
+  only) on day one. Both documented.
+- **S2b**: the trivial-baseline comparison redone seed-averaged and paired.
+  Sign error corrected; conclusion unchanged and now significance-tested.
+  Propagated to README, final_model.md and the preprint.
+- Walk-forward evaluation made resumable (per-window checkpointing).
 
-```
-python scripts/run_ucl_comparison_dense_eval.py Westminster   --seed-from=reports/westminster/s3_dense_partial_recovered.csv
-```
-
-Attach a Monitor in the SAME action (R9). The script now checkpoints
-per window, so any further interruption costs one window, not the run.
-
-**S3 is the lowest-value job in the queue** - it narrows the CI on a
-number already established, and does not test any claim. If time is
-short, prefer: (a) retry Overpass to finish the blocked five-borough
-generalisation, (b) multi-seed the trivial-baseline comparison
-(currently single-run, and it is the most uncomfortable result in the
-paper), or (c) replicate S5's deep-history null on a second borough.
-
-Queue after S1, in order:
-1. **S2** Empirical Bayes baseline - preempts "you rediscovered EB",
-   connects to the Highway Safety Manual literature.
-2. **S4** Holiday-window analysis - 3 of the 5 worst dense-eval windows
-   were Dec 8 - Jan 19; a real limitation with a mechanism.
-3. **S3** Dense eval of the FINAL config (~6h) - the earlier dense run
-   evaluated a superseded configuration.
-4. **P1** Preprint draft, once the above are in.
-
-**Phase 2 is deliberately NOT started**: adding five new boroughs tests
-breadth, but the central claim is not yet replicated even once. Depth
-before breadth.
+**Queue, highest value first:**
+1. **C2 third borough** (Tower Hamlets) — the "13 ≈ 35 features" claim is
+   DOWNGRADED pending it. GPU.
+2. **C6 substitution effect on Tower Hamlets** — currently rests on
+   Westminster alone, and it is in the preprint. GPU.
+3. **S5 deep-history null, second borough** — a single-borough null is
+   exactly what this project has repeatedly seen fail to replicate. GPU.
+4. **S3 dense eval** — resume from the 21 saved windows via
+   `--seed-from=reports/westminster/s3_dense_partial_recovered.csv`.
+   Lowest value: it narrows a CI on an established number and tests no
+   claim. Do it last, or not at all.
 
 ---
 
