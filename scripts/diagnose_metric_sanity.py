@@ -41,12 +41,33 @@ def main() -> None:
     print("METRIC SANITY CHECK (theoretical random = 0.20)")
     print("realistic sparse target: %d segments, %d days, ~2-4 crashes/day" % (N, H))
     print()
+    rows: list[dict] = []
     for name, pred in cases:
         scores = [accuracy_hit_rate(y, pred, top_fraction=0.20) for _ in range(5)]
+        rows.append({"prediction": name, "AccHR": round(float(np.mean(scores)), 4)})
         print("  %-30s AccHR@20 = %.4f" % (name, float(np.mean(scores))))
     print()
     print("PASS if all-constant scores BELOW random: a constant prediction must not")
     print("be rewarded by tie-breaking, or every score would be partly an artefact.")
+
+    # Committed artefact (R12). The 10.12% figure is quoted in the preprint,
+    # README and final_model.md, and an audit on 2026-09-05 found it was the
+    # ONLY number in the write-up with no trace in either the decision log or
+    # the master plan - it lived solely in this script's console output.
+    import pandas as pd
+    out = ROOT / "reports" / "metric_sanity_check.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(out, index=False)
+    print()
+    print("Written to %s" % out)
+    constant = next(r["AccHR"] for r in rows if r["prediction"].startswith("all-constant"))
+    rand = next(r["AccHR"] for r in rows if r["prediction"].startswith("random"))
+    assert constant < rand, (
+        "SANITY CHECK FAILED: a constant prediction (%.4f) scored at or above random "
+        "(%.4f). Every AccHR@20 figure in this project would then be partly a "
+        "tie-breaking artefact." % (constant, rand)
+    )
+    print("PASS: constant %.4f < random %.4f" % (constant, rand))
 
 
 if __name__ == "__main__":

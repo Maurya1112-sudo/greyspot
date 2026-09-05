@@ -6467,3 +6467,34 @@ This is the seventh finding to fail replication, and the fourth to fail by
 sign reversal specifically (road class, rank scaling, architecture-history
 interaction, now substitution). Sign reversal - not shrinkage toward zero -
 is the characteristic failure mode at this evaluation scale.
+
+## 2026-09-05 - Source audit of the write-up: one unsourced number found
+
+Every numeric claim in preprint sections 4-6 was checked for a trace in
+either `docs/decision_log.md` or `docs/MASTER_PLAN.md`. 12 of 13 traced.
+
+The exception was **10.12%** - the constant-prediction sanity check, which
+is load-bearing: it is what rules out every AccHR@20 figure in the project
+being partly a tie-breaking artefact. `scripts/diagnose_metric_sanity.py`
+did regenerate it, so R12 was satisfied, but the result lived only in that
+script's console output and appeared in no ledger.
+
+The script now writes `reports/metric_sanity_check.csv` and **asserts** the
+property it exists to test, so a future change that let a constant
+prediction score at or above random would fail loudly rather than print a
+number nobody reads:
+
+| prediction | AccHR@20 |
+|---|---|
+| all-constant (0.001) | 0.1012 |
+| all-zeros | 0.1012 |
+| random uniform | 0.1667 |
+| near-constant + tiny noise | 0.1964 |
+
+Constant (0.1012) < random (0.1667): PASS.
+
+Note the near-constant row: adding tiny noise to a constant raises the
+score from 0.1012 to 0.1964, i.e. almost to random. That is worth keeping
+in view - it means the metric is sensitive to arbitrary tie-breaking among
+the ~94% of segments with no recent crashes, which is the same mechanism
+behind the same-seed window discrepancy found earlier today.

@@ -1,0 +1,5 @@
+prediction,AccHR
+all-constant (0.001),0.1012
+all-zeros,0.1012
+random uniform,0.1667
+near-constant + tiny noise,0.1964
