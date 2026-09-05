@@ -38,7 +38,7 @@ FINDINGS = [
     ("weight_decay=0.01",                     2.53, False, False),
     ("Architecture ensembling",               1.79, False, False),
     ("hidden=42/42",                          1.46, False, False),
-    ("13 features == 35 features",            0.99, None,  False),  # unresolved
+    ("13 features == 35 features",            0.99, False, False),  # settled 2026-09-05: sign flips
 ]
 
 

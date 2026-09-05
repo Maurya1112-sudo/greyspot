@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 16:10 (C6 substitution FAILS; effect-size heuristic corrected; preprint claims verified mechanically)
+Last updated: 2026-09-05 16:20 (C2 FAILS on 3rd borough; C6 substitution FAILS; effect-size heuristic corrected; 16 preprint claims machine-verified)
 
 ---
 
@@ -73,22 +73,21 @@ at n=31.
 | architecture ensemble | yes | FAILED |
 | weight_decay=0.01 | yes | FAILED |
 | road class harmful | yes | **FAILED** |
-| 13 features == 35 | yes | DOWNGRADED |
+| 13 features == 35 | yes (3 boroughs) | **FAILED** - sign flips: -0.99 Lam, -4.08 WM, **+0.77 TH** |
 | architecture topology | yes | **REPLICATED** |
 | **history horizon** | yes | **REPLICATED** (+15.85 Lam / +9.70 WM, 6/6 windows) |
 | **our arch beats theirs** | yes (3 boroughs) | **REPLICATED** (+9.08 to +24.42, p<0.01 both tested) |
 | rank-transform scaling | yes | **FAILED** - +5.80 (best ever) became −39.7 (worst ever) |
 | substitution effect (interaction) | yes (3 boroughs) | **FAILED** - sign reverses (WM gap collapses −15.33, TH gap widens +5.93) |
 
-**3 of 10 single-borough findings survived replication intact; 6 failed,
-1 unresolved.**
+**3 of 10 single-borough findings survived replication intact; 7 failed.**
 
 **Effect size predicts NON-replication only** (corrected 2026-09-05 after
 checking it mechanically — `scripts/check_effect_size_heuristic.py`):
 
 | Borough-1 effect | Replicated | Failed |
 |---|---|---|
-| Below the ~4-point seed-noise band | 0 | 3 |
+| Below the ~4-point seed-noise band | 0 | 4 |
 | Above it | 4 | 2 |
 
 Every sub-noise effect failed, so a small single-borough result can be
@@ -132,7 +131,7 @@ three of three single-borough candidates failed replication.
 | ID | Finding | Coverage | Action |
 |---|---|---|---|
 | C1 | Architecture ablation ("topology decisive") | **2 boroughs ☑** | **REPLICATES**: layers -26.46/-43.21, encoder -13.61/-9.42, all p<0.05. First candidate today to survive replication. **2-layer DIVERGES on Westminster (2/6 windows below random) - restate as 'unstable', not 'costs N points'** |
-| C2 | 13 features ≈ 35 features | **2 boroughs ☑** | **PARTIALLY**: Lambeth -0.99 (p=0.35) but Westminster **-4.08 (p=0.092)** -> claim DOWNGRADED, needs a 3rd borough. **BUT: 26 features == 35 on both (p=0.89/0.99) -> socio-demographic can be dropped outright** |
+| C2 | 13 features ≈ 35 features | **3 boroughs ☑** | **FAILS - claim RETRACTED** (settled 2026-09-05, `scripts/run_c2_three_borough_analysis.py`). Sign flips: Lambeth -0.99 (p=0.35), Westminster -4.08 (p=0.092), **Tower Hamlets +0.77 (p=0.77)**. Pooled -1.44 (p=0.2293) averages opposite-signed effects AND sits inside the ~4-pt noise band. Criteria were fixed in the script before the third borough ran. **The socio-demographic sub-claim (26 features == 35 on both) is separate and still stands.** |
 | C3 | Road class harmful | **2 boroughs ☑** | **DOES NOT REPLICATE - claim RETRACTED.** Lambeth -6.87/-4.49 (p=0.016) but Westminster -0.37/**+2.25** - sign flips. Effect is Lambeth-specific |
 | C4 | Pruning −6.89 | Lambeth, seed 42 | ☐ (superseded by C2 - the ladder is the better test) |
 | C5 | Table-start control | Lambeth, seed 42 | ☐ low priority - it was a negative control, and it agreed with the baseline |

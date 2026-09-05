@@ -38,10 +38,18 @@ differ.
 
 Run: `python scripts/run_ucl_comparison_multiyear.py <Borough>`
 
-> **A 13-feature model performs statistically the same** (78.77% vs
-> 79.76%, p=0.3473 - see §3.4). It needs only OS Open Roads geometry and
-> STATS19 crash history: no IMD/Census join, no OSM POI download, no
-> AADF. For reproduction, prefer it.
+> **RECOMMENDATION WITHDRAWN 2026-09-05.** This note previously said a
+> 13-feature model performs statistically the same (78.77% vs 79.76%,
+> p=0.3473 on Lambeth) and should be preferred for reproduction. A third
+> borough refutes the generalisation: the effect is −0.99 (Lambeth),
+> −4.08 (Westminster) and **+0.77 (Tower Hamlets)** — it changes
+> direction, so no general recommendation is supportable
+> (`scripts/run_c2_three_borough_analysis.py`).
+>
+> The **26-feature** cut is different and does still hold: dropping the
+> socio-demographic block is statistically neutral on both boroughs tested
+> (+0.23 / −0.03, p=0.887 / 0.987), removing the IMD/Census dependency
+> without the contested claim.
 
 ### 2.1 Road network
 
@@ -396,8 +404,8 @@ Test suite: **207 passing** (`python -m pytest tests/ -q`).
 
 7. **Most single-borough findings do not replicate.** Of ten findings
    that appeared significant on one borough, three survived a second
-   (six failed, one unresolved). Effect size predicts non-replication
-   only: below the ~4-point seed-noise band 0 of 3 replicated, above it
+   (seven failed). Effect size predicts non-replication
+   only: below the ~4-point seed-noise band 0 of 4 replicated, above it
    just 4 of 6 (`scripts/check_effect_size_heuristic.py`). Two supra-noise
    MAIN effects failed — road class (−6.87, sign reversed) and
    rank-transform scaling (+5.80 → −39.7) — so a large effect is not

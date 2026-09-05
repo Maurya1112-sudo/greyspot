@@ -60,6 +60,9 @@ def seed_stats(borough: str):
 
 def main() -> None:
     text = PREPRINT.read_text(encoding="utf-8")
+    # Markdown wraps prose, so "4 of 6" can straddle a newline. Search a
+    # whitespace-collapsed copy for phrases; keep `text` for line-based work.
+    flat = re.sub(r"\s+", " ", text)
 
     # --- 1. headline per-borough figures -------------------------------
     for borough in V8_LOGS:
@@ -131,7 +134,7 @@ def main() -> None:
         above = res[res.above_band]
         b_rep, b_n = int(below.replicated.sum()), len(below)
         a_rep, a_n = int(above.replicated.sum()), len(above)
-        check(f"{a_rep} of {a_n}" in text, "heuristic 'above band' figure",
+        check(f"{a_rep} of {a_n}" in flat, "heuristic 'above band' figure",
               "computed %d of %d replicated above the band" % (a_rep, a_n))
         check(b_rep == 0, "heuristic 'below band' figure",
               "computed %d of %d replicated below the band" % (b_rep, b_n))
@@ -148,8 +151,21 @@ def main() -> None:
     check(f"of {['zero','one','two','three','four','five','six','seven','eight','nine','ten'][total]} findings" in text
           or f"of {total} findings" in text,
           "abstract count matches table", "table has %d rows" % total)
-    check(rep == 3 and fail == 6 and unres == 1, "table composition",
-          "%d replicated, %d failed, %d unresolved" % (rep, fail, unres))
+    # Do not hard-code the composition - it changes as replications land.
+    # The invariant that matters is that the ABSTRACT's stated counts match
+    # what the table actually contains.
+    words = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+             "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+    m_rep = re.search(r"only (\w+) survived replication", flat)
+    m_fail = re.search(r"\((\w+) failed", flat)
+    stated_rep = words.get(m_rep.group(1)) if m_rep else None
+    stated_fail = words.get(m_fail.group(1)) if m_fail else None
+    check(stated_rep == rep, "abstract 'survived' count",
+          "abstract says %s, table has %d" % (stated_rep, rep))
+    check(stated_fail == fail, "abstract 'failed' count",
+          "abstract says %s, table has %d" % (stated_fail, fail))
+    check(rep + fail + unres == total, "counts sum to table size",
+          "%d + %d + %d vs %d rows" % (rep, fail, unres, total))
 
     # --- report --------------------------------------------------------
     print("=" * 76)

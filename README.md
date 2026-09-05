@@ -92,9 +92,15 @@ crash-history horizon from 30 days to 5 years (+15.87).
 **Socio-demographic features add nothing.** A 26-feature model is
 statistically indistinguishable from the 35-feature one on *both* tested
 boroughs (+0.23 / −0.03, p=0.887 / 0.987), so the IMD/Census dependency
-can be dropped. A further cut to 13 features (geometry + crash history
-only) is −0.99 on Lambeth but −4.08 on Westminster — plausible, but it
-needs a third borough before being recommended.
+can be dropped. This sub-claim replicates and still stands.
+
+**But a deeper cut to 12 features does NOT replicate**, and is no longer
+recommended. Across three boroughs the effect changes direction: −0.99
+(Lambeth), −4.08 (Westminster), **+0.77 (Tower Hamlets)**. The pooled
+−1.44 (p=0.229) averages effects pointing opposite ways *and* sits inside
+the seed-noise band. Whether the extra features help appears to be
+borough-specific, so neither "they are droppable" nor "they matter" is
+supportable as a general claim.
 
 ### Validation controls (all passed)
 
@@ -109,7 +115,7 @@ needs a third borough before being recommended.
 ## Reproducing
 
 ```bash
-python -m pytest tests/ -q                                  # 211 tests
+python -m pytest tests/ -q                                  # 232 tests
 python scripts/run_ucl_comparison_multiyear.py Lambeth      # final model
 python scripts/run_v8_multiseed.py Lambeth                  # multi-seed check
 ```
@@ -127,10 +133,10 @@ time.**
 ## Why the decision log is part of the contribution
 
 Of **ten** findings that looked significant on a single borough, only
-**three survived replication on a second** (six failed, one unresolved).
+**three survived replication on a second** (seven failed).
 
 Effect size predicts non-replication, but not replication. Every effect
-below the measured ~4-point seed-noise band failed (3 of 3), so a small
+below the measured ~4-point seed-noise band failed (4 of 4), so a small
 single-borough result can be discarded without further runs. But only
 **4 of 6** effects above the band survived: road class (−6.87) reversed
 sign, and rank-transform scaling went from the best result recorded here

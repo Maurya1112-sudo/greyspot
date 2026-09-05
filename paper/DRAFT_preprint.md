@@ -14,12 +14,13 @@ constructed data. Our model reaches AccHR@20 of 80.14% ± 1.12 (5 seeds)
 against their reported 72.60%, significantly better on two of three
 boroughs. But the more transferable results are negative and
 methodological: of ten findings that appeared significant on a single
-borough, **only three survived replication on a second** (six failed, one
-remains unresolved). Effect size predicts non-replication but not
-replication: every effect below the measured ~4-point seed-noise band
-failed (3/3), while only 4 of 6 effects above it survived — a small effect
-is reliable evidence against, a large one is weak evidence for. We further
-show that at
+borough, **only three survived replication on a second** (seven failed).
+Effect size predicts non-replication but not replication: every effect
+below the measured ~4-point seed-noise band failed (4/4), while only 4 of
+6 effects above it survived — a small effect is reliable evidence against,
+a large one is weak evidence for. Failure is characteristically a **sign
+reversal** between boroughs, not a shrinkage toward zero: four of the
+seven changed direction. We further show that at
 matched history depth our graph neural network is **statistically
 indistinguishable from sorting road segments by their past crash count**,
 and that it cannot exploit additional history that the trivial sort
@@ -62,12 +63,11 @@ TCR formula, segment consolidation and evaluation protocol.
 | Architecture ensembling | +1.79 | failed (p=0.55 at n=18) |
 | weight_decay=0.01 | +2.53, 0 losing windows | failed (−0.60 at n=18) |
 | Road class harmful | −6.87, −4.49 (p=0.016) | failed (sign flips, +2.25) |
-| 13 features ≈ 35 features | −0.99 (p=0.35) | downgraded (−4.08) |
+| 13 features ≈ 35 features | −0.99 (p=0.35) | failed (−4.08, then **+0.77** on a third) |
 | Architecture × history interaction | +25.04 vs +9.70 | failed (reverses sign) |
 | Rank-transform scaling | +5.80 (best ever) | failed (−39.7, worst ever) |
 
-**Three of ten survived; six failed; one is unresolved** (the feature-count
-claim, which a third borough is being run to settle).
+**Three of ten survived; seven failed.**
 
 Effect size is often proposed as a filter for which single-sample results
 to trust. On this evidence it works in **one direction only**
@@ -75,7 +75,7 @@ to trust. On this evidence it works in **one direction only**
 
 | Borough-1 effect | Replicated | Failed |
 |---|---|---|
-| Below the ~4-point seed-noise band | 0 | 3 |
+| Below the ~4-point seed-noise band | 0 | 4 |
 | Above it | 4 | 2 |
 
 Every sub-noise effect failed, so a small effect is reliable evidence
@@ -88,6 +88,14 @@ only weak evidence *for* replication: necessary, not sufficient.
 Interactions are worse still: the architecture×history interaction was +25
 points — larger than any surviving main effect — and reversed sign between
 boroughs.
+
+**How failures look matters more than how often they happen.** Four of the
+seven failures were sign reversals, not attenuations: road class (−6.87 →
++2.25), rank-transform scaling (+5.80 → −39.7), the architecture×history
+interaction, and the feature-count claim (−0.99 and −4.08 on two boroughs,
+then +0.77 on a third). A practitioner who assumed effects merely shrink
+across regions — and who therefore treated a single-region estimate as an
+upper bound — would have had the direction wrong, not just the magnitude.
 
 **The practical implication** is asymmetric and cheap to apply: a
 sub-noise single-borough result can be discarded without further runs,

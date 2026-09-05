@@ -6498,3 +6498,45 @@ score from 0.1012 to 0.1964, i.e. almost to random. That is worth keeping
 in view - it means the metric is sensitive to arbitrary tie-breaking among
 the ~94% of segments with no recent crashes, which is the same mechanism
 behind the same-seed window discrepancy found earlier today.
+
+## 2026-09-05 - C2 settled on a third borough: FAILS, recommendation withdrawn
+
+The "fewer features are as good as 35" claim was DOWNGRADED on 2026-09-04
+after Lambeth (−0.99, p=0.35) and Westminster (−4.08, p=0.092) disagreed.
+Tower Hamlets settles it, and the criteria were fixed in
+`scripts/run_c2_three_borough_analysis.py` before the run existed, so the
+verdict was not fitted to the numbers.
+
+| borough | 12 feat | 35 feat | diff | wins | t-test p |
+|---|---|---|---|---|---|
+| Lambeth | 78.77 | 79.76 | −0.99 | 2/6 | 0.3473 |
+| Westminster | 75.79 | 79.87 | −4.08 | 2/6 | 0.0919 |
+| Tower Hamlets | 84.70 | 83.93 | **+0.77** | 3/6 | 0.7728 |
+| POOLED | 79.75 | 81.19 | −1.44 | 7/18 | 0.2293 |
+
+**The sign flips, so the claim FAILS.** The pooled p-value (0.2293) would
+read as "no significant difference", i.e. as *support* for the null being
+claimed - which is exactly why the pre-registered criterion treats a sign
+reversal as failure independently of significance. Averaging a −4.08 and a
++0.77 into "no effect" would have been the wrong conclusion drawn from the
+right p-value.
+
+**Two recommendations withdrawn**, which matters more than the bookkeeping:
+
+- `docs/final_model.md` §2 told readers to *prefer* the 13-feature model
+  for reproduction, on Lambeth evidence alone.
+- `README.md` described the cut as "plausible, pending a third borough".
+
+Both are now marked withdrawn with the evidence. A reader who had followed
+the spec would have adopted a configuration that is 4 points worse on one
+of the three boroughs tested.
+
+**The socio-demographic sub-claim is separate and survives**: dropping that
+block (35 → 26 features) is neutral on both boroughs tested (+0.23 / −0.03,
+p=0.887 / 0.987). The IMD/Census dependency can still go.
+
+Running total: **3 of 10 replicated, 7 failed.** Four of the seven failed
+by sign reversal rather than attenuation - the characteristic failure mode
+at this evaluation scale, and the one most likely to mislead, since a
+practitioner assuming effects merely shrink across regions would have had
+the direction wrong rather than just the magnitude.
