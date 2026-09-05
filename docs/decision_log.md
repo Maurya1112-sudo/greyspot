@@ -6540,3 +6540,35 @@ by sign reversal rather than attenuation - the characteristic failure mode
 at this evaluation scale, and the one most likely to mislead, since a
 practitioner assuming effects merely shrink across regions would have had
 the direction wrong rather than just the magnitude.
+
+## 2026-09-05 - S1 generalisation: three more boroughs, and an SD convention bug
+
+Brent completed (77.64%, sample SD ±11.92), joining Camden (84.66) and
+Kensington & Chelsea (74.54). Across all six boroughs now measured the
+range is **74.54–84.66**, so the model does generalise beyond the three
+benchmark boroughs in the weak sense of "works at all". These are seed-42
+single runs and per R10 cannot be quoted as point estimates.
+
+Brent's spread is the widest recorded (±11.92, with one window at 57.69%).
+It is the only outer-London borough tested and the least POI-dense, which
+is consistent with the measured dependence of AccHR@20 on crash volume
+(+0.39 points per additional crash in a window): fewer crashes per window
+means a noisier measurement, a property of the evaluation rather than the
+model.
+
+**An SD convention bug found while checking this.** `docs/final_model.md`
+§3.1 quoted per-window standard deviations that mixed two conventions
+*within one table row*: Westminster's 7.35% was the sample SD (ddof=1)
+while Tower Hamlets' 4.71% and Lambeth's 5.59% were population SD
+(ddof=0). At n=6 the two differ by √(6/5) ≈ 1.095, so the three figures
+were not comparable with one another — Tower Hamlets looked ~10% more
+stable than it is, relative to Westminster.
+
+The run scripts emit `np.std` (ddof=0) in their own summaries while the
+seed-level ± figures throughout the project use ddof=1. Both are
+defensible in isolation; mixing them in one table is not. All quoted SDs
+are now sample SD, with the convention stated in the document.
+
+No significance test is affected: `scipy.stats.ttest_rel` and `wilcoxon`
+compute their own variance correctly, so every p-value in the project
+stands.

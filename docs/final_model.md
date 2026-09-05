@@ -159,7 +159,16 @@ and rejected; clipped z-score at ±5σ was a clean null, p=0.9899.)
 | 2024-07-09 | 10 | 84.73% | 89.10% | **89.29%** |
 | 2024-10-07 | 11 | 74.87% | **90.97%** | 78.85% |
 | **Mean** | | **78.92%** | **83.93%** | **79.44%** |
-| Std | | 7.35% | 4.71% | 5.59% |
+| Std (sample, ddof=1) | | 7.35% | 5.16% | 6.12% |
+
+> **SD convention, fixed 2026-09-05.** This row previously mixed two
+> conventions: Westminster's 7.35% was the sample SD (ddof=1) while Tower
+> Hamlets' 4.71% and Lambeth's 5.59% were population SD (ddof=0). At n=6
+> these differ by a factor of √(6/5) ≈ 1.095, so the three numbers were
+> not comparable with each other. All are now sample SD, matching the
+> seed-level ± figures used elsewhere in this project. The run scripts
+> still emit `np.std` (ddof=0) in their own summaries; that is fine for
+> internal logs but must be converted before quoting.
 
 Per-window variance fell substantially alongside the mean improvement
 (Lambeth std 10.28% → 5.59%), consistent with the tie-breaking
