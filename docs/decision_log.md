@@ -6007,3 +6007,34 @@ against the other boroughs before writing the cache - otherwise this
 recurs on any flaky network night.
 
 Recorded as a pipeline defect to fix, not merely an incident.
+
+### S1 halted: Overpass API unusable, Brent also corrupt (zero POIs)
+
+Brent completed at 73.98% (std 0.1564, min 0.4359 - abnormally wide) and
+its POI cache turned out to be **completely empty**: 0 rows, 0 POIs. The
+run trained with zero-filled POI features throughout.
+
+A density check across all boroughs makes the corruption unambiguous:
+
+| Borough | POIs / polygon area |
+|---|---|
+| Westminster | 5,643,353 |
+| Kensington and Chelsea | 4,646,553 |
+| Camden | 4,026,991 |
+| Tower Hamlets | 4,172,188 |
+| Lambeth | 2,380,162 |
+| **Brent** | **0** |
+
+**S1 was stopped rather than continued.** City of London was next and
+would have failed the same way, producing a third invalid borough and
+consuming another 20 minutes of GPU time for nothing. Continuing a run
+that cannot produce valid data is worse than redirecting.
+
+**S1 outcome**: Camden 84.66% and Kensington and Chelsea 74.54% are
+VALID (their POI caches predate tonight's outage and pass the density
+check). Wandsworth and Brent are quarantined in `reports/_invalid/`.
+City of London was not run. **Generalisation therefore rests on two new
+boroughs, not five** - to be completed when Overpass recovers.
+
+**Redirected to S5** (extend the history ceiling), which needs no
+network at all: cached graphs plus local STATS19 files.
