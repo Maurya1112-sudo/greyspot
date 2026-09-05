@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 06:55 (S4 done - holiday effect real; crash-density claim revived at n=31)
+Last updated: 2026-09-05 16:10 (C6 substitution FAILS; effect-size heuristic corrected; preprint claims verified mechanically)
 
 ---
 
@@ -22,7 +22,7 @@ Last updated: 2026-09-05 06:55 (S4 done - holiday effect real; crash-density cla
 | R8 | **Verify every doc edit actually applied.** A string-replace that does not match silently does nothing. | The V5 row sat stale at "queued" for 90 minutes after the task had passed, because an update pattern did not match. |
 | R10 | **Multi-seed any number that appears in an output, per borough.** Noise is ~4 points and the bias is NOT transferable between boroughs - it flips sign. | V8/V11: seed 42 was joint-highest of 5 on Lambeth (+1.69) and LOWEST of 5 on Westminster (-1.11). |
 | R14 | **Validate downloaded data against its peers before caching it.** A partial network response looks identical to a small borough. | Wandsworth's POI download timed out and cached 1,637 POIs vs Camden's 11,367 for a LARGER borough - a silent corruption that would have been reused forever. |
-| R13 | **Never claim an INTERACTION between two factors from fewer than 3 boroughs, whatever its size.** Effect size predicts replication for main effects only. | The substitution effect was +25.04 vs +9.70 - far outside the ~4-pt noise band - and still reversed sign between Westminster and Tower Hamlets. |
+| R13 | **Never claim an INTERACTION between two factors from fewer than 3 boroughs, whatever its size.** (Effect size does not rescue main effects either — see §2b: it predicts non-replication only.) | The substitution effect was +25.04 vs +9.70 - far outside the ~4-pt noise band - and still reversed sign between Westminster and Tower Hamlets. |
 | R15 | **When you kill a run, kill its Monitor in the same action.** A watcher polling a log that will never complete spins until the session ends. | S5's first (truncated) run was killed at 03:05; its monitor kept polling for 4h43m and was only noticed because the user saw the task chip. |
 | R16 | **Verify a kill actually killed it.** `pkill -f` does NOT reliably match full command lines under Git Bash on Windows. On 2026-09-05 a `pkill -f run_s1_retry_after` reported success, left the shell loop alive, and it started a SECOND GPU job two seconds before I launched another - breaking R5 without any error appearing. After any kill, list the processes again and confirm. |
 | R12 | **Any number quoted in a doc needs a script in the repo.** An inline diagnostic that prints to console is not a reproducible artefact. | The metric sanity check (a load-bearing claim) existed only as console output until the 2026-09-05 audit. |
@@ -77,20 +77,31 @@ at n=31.
 | architecture topology | yes | **REPLICATED** |
 | **history horizon** | yes | **REPLICATED** (+15.85 Lam / +9.70 WM, 6/6 windows) |
 | **our arch beats theirs** | yes (3 boroughs) | **REPLICATED** (+9.08 to +24.42, p<0.01 both tested) |
-| substitution effect (interaction) | yes | **FAILED** - sign reverses (WM gap collapses, TH gap widens) |
+| rank-transform scaling | yes | **FAILED** - +5.80 (best ever) became −39.7 (worst ever) |
+| substitution effect (interaction) | yes (3 boroughs) | **FAILED** - sign reverses (WM gap collapses −15.33, TH gap widens +5.93) |
 
-**3 of 9 single-borough findings survived replication intact.**
+**3 of 10 single-borough findings survived replication intact; 6 failed,
+1 unresolved.**
 
-Effect size predicts replication for MAIN EFFECTS: all three survivors
-were large (9–26 pts, above the ~4-pt seed-noise band); the four
-small failures (1–3 pts) were inside it.
+**Effect size predicts NON-replication only** (corrected 2026-09-05 after
+checking it mechanically — `scripts/check_effect_size_heuristic.py`):
 
-**But it does NOT predict replication for INTERACTIONS.** The
-substitution effect was +25.04 vs +9.70 — far outside the noise band —
-and still reversed sign between boroughs. **Revised rule: main effects
-replicate if they exceed the noise band; interactions between factors
-should not be claimed from fewer than three boroughs, whatever their
-size.**
+| Borough-1 effect | Replicated | Failed |
+|---|---|---|
+| Below the ~4-point seed-noise band | 0 | 3 |
+| Above it | 4 | 2 |
+
+Every sub-noise effect failed, so a small single-borough result can be
+discarded without spending a replication run on it. But **two supra-noise
+MAIN effects failed anyway** — road class (−6.87, sign reversed to +2.25)
+and rank-transform scaling (+5.80 → −39.7). The earlier text here claimed
+"all three survivors were large … the four small failures were inside the
+band", which its own table contradicts: road class is listed as FAILED and
+is 6.87 points.
+
+So the relation is **necessary, not sufficient**: large effects still
+require replication. Interactions are weaker still — the substitution
+effect was +25.04 vs +9.70, far outside the band, and reversed sign (R13).
 
 ## 3. Verification ledger — every task, its state, and its cross-check
 
