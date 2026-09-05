@@ -176,7 +176,30 @@ plausible but still need one replication each before publication.
 ## 5. Next action
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
-Currently: **S1 running overnight** (5-borough generalisation).
+
+### ⚠ FIRST ACTION AFTER RESTART (machine shut down 2026-09-05 ~10:30)
+
+S3 (Westminster dense eval) was killed by the shutdown at **21 of 38
+windows**. Those windows are saved in
+`reports/westminster/s3_dense_partial_recovered.csv` (AccHR recovered
+from the run log; the rest of the metric suite is unavailable for them).
+
+Resume it - this re-uses the 21 and trains only the remaining 17,
+saving ~3 hours:
+
+```
+python scripts/run_ucl_comparison_dense_eval.py Westminster   --seed-from=reports/westminster/s3_dense_partial_recovered.csv
+```
+
+Attach a Monitor in the SAME action (R9). The script now checkpoints
+per window, so any further interruption costs one window, not the run.
+
+**S3 is the lowest-value job in the queue** - it narrows the CI on a
+number already established, and does not test any claim. If time is
+short, prefer: (a) retry Overpass to finish the blocked five-borough
+generalisation, (b) multi-seed the trivial-baseline comparison
+(currently single-run, and it is the most uncomfortable result in the
+paper), or (c) replicate S5's deep-history null on a second borough.
 
 Queue after S1, in order:
 1. **S2** Empirical Bayes baseline - preempts "you rediscovered EB",
@@ -194,5 +217,14 @@ before breadth.
 ---
 
 ## 6. Change log
+
+- **2026-09-05** Walk-forward evaluation made resumable
+  (`src/greyspot/eval/checkpoint.py`, wired into the dense-eval script).
+  Per-window results are appended and fsync'd as they complete; a restart
+  skips windows already done, gated on a config fingerprint that REFUSES
+  to resume across differing configurations. Prompted by losing a run to
+  an interruption for the second time. Testing found two real bugs in the
+  hard-shutdown path (zero-byte file raised; a torn row's NaN fingerprint
+  tripped the stale-config guard). 220 tests pass. See `docs/decision_log.md`.
 
 - 2026-09-04 11:05 — created; V1/V2/V3 marked verified; V4 in progress.
