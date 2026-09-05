@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 02:00 (Phase 1b closed; S1 generalisation running overnight)
+Last updated: 2026-09-05 02:15 (S2 done; S1 Camden 84.66%, K&C running)
 
 ---
 
@@ -139,7 +139,7 @@ plausible but still need one replication each before publication.
 |---|---|---|---|
 | V11 | Multi-seed all three boroughs | ☑ | MANDATORY before any output | **DONE.** WM 80.03±1.40 (p=0.0001), TH 82.63±2.01 (p=0.0003), Lam 77.75±1.67 (tie). **Pooled 80.14±1.12 vs 72.60, p=0.000115.** Seed-42 bias: +1.69/-1.11/+1.30 - borough-specific, not transferable |
 | S1 | 5 more boroughs | ◐ | **RUNNING overnight 2026-09-05.** Camden, K&C, Wandsworth, Brent, City of London - sequential. Tests whether the final model generalises beyond the 3 benchmark boroughs, which is the first question a reviewer asks of a 3-region study. NOTE: these are NOT in Gao et al.'s study, so they cannot extend the benchmark comparison - they test the MODEL, not the comparison |
-| S2 | Empirical Bayes baseline | ☐ | Preempts "you rediscovered EB"; connects to HSM literature |
+| S2 | Empirical Bayes baseline | ☑ | **Major finding + control.** Uncapped baseline beats the GNN on all 3 boroughs (+3.80) - but at MATCHED 1825d horizon the gap is +0.85 with mixed signs. Survives: (a) GNN is statistically equivalent to a parameter-free crash-count sort at equal horizon; (b) history beyond 5yr still carries +2.95 |
 | S3 | Dense eval of FINAL config | ☐ | ~6h. Previous dense run evaluated a superseded config |
 | S4 | Holiday-window analysis | ☐ | 3 of 5 worst dense windows were Dec 8–Jan 19 |
 
