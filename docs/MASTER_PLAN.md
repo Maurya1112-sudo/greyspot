@@ -168,6 +168,13 @@ plausible but still need one replication each before publication.
 - Methodological cautionary results: a config bug that silently disabled feature subsetting after window 1; a single-seed baseline that nearly triggered a false retraction
 
 **CANNOT**:
+- **"Effect size predicts replication."** It predicts NON-replication only:
+  below the ~4-point seed-noise band 0 of 3 replicated, above it just 4 of 6.
+  Two supra-noise MAIN effects failed — road class (−6.87, sign reversed)
+  and rank-transform scaling (+5.80 → −39.7). Corrected 2026-09-05 after
+  checking it mechanically (`scripts/check_effect_size_heuristic.py`); the
+  abstract, README and final_model.md had all asserted the stronger,
+  false version. A large single-borough effect still requires replication.
 - "Beats them on every borough" — Lambeth is a tie
 - "Our architecture is better than theirs" — only that these choices matter *in this pipeline*; their published model on their data scores 76.59%
 - Anything from an invalidated run (§3 rows marked ✗)
