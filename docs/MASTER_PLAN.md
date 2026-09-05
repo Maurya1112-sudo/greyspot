@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 00:40 (C7 REPLICATES - both major claims now on 2+ boroughs)
+Last updated: 2026-09-05 01:20 (C6 replicates; substitution effect found, needs a 3rd borough)
 
 ---
 
@@ -112,7 +112,7 @@ three of three single-borough candidates failed replication.
 | C3 | Road class harmful | **2 boroughs ☑** | **DOES NOT REPLICATE - claim RETRACTED.** Lambeth -6.87/-4.49 (p=0.016) but Westminster -0.37/**+2.25** - sign flips. Effect is Lambeth-specific |
 | C4 | Pruning −6.89 | Lambeth, seed 42 | ☐ (superseded by C2 - the ladder is the better test) |
 | C5 | Table-start control | Lambeth, seed 42 | ☐ low priority - it was a negative control, and it agreed with the baseline |
-| C6 | Head-to-head vs their architecture | Lambeth, seed 42 | ☐ replicate if the paper claims it |
+| C6 | Head-to-head vs their architecture | **2 boroughs ☑** | **REPLICATES**: our arch wins on both, p=0.0007/0.0059. **NEW: substitution effect** - gap collapses +24.42 -> +9.08 once both get long history (their arch gains +25.04 vs our +9.70). Substitution rests on Westminster alone -> needs Tower Hamlets |
 
 **Effects below ~4 points in those tables are NOT trustworthy** and must
 be reported as "not distinguishable from seed noise": hidden size
@@ -162,7 +162,7 @@ plausible but still need one replication each before publication.
 ## 5. Next action
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
-Currently: **Phase 1b complete.** Next: C6 (head-to-head replication) or Phase 2.
+Currently: **C8 - replicate the substitution effect on Tower Hamlets** (it currently rests on one borough).
 
 **Phase 2 is deliberately NOT started**: adding five new boroughs tests
 breadth, but the central claim is not yet replicated even once. Depth

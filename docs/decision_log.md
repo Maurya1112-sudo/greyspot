@@ -5778,3 +5778,42 @@ That is a more useful statement than "single-borough results are
 unreliable": it says *how* unreliable, and gives a concrete threshold -
 at this evaluation scale, an effect must exceed roughly the seed-noise
 band before a single-borough result means anything.
+
+## 2026-09-05 - C6: architecture advantage replicates, and a SUBSTITUTION effect appears
+
+| | Their arch | Our arch | Architecture gap |
+|---|---|---|---|
+| Lambeth, long history | 60.91% | 79.44% | +18.53 (p=0.0007) |
+| **Westminster, short history** | **45.75%** | **70.17%** | **+24.42** |
+| **Westminster, long history** | **70.79%** | **79.87%** | **+9.08 (p=0.0059)** |
+
+**Our architecture wins on both boroughs, significantly, at every
+feature configuration tested.** That part replicates.
+
+### The new finding: architecture and feature horizon are partial substitutes
+
+On Westminster, adding long history is worth **+25.04 to THEIR
+architecture** but only **+9.70 to ours**. Their weaker encoder benefits
+far more, and the architecture gap correspondingly collapses from
++24.42 (short history) to +9.08 (long history).
+
+Neither "data dominates architecture" nor "architecture dominates data"
+is right. **They trade off**: a stronger encoder compensates for missing
+history, and sufficient history compensates for a weaker encoder. This
+is the third framing this project has held on that question, and the
+first that fits all the evidence:
+1. "data dominates architecture" - falsified by V4 (topology effects are large)
+2. "topology decisive, capacity inert" - true but incomplete
+3. **"architecture and feature horizon are partial substitutes"** - fits both
+
+### Caveat that must accompany this
+
+**The substitution finding rests on WESTMINSTER ALONE.** Lambeth's
+history-effect numbers in this experiment (+0.98 theirs, +0.51 ours)
+were measured while the config-rebinding bug was active - both arms were
+effectively long-history - so they are meaningless and must not be
+quoted. Westminster is the first clean measurement.
+
+Given this project's scoreboard (2 of 7 single-borough claims survived
+replication), the substitution effect needs Tower Hamlets before it is
+reported as a finding rather than an observation.
