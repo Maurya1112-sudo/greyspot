@@ -6038,3 +6038,56 @@ boroughs, not five** - to be completed when Overpass recovers.
 
 **Redirected to S5** (extend the history ceiling), which needs no
 network at all: cached graphs plus local STATS19 files.
+
+## 2026-09-05 - S5: extending the GNN's history to 9 years is a NULL, and that is the informative part
+
+S2 established that a parameter-free crash-count sort gains **+2.95**
+from history beyond 5 years (80.99% capped at 1825d -> 83.94% uncapped
+at ~8 years). The GNN's deepest feature was 1825d, so it could not see
+that signal. S5 added 2555d (7yr) and 3285d (9yr) lookbacks.
+
+**Result: -0.72 points, 3/6 windows, p=0.7438. Variance rose from
+std 6.12% to 9.83%.**
+
+| Window | 5yr ceiling | 9yr ceiling | Delta |
+|---|---|---|---|
+| 2023-07-15 | 78.79% | 81.06% | +2.27 |
+| 2023-10-13 | 75.64% | **66.03%** | **-9.62** |
+| 2024-01-11 | 71.39% | 68.89% | -2.50 |
+| 2024-04-10 | 82.69% | 80.77% | -1.92 |
+| 2024-07-09 | 89.29% | **92.86%** | +3.57 |
+| 2024-10-07 | 78.85% | 82.69% | +3.85 |
+
+A prediction was recorded in the script before running: *the gain should
+be smaller than the baseline's +2.95, and could be negative if added
+sparse columns hurt.* Direction was right; the magnitude landed at
+essentially zero.
+
+### The finding this produces
+
+**The GNN cannot exploit information that a trivial sort uses
+directly.** Given the identical extra three years of history:
+- parameter-free cumulative count: **+2.95**
+- the GNN: **-0.72, and noisier**
+
+Combined with S2's matched-horizon control (at equal horizon the GNN and
+a crash-count sort are statistically equivalent), the picture is
+consistent and unflattering: the graph structure, 35 features and 200
+training epochs neither beat a sort at equal information nor convert
+extra information into accuracy.
+
+### Why this is a real result rather than a failure
+
+It is the fifth independent instance tonight of the same mechanism -
+adding sparse columns to this model degrades it (road class -6.87/-4.49,
+traffic exposure -1.62/-1.64, casualty breakdown -1.00, now deep history
+-0.72 with rising variance). The plausible cause remains the one
+measured earlier: z-scoring 99.97%-zero count columns produces extreme
+standardised values (absmax ~1179) and each additional sparse column
+dilutes the representation of the columns that carry signal.
+
+**That is a testable hypothesis with a clear next experiment**: apply a
+scaling scheme robust to sparse counts (max-scaling, clipped z-scores,
+or rank-transform) and re-test whether added history then helps. Clipped
+z-scoring was tested once (p=0.9899) but under the OLD configuration and
+WITHOUT the added columns, so it is not evidence here.

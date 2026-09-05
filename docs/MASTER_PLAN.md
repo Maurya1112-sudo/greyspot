@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 03:06 (S1 halted - Overpass outage; S5 deep-history running)
+Last updated: 2026-09-05 03:22 (S5 null; next: sparse-robust scaling test)
 
 ---
 
@@ -142,7 +142,7 @@ plausible but still need one replication each before publication.
 | S1 | 5 more boroughs | ⚠️ PARTIAL | **HALTED 2026-09-05 03:05 - Overpass API outage.** VALID: Camden 84.66%, K&C 74.54%. INVALID (quarantined): Wandsworth (partial POI), Brent (zero POI). NOT RUN: City of London. Resume when Overpass recovers. Tests whether the final model generalises beyond the 3 benchmark boroughs, which is the first question a reviewer asks of a 3-region study. NOTE: these are NOT in Gao et al.'s study, so they cannot extend the benchmark comparison - they test the MODEL, not the comparison |
 | S2 | Empirical Bayes baseline | ☑ | **Major finding + control.** Uncapped baseline beats the GNN on all 3 boroughs (+3.80) - but at MATCHED 1825d horizon the gap is +0.85 with mixed signs. Survives: (a) GNN is statistically equivalent to a parameter-free crash-count sort at equal horizon; (b) history beyond 5yr still carries +2.95 |
 | S3 | Dense eval of FINAL config | ☐ | ~6h. Previous dense run evaluated a superseded config |
-| S5 | **Extend history ceiling to 9yr** | ◐ | S2 evidence: baseline gains +2.95 from 5yr->8yr history that the GNN cannot see. No network needed |
+| S5 | **Extend history ceiling to 9yr** | ☑ | **NULL: -0.72, p=0.7438, variance UP (6.12%->9.83%).** Baseline gains +2.95 from the same extra history; the GNN gains nothing. **The GNN cannot exploit information a trivial sort uses directly.** 5th instance of sparse-column addition degrading this model |
 | S4 | Holiday-window analysis | ☐ | 3 of 5 worst dense windows were Dec 8–Jan 19 |
 
 ### Phase 3 — Output

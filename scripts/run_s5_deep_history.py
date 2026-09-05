@@ -126,7 +126,14 @@ YEARS = [2021, 2022, 2023, 2024]
 # the earliest instances get truncated partial sums while later ones get
 # full windows - the same feature silently meaning different things at
 # different points in the walk-forward, which would bias training.
-HISTORY_YEARS = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+# 2012-2015 added 2026-09-05 so the 3285-day (9-year) lookback is COMPLETE
+# rather than truncated. The table starts 2021-01-01, so a 9-year window
+# reaches back to 2012; without those years the deepest features are
+# partial sums and the experiment cannot test what it claims to test.
+# (The first launch of S5 hit exactly this truncation warning and was
+# stopped - the same failure mode already fixed once for the 1825d
+# features, and not checked for here. See rule R4.)
+HISTORY_YEARS = [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 # S5 - EXTEND THE HISTORY CEILING (2026-09-05).
 #
 # S2 produced direct evidence that the current 1825-day (5-year) ceiling
