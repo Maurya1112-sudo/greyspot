@@ -54,6 +54,27 @@ intervals — single-seed numbers are not reported, for reasons given below.
 
 ---
 
+## The most important caveat
+
+**At matched history depth, this model does not outperform sorting road
+segments by their past crash count.**
+
+| Ranker | Mean AccHR@20 (3 boroughs) |
+|---|---|
+| Sort by cumulative crash count (~8 yr) | **83.94%** |
+| Empirical Bayes (Highway Safety Manual) | 83.84% |
+| Same count, capped to this model's 5-yr horizon | 80.99% |
+| **This GNN** | **80.14%** |
+
+The capped baseline and the GNN differ by +0.85 points with mixed signs —
+statistically indistinguishable. Given three more years of history the
+sort gains +2.95; the GNN gains −0.72.
+
+The model does provide calibrated uncertainty intervals (PICP ≈ 0.901)
+that a sort cannot, and that has real value for prioritisation. But the
+ranking performance should not be presented without this baseline
+beside it.
+
 ## What was actually learned
 
 **Topology is decisive; capacity is inert.** Changing message-passing
@@ -102,11 +123,15 @@ time.**
 
 ## Why the decision log is part of the contribution
 
-Three candidate improvements reached p≈0.05–0.10 on a single borough and
-**all three failed cross-borough replication** — one shrinking
-monotonically from +2.53 (n=6) to −0.60 (n=18) as evidence accumulated.
-Three previously-recorded null results were **overturned** when
-re-measured under the final configuration. A configuration bug silently
+Of **nine** findings that looked significant on a single borough, only
+**three survived replication on a second**. Effect size predicted the
+outcome for main effects — everything above the measured ~4-point
+seed-noise band replicated, everything below it failed — but **not for
+interactions**: one +25-point interaction reversed sign between boroughs.
+
+One candidate shrank monotonically from +2.53 (n=6) to −0.60 (n=18) as
+evidence accumulated. One configuration scored best-ever on one borough
+(85.56%) and worst-ever on another (39.82%). A config bug silently
 disabled feature subsetting after the first evaluation window,
 invalidating three results and briefly producing a false retraction of a
 correct finding.
