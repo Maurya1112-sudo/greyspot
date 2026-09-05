@@ -6372,3 +6372,36 @@ slots but resets connections mid-transfer (`ConnectionResetError 10054`) on
 larger queries. Wandsworth failed its `amenity` category for the third time.
 City of London was killed after 33 minutes in which it never reached
 training. Brent's POI download, by contrast, succeeded and is now cached.
+
+## 2026-09-05 - The "effect size predicts replication" heuristic is only half true
+
+The preprint's abstract claimed that effect size predicted replication
+outcomes: "every effect above the measured ~4-point seed-noise band
+replicated, every effect below it failed", with interactions named as the
+only exception. Checked mechanically against the record
+(`scripts/check_effect_size_heuristic.py`) rather than from memory, **the
+claim is false in one direction.**
+
+| Borough-1 effect | Replicated | Failed |
+|---|---|---|
+| Below the ~4-point band | 0 | 3 |
+| Above it | 4 | 2 |
+
+Two supra-noise MAIN effects (not interactions, so not covered by the
+stated exception) failed:
+
+- **Road class harmful**, −6.87 / −4.49 (p=0.016) on Lambeth, reversed sign
+  on Westminster (+2.25).
+- **Rank-transform scaling**, +5.80 - the best single result recorded in
+  this project - became −39.7, the worst, on the second borough.
+
+So the relationship is **necessary but not sufficient**: a sub-noise effect
+reliably fails to replicate (3/3), while a supra-noise effect replicates
+only 4 times in 6. Corrected in the abstract and §2.
+
+This matters beyond bookkeeping, because the heuristic was being used
+implicitly to decide which single-borough results deserved a replication
+run. The corrected version still saves work - a sub-noise result can be
+discarded without further runs - but it removes the licence to *believe* a
+large single-borough effect, which is the direction that would have
+produced false claims in the paper.

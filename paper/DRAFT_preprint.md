@@ -15,9 +15,11 @@ against their reported 72.60%, significantly better on two of three
 boroughs. But the more transferable results are negative and
 methodological: of ten findings that appeared significant on a single
 borough, **only three survived replication on a second** (six failed, one
-remains unresolved), and effect size predicted which — every effect above
-the measured ~4-point seed-noise band replicated, every effect below it
-failed. We further show that at
+remains unresolved). Effect size predicts non-replication but not
+replication: every effect below the measured ~4-point seed-noise band
+failed (3/3), while only 4 of 6 effects above it survived — a small effect
+is reliable evidence against, a large one is weak evidence for. We further
+show that at
 matched history depth our graph neural network is **statistically
 indistinguishable from sorting road segments by their past crash count**,
 and that it cannot exploit additional history that the trivial sort
@@ -65,11 +67,31 @@ TCR formula, segment consolidation and evaluation protocol.
 | Rank-transform scaling | +5.80 (best ever) | failed (−39.7, worst ever) |
 
 **Three of ten survived; six failed; one is unresolved** (the feature-count
-claim, which a third borough is being run to settle). Effect size predicted
-the outcome for main effects: all survivors exceeded the seed-noise band;
-all small effects failed. **It did not predict interactions** — the
-architecture×history interaction was +25 points and still reversed sign
-between boroughs.
+claim, which a third borough is being run to settle).
+
+Effect size is often proposed as a filter for which single-sample results
+to trust. On this evidence it works in **one direction only**
+(`scripts/check_effect_size_heuristic.py`):
+
+| Borough-1 effect | Replicated | Failed |
+|---|---|---|
+| Below the ~4-point seed-noise band | 0 | 3 |
+| Above it | 4 | 2 |
+
+Every sub-noise effect failed, so a small effect is reliable evidence
+*against* replication. But two comfortably supra-noise main effects failed
+anyway — road class (−6.87, p=0.016) reversed sign on the second borough
+(+2.25), and rank-transform scaling went from the best result ever
+recorded here (+5.80) to the worst (−39.7). A large effect is therefore
+only weak evidence *for* replication: necessary, not sufficient.
+
+Interactions are worse still: the architecture×history interaction was +25
+points — larger than any surviving main effect — and reversed sign between
+boroughs.
+
+**The practical implication** is asymmetric and cheap to apply: a
+sub-noise single-borough result can be discarded without further runs,
+while a large one still has to be replicated before it can be believed.
 
 ## 3. The model adds little over a trivial baseline
 

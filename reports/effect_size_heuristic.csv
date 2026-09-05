@@ -1,0 +1,12 @@
+finding,effect,replicated,interaction,above_band
+Architecture topology (layers),26.46,True,False,True
+Architecture topology (encoder),13.61,True,False,True
+Long-horizon crash history,15.85,True,False,True
+Our architecture vs theirs,18.53,True,False,True
+Architecture x history interaction,25.04,False,True,True
+Road class harmful,6.87,False,False,True
+Rank-transform scaling,5.8,False,False,True
+weight_decay=0.01,2.53,False,False,False
+Architecture ensembling,1.79,False,False,False
+hidden=42/42,1.46,False,False,False
+13 features == 35 features,0.99,,False,False
