@@ -5817,3 +5817,55 @@ quoted. Westminster is the first clean measurement.
 Given this project's scoreboard (2 of 7 single-borough claims survived
 replication), the substitution effect needs Tower Hamlets before it is
 reported as a finding rather than an observation.
+
+## 2026-09-05 - C8: the substitution effect DOES NOT REPLICATE - third framing falsified
+
+| Borough | Their arch history gain | Our arch history gain | Arch gap short -> long |
+|---|---|---|---|
+| Westminster | **+25.04** | +9.70 | +24.42 -> **+9.08** (collapses) |
+| Tower Hamlets | +12.69 | **+18.62** | +16.35 -> **+22.28** (widens) |
+
+**The direction reverses.** On Westminster the weaker (their)
+architecture benefits more from long history, collapsing the gap. On
+Tower Hamlets OUR architecture benefits more, widening it. The
+"partial substitutes" story was a one-borough pattern.
+
+### Three framings of the same question, all now falsified
+
+1. "Data representation dominates architecture" - falsified by V4:
+   topology effects are large and significant.
+2. "Topology decisive, capacity inert" - true as far as it goes, but it
+   could not explain why their architecture gained so much from
+   features on Westminster.
+3. **"Architecture and feature horizon are partial substitutes"** -
+   falsified here: the interaction reverses sign between boroughs.
+
+### What is actually supportable
+
+Only the borough-invariant statements survive:
+
+- Long history helps **every** architecture on **every** borough tested
+  (+9.70 to +25.04). Direction always positive; magnitude varies 2.5x.
+- Our architecture beats theirs on **every** borough at **every**
+  feature configuration (+9.08 to +24.42, p=0.0007/0.0059).
+- **How those two interact is NOT stable across boroughs** and should
+  not be characterised at all.
+
+The honest write-up therefore reports two independent main effects and
+**explicitly declines to claim an interaction**, noting that the
+interaction's sign reverses across the three boroughs studied. That is
+a weaker claim than any of the three framings above, and it is the only
+one the evidence supports.
+
+### Scoreboard: 2 of 8
+
+The substitution effect joins hidden=42/42, the architecture ensemble,
+weight_decay, and road class as single-borough findings that failed
+replication. **It also breaks the effect-size heuristic**: at +25.04 vs
++9.70 it was far above the ~4-point noise band, yet it still failed.
+
+**Revised heuristic**: effect size predicts whether a MAIN EFFECT
+replicates, but says nothing about INTERACTIONS. Interactions between
+two factors appear to be borough-specific even when both main effects
+are large and stable. That is a sharper and more useful caveat than the
+original threshold rule.

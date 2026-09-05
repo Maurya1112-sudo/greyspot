@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 01:20 (C6 replicates; substitution effect found, needs a 3rd borough)
+Last updated: 2026-09-05 01:50 (**C8: substitution effect FAILED - interactions need 3+ boroughs**)
 
 ---
 
@@ -71,13 +71,21 @@ at n=31.
 | 13 features == 35 | yes | DOWNGRADED |
 | architecture topology | yes | **REPLICATED** |
 | **history horizon** | yes | **REPLICATED** (+15.85 Lam / +9.70 WM, 6/6 windows) |
+| **our arch beats theirs** | yes (3 boroughs) | **REPLICATED** (+9.08 to +24.42, p<0.01 both tested) |
+| substitution effect (interaction) | yes | **FAILED** - sign reverses (WM gap collapses, TH gap widens) |
 
-**2 of 7 single-borough findings survived replication intact — and
-effect size predicted the outcome perfectly.** Both survivors were
-large (9–26 pts, well above the ~4-pt seed-noise band); all four
-failures were small (1–3 pts, inside it). Practical threshold: at this
-evaluation scale a single-borough result is uninformative unless the
-effect exceeds the seed-noise band.
+**3 of 9 single-borough findings survived replication intact.**
+
+Effect size predicts replication for MAIN EFFECTS: all three survivors
+were large (9–26 pts, above the ~4-pt seed-noise band); the four
+small failures (1–3 pts) were inside it.
+
+**But it does NOT predict replication for INTERACTIONS.** The
+substitution effect was +25.04 vs +9.70 — far outside the noise band —
+and still reversed sign between boroughs. **Revised rule: main effects
+replicate if they exceed the noise band; interactions between factors
+should not be claimed from fewer than three boroughs, whatever their
+size.**
 
 ## 3. Verification ledger — every task, its state, and its cross-check
 
@@ -162,7 +170,7 @@ plausible but still need one replication each before publication.
 ## 5. Next action
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
-Currently: **C8 - replicate the substitution effect on Tower Hamlets** (it currently rests on one borough).
+Currently: **Phase 1b closed.** All major claims are replicated or retracted. Next: Phase 2 (breadth) or Phase 3 (write-up).
 
 **Phase 2 is deliberately NOT started**: adding five new boroughs tests
 breadth, but the central claim is not yet replicated even once. Depth
