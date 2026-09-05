@@ -43,6 +43,7 @@ import time
 import geopandas as gpd
 import numpy as np
 import osmnx as ox
+import requests
 import pandas as pd
 
 from .network import snap_points_to_graph
@@ -90,7 +91,12 @@ _OVERPASS_TIMEOUT_S = 300  # generous, though the bbox queries this module actua
 _MIN_POI_ADJACENCY_PER_KM2 = 40.0
 
 
-def _download_category_with_retry(bbox, category: str, osm_place: str, attempts: int = 4):
+# Failures that re-issuing the identical query cannot fix: the endpoint
+# already spent the full timeout on it.
+_NON_RETRYABLE = (requests.exceptions.Timeout, requests.exceptions.ConnectTimeout)
+
+
+def _download_category_with_retry(bbox, category: str, osm_place: str, attempts: int = 3):
     """One Overpass category query, retried with exponential backoff.
 
     The observed failure is not an outage but a truncated response
@@ -106,6 +112,18 @@ def _download_category_with_retry(bbox, category: str, osm_place: str, attempts:
     for attempt in range(1, attempts + 1):
         try:
             return ox.features_from_bbox(bbox, {category: True})
+        except _NON_RETRYABLE as exc:
+            # A TIMEOUT is not a transient fault - it means the query is too
+            # heavy for the endpoint right now, and re-issuing it with the
+            # same timeout just waits again. Retrying these turned a 5-minute
+            # worst case into an 82-minute one (4 attempts x 300s x 4
+            # categories) and stalled the City of London run on 2026-09-05.
+            # Truncations (ChunkedEncodingError / ProtocolError) DO fail fast
+            # and DO clear on retry - those are what the backoff is for.
+            logger.warning("POI category '%s' timed out for %s (%s) - not retrying, a timeout "
+                           "means the query is too heavy, not that it was unlucky",
+                           category, osm_place, type(exc).__name__)
+            return None
         except Exception as exc:
             if attempt == attempts:
                 logger.warning("POI category '%s' failed for %s after %d attempts: %s",

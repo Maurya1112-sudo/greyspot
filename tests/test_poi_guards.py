@@ -151,3 +151,42 @@ def test_strict_false_preserves_the_old_permissive_behaviour(monkeypatch):
     })
     out = download_borough_pois("Wandsworth", strict=False)
     assert len(out) == 30
+
+
+def test_timeouts_are_not_retried(monkeypatch):
+    """A timeout means the query is too heavy, not that it was unlucky.
+    Retrying it just waits the full timeout again - which stalled the City
+    of London run for 18 minutes on 2026-09-05."""
+    import requests
+    attempts = {"n": 0}
+
+    def always_timeout(bbox, tags):
+        if next(iter(tags)) == "amenity":
+            attempts["n"] += 1
+            raise requests.exceptions.Timeout("read timed out")
+        return _gdf(500, next(iter(tags)))
+
+    monkeypatch.setattr(poi_mod.ox, "features_from_bbox", always_timeout)
+    monkeypatch.setattr(poi_mod, "borough_bbox_wgs84", lambda place: WESTMINSTER_BBOX)
+    monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
+    with pytest.raises(PoiDownloadError, match="amenity"):
+        download_borough_pois("City of London")
+    assert attempts["n"] == 1, "a timeout must be attempted exactly once, got %d" % attempts["n"]
+
+
+def test_truncations_are_still_retried(monkeypatch):
+    """The complementary case: a truncation DOES clear on retry."""
+    attempts = {"n": 0}
+
+    def flaky(bbox, tags):
+        if next(iter(tags)) == "amenity":
+            attempts["n"] += 1
+            if attempts["n"] < 2:
+                raise ConnectionError("Response ended prematurely")
+        return _gdf(500, next(iter(tags)))
+
+    monkeypatch.setattr(poi_mod.ox, "features_from_bbox", flaky)
+    monkeypatch.setattr(poi_mod, "borough_bbox_wgs84", lambda place: WESTMINSTER_BBOX)
+    monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
+    assert len(download_borough_pois("Wandsworth")) == 2000
+    assert attempts["n"] == 2
