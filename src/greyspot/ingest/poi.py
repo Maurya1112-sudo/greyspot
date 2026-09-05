@@ -38,6 +38,7 @@ for a density feature, not treated as exact administrative attribution.
 from __future__ import annotations
 
 import logging
+import time
 
 import geopandas as gpd
 import numpy as np
@@ -71,6 +72,34 @@ _OVERPASS_TIMEOUT_S = 300  # generous, though the bbox queries this module actua
 _MIN_POI_ADJACENCY_PER_KM2 = 75.0
 
 
+def _download_category_with_retry(bbox, category: str, osm_place: str, attempts: int = 4):
+    """One Overpass category query, retried with exponential backoff.
+
+    The observed failure is not an outage but a truncated response
+    (`ChunkedEncodingError: Response ended prematurely`) on the heaviest
+    query - `amenity` over a large borough bbox. Wandsworth failed this way
+    on 2026-09-05, twice, while every other category succeeded and while
+    Overpass itself reported free slots. A transient truncation deserves a
+    retry; what it must never get is silent acceptance, which is what
+    produced the cached 1,637-POI Wandsworth file.
+
+    Returns the GeoDataFrame, or None if every attempt failed.
+    """
+    for attempt in range(1, attempts + 1):
+        try:
+            return ox.features_from_bbox(bbox, {category: True})
+        except Exception as exc:
+            if attempt == attempts:
+                logger.warning("POI category '%s' failed for %s after %d attempts: %s",
+                               category, osm_place, attempts, exc)
+                return None
+            delay = 5 * 2 ** (attempt - 1)  # 5s, 10s, 20s
+            logger.warning("POI category '%s' attempt %d/%d failed for %s (%s) - retrying in %ds",
+                           category, attempt, attempts, osm_place, type(exc).__name__, delay)
+            time.sleep(delay)
+    return None
+
+
 class PoiDownloadError(RuntimeError):
     """An Overpass response that must NOT be cached as if it were complete.
 
@@ -100,10 +129,8 @@ def download_borough_pois(osm_place: str, *, strict: bool = True) -> gpd.GeoData
     frames = []
     failed: list[str] = []
     for category in POI_TAG_CATEGORIES:
-        try:
-            gdf = ox.features_from_bbox(bbox, {category: True})
-        except Exception:
-            logger.warning("POI category '%s' failed to download for %s", category, osm_place, exc_info=True)
+        gdf = _download_category_with_retry(bbox, category, osm_place)
+        if gdf is None:
             failed.append(category)
             continue
         if gdf.empty:

@@ -140,8 +140,9 @@ plausible but still need one replication each before publication.
 | ID | Task | State | Notes |
 |---|---|---|---|
 | V11 | Multi-seed all three boroughs | ☑ | MANDATORY before any output | **DONE.** WM 80.03±1.40 (p=0.0001), TH 82.63±2.01 (p=0.0003), Lam 77.75±1.67 (tie). **Pooled 80.14±1.12 vs 72.60, p=0.000115.** Seed-42 bias: +1.69/-1.11/+1.30 - borough-specific, not transferable |
-| S1 | 5 more boroughs | ⚠️ PARTIAL | **HALTED 2026-09-05 03:05 - Overpass API outage.** VALID: Camden 84.66%, K&C 74.54%. INVALID (quarantined): Wandsworth (partial POI), Brent (zero POI). NOT RUN: City of London. Resume when Overpass recovers. Tests whether the final model generalises beyond the 3 benchmark boroughs, which is the first question a reviewer asks of a 3-region study. NOTE: these are NOT in Gao et al.'s study, so they cannot extend the benchmark comparison - they test the MODEL, not the comparison |
-| S2 | Empirical Bayes baseline | ☑ | **Major finding + control.** Uncapped baseline beats the GNN on all 3 boroughs (+3.80) - but at MATCHED 1825d horizon the gap is +0.85 with mixed signs. Survives: (a) GNN is statistically equivalent to a parameter-free crash-count sort at equal horizon; (b) history beyond 5yr still carries +2.95 |
+| S1 | 5 more boroughs | ⚠️ PARTIAL | **RESUMED 2026-09-05 14:34; Wandsworth FAILED AGAIN** - Overpass dropped the `amenity` category mid-download ("Response ended prematurely"). This time the new density guard REFUSED to cache it rather than silently producing a third bad result. Brent + City of London still running. Original note: **HALTED 2026-09-05 03:05 - Overpass API outage.** VALID: Camden 84.66%, K&C 74.54%. INVALID (quarantined): Wandsworth (partial POI), Brent (zero POI). NOT RUN: City of London. Resume when Overpass recovers. Tests whether the final model generalises beyond the 3 benchmark boroughs, which is the first question a reviewer asks of a 3-region study. NOTE: these are NOT in Gao et al.'s study, so they cannot extend the benchmark comparison - they test the MODEL, not the comparison |
+| S2 | Empirical Bayes baseline | ☑ | **Major finding + control.** Superseded by S2b below for all reported figures |
+| S2b | S2 redone: seed-averaged + PAIRED | ☑ | **R10 compliance for the paper's central claim.** 5 seeds x 6 windows x 3 boroughs, paired t-test + Wilcoxon (`scripts/run_s2_paired_comparison.py`). Pooled n=18: EB **-3.71 (p=0.0146)**, raw count **-3.80 (p=0.0289)**, matched-1825d **-0.85 (p=0.6398, 9/18 wins)**. **SIGN CORRECTED**: the matched-horizon gap was recorded as +0.85 for the GNN; it is -0.85 against. A tie either way. Seed-averaging made the uncapped result SIGNIFICANT where single-seed could produce no p-value at all. Cross-check: pooled GNN 80.13 reproduces V11's 80.14 from a different code path |
 | S3 | Dense eval of FINAL config | ☐ | ~6h. Previous dense run evaluated a superseded config |
 | S5 | **Extend history ceiling to 9yr** | ☑ | **NULL: -0.72, p=0.7438, variance UP (6.12%->9.83%).** Baseline gains +2.95 from the same extra history; the GNN gains nothing. **The GNN cannot exploit information a trivial sort uses directly.** 5th instance of sparse-column addition degrading this model |
 | S6 | Sparse-robust (rank) scaling | ☑ | **REJECTED**: best-ever on Lambeth (85.56%), worst-ever on Westminster (39.82%) - a 46-pt reversal. Refutes the sparse-scaling explanation for the five feature-addition nulls |
@@ -218,6 +219,16 @@ before breadth.
 
 ## 6. Change log
 
+- **2026-09-05** R14 codified in code, not just in this document
+  (`greyspot.ingest.poi`): a POI download that loses a category, returns
+  nothing, or falls below a calibrated density floor now raises
+  `PoiDownloadError` instead of being cached. Floor derived from five
+  hand-verified boroughs (151.7-357.5 adjacencies/km2) against the known
+  truncated Wandsworth download (23.6); guard wired into 50 run scripts.
+  It fired correctly on its first live run within five minutes.
+- **2026-09-05** S2b: the trivial-baseline comparison redone seed-averaged
+  and paired. Conclusion holds; one sign error corrected. See
+  `docs/decision_log.md`.
 - **2026-09-05** Walk-forward evaluation made resumable
   (`src/greyspot/eval/checkpoint.py`, wired into the dense-eval script).
   Per-window results are appended and fsync'd as they complete; a restart
