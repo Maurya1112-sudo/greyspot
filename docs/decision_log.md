@@ -6146,3 +6146,59 @@ today. The overnight window is finite and two hours of it were wasted.
 
 **R9 needs enforcing mechanically, not by intention**: no `nohup` launch
 without a Monitor in the same tool call, every time.
+
+## 2026-09-05 - S4: the holiday effect is REAL, and it revives a retracted crash-density claim
+
+The dense 38-window evaluation had three of its five worst windows
+between 8 December and 19 January. Tested directly on the recovered
+per-window results (n=31).
+
+| | Holiday windows (n=3) | Others (n=28) |
+|---|---|---|
+| Mean AccHR@20 | **65.51%** | 80.27% |
+| Mean crashes in window | **27.0** | 36.4 |
+
+Raw difference -14.77 points (Welch p=0.0575) - but holiday windows also
+contain 9.4 FEWER crashes (p=0.0182), and AccHR correlates with crash
+count at r=0.532 (p=0.0021). So the seasonal story had an obvious
+confound: fewer crashes means a noisier metric.
+
+**Regression separating the two** (AccHR ~ crash count + holiday):
+
+| Predictor | Coefficient | p |
+|---|---|---|
+| crash count | +0.00386 per crash | 0.0316 |
+| **holiday window** | **-0.1114 (-11.14 points)** | **0.0078** |
+
+**Both survive.** Controlling for crash count, holiday windows remain
+11.14 points worse. The seasonal effect is real and is NOT merely a
+metric-power artefact; separately, each additional crash in a window is
+worth ~0.39 points of measured accuracy.
+
+### This revives a claim retracted on 2026-09-04
+
+That day this log recorded a crash-density correlation of r=0.731 (n=6,
+Lambeth), then corrected it to r=0.247 (p=0.3234, n=18 pooled) and
+withdrew it as unsupported. **At n=31 on the dense grid it is r=0.532,
+p=0.0021 - significant.**
+
+The retraction was CORRECT on the evidence then available: n=18 on the
+sparse quarterly grid genuinely could not resolve it. The dense grid has
+more windows and much wider variation in crash counts, so it has the
+power the sparse one lacked. Both entries stand; this is a
+power-limited claim now measured with adequate power, not a reversal of
+reasoning.
+
+### For the write-up
+
+Two reportable limitations, both with mechanisms and both quantified:
+1. **Seasonal**: the model ranks the Christmas/New Year period ~11
+   points worse, independent of crash volume. Plausible cause: holiday
+   traffic patterns diverge sharply from the training distribution
+   (commuting collapses, night-time and retail activity shift).
+2. **Metric power**: AccHR@20 depends on how many crashes a window
+   contains (+0.39 points per crash). Sparse windows are measured less
+   reliably, which is a property of the EVALUATION, not the model.
+
+Concrete future work: holiday/seasonal indicator features, or a
+separately calibrated holiday model.
