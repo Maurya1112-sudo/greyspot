@@ -6344,3 +6344,31 @@ which would otherwise have been cached and silently corrupted a third
 borough result), one false positive (Brent, caught within minutes and traced
 to my own inner-London calibration). Both are documented rather than either
 being quietly adjusted away.
+
+## 2026-09-05 - R5 violated by a kill that silently did not work
+
+While switching the GPU from the (failing) Overpass-bound S1 retries to the
+Tower Hamlets replication, `pkill -f "run_s1_retry_after"` returned success
+but did **not** kill the shell loop - `pkill -f` does not reliably match full
+Windows command lines under Git Bash. The loop advanced from the killed
+Wandsworth run to Brent at 15:21:10, two seconds before C2 launched at
+15:21:12, so two GPU jobs ran concurrently for ~13 minutes. R5 exists
+precisely to prevent this; it has caused three CUDA OOM crashes before.
+
+No OOM this time (peak 5.2GB of 8GB) and **the results are unaffected**: GPU
+contention changes throughput, not numerics. C2's first four windows were
+computed under contention and remain valid.
+
+Killing Brent cost nothing, because the scarce resource had already been
+secured: its POI cache was written before training began, so Brent can be
+re-run from cache without touching the flaky Overpass endpoint.
+
+**New rule R16: verify a kill actually killed it.** Listing the process table
+after the kill would have caught this in seconds; trusting `pkill`'s exit
+status did not.
+
+**Overpass state at 15:20** - degraded rather than down: it reports free
+slots but resets connections mid-transfer (`ConnectionResetError 10054`) on
+larger queries. Wandsworth failed its `amenity` category for the third time.
+City of London was killed after 33 minutes in which it never reached
+training. Brent's POI download, by contrast, succeeded and is now cached.
