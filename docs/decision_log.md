@@ -6091,3 +6091,58 @@ scaling scheme robust to sparse counts (max-scaling, clipped z-scores,
 or rank-transform) and re-test whether added history then helps. Clipped
 z-scoring was tested once (p=0.9899) but under the OLD configuration and
 WITHOUT the added columns, so it is not evidence here.
+
+## 2026-09-05 - S6: rank scaling REJECTED - a 46-point reversal between boroughs
+
+The sparse-scaling hypothesis (five separate nulls explained by z-scoring
+99.97%-zero columns) was tested by replacing z-scores with a per-feature
+rank transform.
+
+| Arm | Lambeth | Westminster |
+|---|---|---|
+| z-score, 5yr (control) | 79.76% | 79.55% |
+| rank, 5yr | **59.29%** | **77.56%** |
+| rank, 9yr | **85.56%** | **39.82%** |
+
+**The same configuration is the best result this project has ever
+produced on Lambeth and the worst on Westminster - a 46-point
+reversal.** Both rank arms reverse, not just one. REJECTED.
+
+### A compelling mechanism that was completely wrong
+
+Lambeth's +26.27-point jump from adding two columns looked like a
+threshold effect, and the arithmetic fitted exactly:
+
+| Column | % zero | Non-zero segments | vs top-20% bucket (2,319) |
+|---|---|---|---|
+| 1825d | 82.7% | 2,006 | fewer than needed |
+| 3285d | 77.5% | 2,609 | more than needed |
+
+The story was that a rank transform of a mostly-zero column is nearly
+all ties, so the top-20% bucket cannot be filled without arbitrary
+tie-breaking until a feature's non-zero rate exceeds the selection
+fraction. It explained the suddenness, the size, and the 6/6 window
+consistency.
+
+**It was wrong.** Westminster has a similar segment count and similar
+sparsity, so the same threshold logic should apply - and the result
+reversed. A mechanism that explains one borough perfectly and predicts
+the opposite of what happens on another is not a mechanism.
+
+### What this closes
+
+The sparse-scaling explanation for the five feature-addition nulls is
+**refuted**, not merely unsupported: rank scaling, which removes the
+extreme standardised values entirely, does not fix them and on Lambeth
+made things worse at 5yr. Whatever limits this model, it is not feature
+scaling.
+
+### Process failure to record
+
+Westminster's run finished at 04:32 and was not noticed until 06:41 -
+**over two hours idle** - because it was launched with `nohup` without
+attaching a Monitor. That is rule R9, violated for the fourth time
+today. The overnight window is finite and two hours of it were wasted.
+
+**R9 needs enforcing mechanically, not by intention**: no `nohup` launch
+without a Monitor in the same tool call, every time.

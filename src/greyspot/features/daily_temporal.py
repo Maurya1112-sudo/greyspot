@@ -228,3 +228,51 @@ def apply_clipped_standardizer(x_seq: np.ndarray, mean, std, clip: float = 5.0) 
     """
     z = (x_seq - mean) / std
     return np.clip(z, -clip, clip).astype("float32")
+
+
+def apply_rank_transform(x_seq: np.ndarray) -> np.ndarray:
+    """Per-feature rank transform, mapped to [0, 1], computed per timestep.
+
+    Added 2026-09-05 after FIVE independent experiments showed that adding
+    sparse count columns to this project's model degrades it: road class
+    (-6.87 / -4.49), traffic exposure (-1.62 / -1.64), casualty breakdown
+    (-1.00), pruning-to-30 (-6.89), and deep history (-0.72 with variance
+    rising from 6.12% to 9.83%).
+
+    **The hypothesis this tests.** Every feature here is z-scored, and
+    z-scoring a 99.97%-zero count column turns each rare non-zero into an
+    enormous value - an absolute maximum of ~1179 was measured on real
+    Lambeth data. Feeding values of that magnitude into GAT attention
+    logits is the same condition that produced attention NaNs earlier in
+    this project. Each additional sparse column adds more such extremes,
+    which plausibly dilutes the standardised representation of the columns
+    that actually carry signal.
+
+    **Why a RANK transform specifically.** The evaluation metric
+    (AccHR@20) is a within-day RANKING metric - it depends only on the
+    ORDER of predicted risk, never on magnitudes. A rank transform
+    preserves each feature's ordering exactly while bounding every value
+    to [0, 1], so it discards precisely the information the metric does
+    not use (magnitude) and keeps precisely what it does (order). It is
+    also completely insensitive to the zero-inflation that breaks
+    z-scoring: ties at zero simply share a rank.
+
+    Ranks are computed independently per (timestep, feature) across
+    segments, since that is the axis the metric ranks along. Ties take
+    their average rank, so the ~99.97% of segments sitting at zero all
+    map to the same value rather than being ordered arbitrarily.
+
+    Note this needs no fitted state: unlike z-scoring there is nothing to
+    leak from training to held-out data, because the transform is applied
+    within each instance independently.
+    """
+    from scipy.stats import rankdata
+
+    x = np.asarray(x_seq, dtype="float64")
+    out = np.empty_like(x, dtype="float32")
+    n_steps, n_segments, n_features = x.shape
+    for t in range(n_steps):
+        for f in range(n_features):
+            r = rankdata(x[t, :, f], method="average")
+            out[t, :, f] = ((r - 1.0) / max(n_segments - 1, 1)).astype("float32")
+    return out
