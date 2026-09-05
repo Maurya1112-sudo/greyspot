@@ -6428,3 +6428,42 @@ pooled figure; all three trivial-baseline paired comparisons with their
 p-values; both halves of the effect-size heuristic; and internal
 consistency between the abstract's stated counts and the replication
 table's actual composition.
+
+## 2026-09-05 - C6 substitution effect FAILS replication (and needed no GPU)
+
+Two claims live in the head-to-head experiment and had been running
+together:
+
+1. **"Our architecture beats theirs."** Holds on all three boroughs at
+   matched long history: +18.53 (Lambeth), +9.08 (Westminster), +22.28
+   (Tower Hamlets). Unaffected by what follows.
+2. **"The architectural advantage is substitutable for history"** - the gap
+   between architectures collapses once both get long crash history. This
+   was measured on Westminster (+24.42 -> +9.08) and flagged as needing a
+   second borough.
+
+Claim 2 **does not replicate**:
+
+| borough | gap SHORT | gap LONG | change |
+|---|---|---|---|
+| Lambeth | +19.01 | +18.53 | −0.48 |
+| Westminster | +24.42 | +9.08 | **−15.33** |
+| Tower Hamlets | +16.35 | +22.28 | **+5.93** |
+
+The sign reverses. On Westminster their architecture gains +25.04 from long
+history against our +9.70, so the gap collapses; on Tower Hamlets they gain
++12.69 against our +18.62, so it widens. The pooled figure (−3.29,
+p=0.2510) averages effects pointing in opposite directions and is not an
+effect at all.
+
+**This cost no GPU time.** The MASTER_PLAN note said Tower Hamlets was
+missing; `reports/tower_hamlets/headtohead_per_window.csv` already existed
+from the C8 run. A queued replication run was cancelled as redundant and
+the GPU redirected to the S5 deep-history null on a second borough, which
+genuinely has only one. **Check what is already on disk before queueing a
+run** - the ledger can be staler than the filesystem.
+
+This is the seventh finding to fail replication, and the fourth to fail by
+sign reversal specifically (road class, rank scaling, architecture-history
+interaction, now substitution). Sign reversal - not shrinkage toward zero -
+is the characteristic failure mode at this evaluation scale.

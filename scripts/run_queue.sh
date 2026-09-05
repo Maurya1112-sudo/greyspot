@@ -36,21 +36,19 @@ echo "=== waiting for C2 (Tower Hamlets) to finish at $(date +%H:%M:%S) ==="
 wait_for /tmp/c2_th.log "Written to"
 echo "=== C2 finished; queue starting at $(date +%H:%M:%S) ==="
 
-# 2. C6 head-to-head on Tower Hamlets. Needs no network - the borough's
-#    graph and POI caches already exist. Closes the substitution-effect
-#    claim, which currently rests on Westminster alone and is in the
-#    preprint.
-run "C6 head-to-head Tower Hamlets" /tmp/c6_h2h_th2.log \
-    scripts/run_headtohead_stzitd.py "Tower Hamlets"
+# 2. Brent - POI now cached (download proven complete by two byte-identical
+#    runs), so this needs no Overpass.
+run "S1 Brent" /tmp/brent_retry.log     scripts/run_ucl_comparison_multiyear.py "Brent"
 
-# 3. Brent - POI now cached (download proven complete by two byte-identical
-#    runs), so this needs no Overpass either.
-run "S1 Brent" /tmp/brent_retry.log \
-    scripts/run_ucl_comparison_multiyear.py "Brent"
+# 3. S5 deep-history null on a SECOND borough. The finding - that the GNN
+#    gains nothing from history beyond 5 years while a trivial sort gains
+#    +2.95 - currently rests on Lambeth alone, and single-borough results
+#    are exactly what this project has repeatedly watched fail. Westminster
+#    has all caches, so no network needed.
+run "S5 deep history Westminster" /tmp/s5_westminster.log     scripts/run_s5_deep_history.py "Westminster"
 
-# 4. Wandsworth LAST: it still needs Overpass, which is degraded (resets
+# 4. Wandsworth LAST: still needs Overpass, which is degraded (resets
 #    connections mid-transfer). Most likely to fail, so it blocks nothing.
-run "S1 Wandsworth" /tmp/wandsworth_retry.log \
-    scripts/run_ucl_comparison_multiyear.py "Wandsworth"
+run "S1 Wandsworth" /tmp/wandsworth_retry.log     scripts/run_ucl_comparison_multiyear.py "Wandsworth"
 
 echo "QUEUE_COMPLETE at $(date +%H:%M:%S)"

@@ -125,7 +125,7 @@ three of three single-borough candidates failed replication.
 | C3 | Road class harmful | **2 boroughs ☑** | **DOES NOT REPLICATE - claim RETRACTED.** Lambeth -6.87/-4.49 (p=0.016) but Westminster -0.37/**+2.25** - sign flips. Effect is Lambeth-specific |
 | C4 | Pruning −6.89 | Lambeth, seed 42 | ☐ (superseded by C2 - the ladder is the better test) |
 | C5 | Table-start control | Lambeth, seed 42 | ☐ low priority - it was a negative control, and it agreed with the baseline |
-| C6 | Head-to-head vs their architecture | **2 boroughs ☑** | **REPLICATES**: our arch wins on both, p=0.0007/0.0059. **NEW: substitution effect** - gap collapses +24.42 -> +9.08 once both get long history (their arch gains +25.04 vs our +9.70). Substitution rests on Westminster alone -> needs Tower Hamlets |
+| C6 | Head-to-head vs their architecture | **3 boroughs ☑** | **ARCHITECTURE CLAIM REPLICATES**: our arch wins on all three at long history (+18.53 Lam / +9.08 WM / +22.28 TH). **SUBSTITUTION CLAIM FAILS** (settled 2026-09-05, `scripts/run_c6_substitution_analysis.py`): the gap collapses on Westminster (−15.33) and barely moves on Lambeth (−0.48) but **WIDENS on Tower Hamlets (+5.93)** - sign reverses, so it is borough-specific. Pooled −3.29 (p=0.2510) averages opposite-signed effects and must not be quoted. NOTE: the earlier 'needs Tower Hamlets' note was stale - the TH head-to-head already existed, so this needed no GPU run |
 
 **Effects below ~4 points in those tables are NOT trustworthy** and must
 be reported as "not distinguishable from seed noise": hidden size
