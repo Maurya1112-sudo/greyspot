@@ -1,0 +1,2 @@
+candidate,AccHR_mean,AccHR_std,AccHR_min,AccHR_max,n_windows
+best + MULTI-YEAR history (730d/1095d/1825d added),0.7453958078958078,0.06108199311590783,0.65,0.8452380952380951,6
