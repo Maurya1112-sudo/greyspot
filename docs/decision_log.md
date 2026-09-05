@@ -5907,3 +5907,63 @@ figure in this project would be partly an artefact of segment ordering.
 
 **Lesson**: an inline diagnostic that produces a quoted number is not
 finished until it is a script in the repo. Added as R12.
+
+## 2026-09-05 - S2: a trivial baseline appears to beat the GNN - until the horizon is matched
+
+The Empirical Bayes baseline (Highway Safety Manual method) was built to
+preempt "you rediscovered EB". It produced something far more
+significant, and then a control took most of it back.
+
+### First result: parameter-free ranking beat the GNN on all three boroughs
+
+| Borough | Raw cumulative count | EB (HSM) | GNN (seed-avg) |
+|---|---|---|---|
+| Lambeth | **83.20%** | 82.11% | 77.75% |
+| Westminster | **81.25%** | 81.93% | 80.03% |
+| Tower Hamlets | **87.37%** | 87.48% | 82.63% |
+| **Mean** | **83.94%** | 83.84% | 80.14% |
+
+Sorting segments by their cumulative crash count - no model, no
+training, no features, no graph - scored +3.80 above the GNN, and above
+Gao et al.'s published 72.60% as well. Leakage was ruled out: the
+history filter is `cdate < window_start`, strictly disjoint from the
+`[start, start+14d)` target.
+
+### The control that changed the answer
+
+The baseline used ALL available history (2016-2024, ~8 years); the GNN's
+deepest feature is 1825 days (~5 years). That confounds "simple beats
+complex" with "more history beats less". Capping the baseline to 1825
+days:
+
+| Borough | Capped baseline | GNN | Difference |
+|---|---|---|---|
+| Lambeth | 80.81% | 77.75% | +3.06 |
+| Westminster | **76.46%** | 80.03% | **-3.57** |
+| Tower Hamlets | 85.69% | 82.63% | +3.06 |
+| **Mean** | **80.99%** | **80.14%** | **+0.85** |
+
+**At matched horizon the advantage nearly disappears** - +0.85 on
+average, signs mixed, Westminster reversing to favour the GNN. Well
+inside the ~4-point noise band.
+
+**"A trivial baseline beats the GNN" would have been a FALSE claim.**
+Most of the apparent gap was the baseline seeing three more years of
+data.
+
+### What actually survives
+
+1. **At equal history depth, the GNN is statistically equivalent to a
+   parameter-free crash-count sort.** The graph structure, 35 features,
+   conformal intervals and 200 training epochs add nothing measurable
+   over sorting segments by their past crash count. This is a genuine
+   and uncomfortable finding, and it belongs in the write-up.
+
+2. **History beyond 5 years still carries signal**: the uncapped
+   baseline gains +2.95 over the capped one. The GNN's 1825-day ceiling
+   is leaving information unused - which motivates extending it.
+
+This is the fourth time today a control has overturned or halved a
+finding before it was recorded as a claim (after the history-horizon
+retraction, the network metric-confound scare, and the substitution
+effect).
