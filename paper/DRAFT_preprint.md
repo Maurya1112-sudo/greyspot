@@ -1,4 +1,4 @@
-# What Actually Matters in Road-Level Crash Prediction: A Replication Study with Nine Failed Replications
+# What Actually Matters in Road-Level Crash Prediction: Ten Findings, Three Replications
 
 **Draft 2026-09-05.** Every number below traces to a script in this
 repository and an entry in `docs/decision_log.md`. Claims that failed
@@ -13,10 +13,11 @@ road-level crash prediction on three London boroughs, using independently
 constructed data. Our model reaches AccHR@20 of 80.14% ± 1.12 (5 seeds)
 against their reported 72.60%, significantly better on two of three
 boroughs. But the more transferable results are negative and
-methodological: of nine findings that appeared significant on a single
-borough, **only three survived replication on a second**, and effect size
-predicted which — every effect above the measured ~4-point seed-noise
-band replicated, every effect below it failed. We further show that at
+methodological: of ten findings that appeared significant on a single
+borough, **only three survived replication on a second** (six failed, one
+remains unresolved), and effect size predicted which — every effect above
+the measured ~4-point seed-noise band replicated, every effect below it
+failed. We further show that at
 matched history depth our graph neural network is **statistically
 indistinguishable from sorting road segments by their past crash count**,
 and that it cannot exploit additional history that the trivial sort
@@ -63,10 +64,12 @@ TCR formula, segment consolidation and evaluation protocol.
 | Architecture × history interaction | +25.04 vs +9.70 | failed (reverses sign) |
 | Rank-transform scaling | +5.80 (best ever) | failed (−39.7, worst ever) |
 
-**Three of nine survived.** Effect size predicted the outcome for main
-effects: all survivors exceeded the seed-noise band; all small effects
-failed. **It did not predict interactions** — the architecture×history
-interaction was +25 points and still reversed sign between boroughs.
+**Three of ten survived; six failed; one is unresolved** (the feature-count
+claim, which a third borough is being run to settle). Effect size predicted
+the outcome for main effects: all survivors exceeded the seed-noise band;
+all small effects failed. **It did not predict interactions** — the
+architecture×history interaction was +25 points and still reversed sign
+between boroughs.
 
 ## 3. The model adds little over a trivial baseline
 
@@ -126,11 +129,22 @@ swept optimum throughout, not at settings where it fails.
 ## 6. Limitations
 
 Three boroughs; six windows per borough (31–38 in the dense evaluation);
-one city; a target-density discrepancy against the reference paper that
-we could not explain; and generalisation to five further boroughs left
-incomplete when the OSM Overpass API failed mid-run — two of those
-boroughs produced silently partial data that we quarantined rather than
-report.
+one city; and a target-density discrepancy against the reference paper
+that we could not explain.
+
+Generalisation to five further boroughs is incomplete. The OSM Overpass
+API degraded mid-study — reporting free capacity while resetting
+connections during larger transfers — and one borough's POI download lost
+an entire feature category on three separate attempts while appearing
+successful. We quarantined it rather than report it. This is worth stating
+plainly because the failure was **silent**: the truncated download
+produced a plausible-looking file that would have been cached and reused
+indefinitely. We now refuse such responses in code, validating both that
+every category returned and that POI density clears a floor calibrated on
+verified downloads. That check initially rejected a *valid* outer-London
+borough, whose floor we had calibrated only on inner-London ones; we
+established the download was complete by confirming two independent
+downloads were byte-identical, which a truncated response cannot be.
 
 ---
 
