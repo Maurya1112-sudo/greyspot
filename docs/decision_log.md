@@ -6405,3 +6405,26 @@ run. The corrected version still saves work - a sub-noise result can be
 discarded without further runs - but it removes the licence to *believe* a
 large single-borough effect, which is the direction that would have
 produced false claims in the paper.
+
+## 2026-09-05 - Preprint claims verified mechanically
+
+`scripts/verify_preprint_claims.py` re-derives every headline number in the
+preprint from its raw source and compares it to what the document says.
+14 checks, all passing. This closes R12's loop: the rule required a script
+per number, but nothing checked that the doc still agreed with the script's
+output. Two real errors were found by hand earlier today (the
+title/abstract/table contradiction and the effect-size claim) and both are
+exactly what this catches automatically.
+
+**One thing it confirmed rather than caught.** The per-borough 95% CIs
+initially looked ~0.5 points too wide against a normal approximation. They
+are correct: with n=5 seeds the right multiplier is t(4)=2.776, not
+z=1.96, which widens each interval by about 40%. The preprint had it right
+and the quick mental check was wrong - recorded here because the
+approximation is an easy thing to "correct" in the wrong direction.
+
+Checks covered: per-borough mean, SD and CI for all three boroughs; the
+pooled figure; all three trivial-baseline paired comparisons with their
+p-values; both halves of the effect-size heuristic; and internal
+consistency between the abstract's stated counts and the replication
+table's actual composition.
