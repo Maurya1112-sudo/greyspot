@@ -5869,3 +5869,41 @@ replicates, but says nothing about INTERACTIONS. Interactions between
 two factors appear to be borough-specific even when both main effects
 are large and stable. That is a sharper and more useful caveat than the
 original threshold rule.
+
+## 2026-09-05 - Full cross-check of every claim against raw data
+
+Independently recomputed every quantitative claim from the report CSVs
+rather than from the prose, on the principle that a number repeated
+across five documents can drift from the data it came from.
+
+**Effect claims: 12 checked, 0 mismatches.** Network (+11.59), history
+horizon (Lambeth +15.85, Westminster +9.70), layers (Lambeth -26.46,
+Westminster -43.21), encoder order (-13.61, -9.42), 26-vs-35 features
+(+0.23, -0.03), head-to-head (+18.53, +9.08, +22.28) - all reproduce
+exactly from `reports/<borough>/*.csv`.
+
+**Headline figures: exact.** Seed-averaged means, standard deviations
+AND p-values all recompute to the reported values for all three
+boroughs and the pooled figure (80.14 +/- 1.12, p=0.000115).
+
+**Validation controls: all traced to source logs.** Label shuffle
+(0.7564 -> 0.2308), random baseline over 200 seeds (0.1968 vs 0.1996),
+seed spreads (3.86 / 3.24 / 4.74).
+
+### One gap found and closed
+
+The **metric sanity check had no saved artefact**. It was run inline and
+printed to console, so the claim in `docs/final_model.md` §3.5 - that a
+constant prediction scores BELOW random, hence no score here is a
+tie-break artefact - rested on an unreproducible command.
+
+Now `scripts/diagnose_metric_sanity.py`, which reproduces the original
+numbers exactly: all-constant 0.1012, all-zeros 0.1012, random uniform
+0.1667, near-constant+noise 0.1964.
+
+This claim is load-bearing: if constant predictions scored ABOVE random,
+tie-breaking would be doing work the model should do, and every AccHR@20
+figure in this project would be partly an artefact of segment ordering.
+
+**Lesson**: an inline diagnostic that produces a quoted number is not
+finished until it is a script in the repo. Added as R12.
