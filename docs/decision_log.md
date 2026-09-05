@@ -6202,3 +6202,54 @@ Two reportable limitations, both with mechanisms and both quantified:
 
 Concrete future work: holiday/seasonal indicator features, or a
 separately calibrated holiday model.
+
+## 2026-09-05 - Resumable walk-forward evaluation (checkpointing)
+
+**Problem.** Every multi-window script held its per-window results in memory
+and wrote its CSV only after the final window. For the 6-window runs that is
+harmless; for the 38-window dense evaluations (4-6 hours) it meant any
+interruption destroyed the whole run. This was not hypothetical - it had
+already happened once (dense eval interrupted at 31/38; the numbers had to be
+scraped back out of the log into
+`reports/lambeth/dense_eval_31windows_recovered.csv`), and it happened again
+today when the machine had to be shut down with Westminster at 21/38.
+
+**Fix.** `src/greyspot/eval/checkpoint.py` - each window is appended to a CSV
+and `fsync`'d the moment it completes; a restart skips windows already
+present. Wired into `scripts/run_ucl_comparison_dense_eval.py`. Worst case an
+interruption now costs the single window that was mid-training.
+
+**The guard is the point, not the append.** Resuming is only valid if the
+restarted run computes the SAME quantity. A checkpoint keyed on
+`held_out_start` alone would let a run with different features silently adopt
+another config's windows and report the average as one number - the same bug
+class as the config-rebinding incident (R3). So every row carries a
+fingerprint over borough, config, year ranges, lookbacks, rolling windows,
+date bounds, input window, horizon, stride, n_windows, feature columns and
+instance count; a mismatch REFUSES to resume rather than guessing.
+`len(instances)` is in the fingerprint because the walk-forward indexes
+windows from the END of the instance list, so a different instance count
+silently shifts which dates the last N windows refer to.
+
+**Two failure modes found while testing, both from the hard-shutdown scenario
+this exists to survive:**
+
+1. A shutdown during the very first append leaves a zero-byte file, which
+   raised `EmptyDataError` instead of reading as "nothing done yet".
+2. A truncated final line parses into a row of NaNs - including a NaN
+   fingerprint, which tripped the stale-config guard and refused to resume
+   the very run the module was written to rescue. The torn-row drop now runs
+   BEFORE the fingerprint check. Caught by a test, not by reading the code.
+
+**`--seed-from`.** Adopts windows from a previous uncheckpointed run of the
+same config, used to recover today's 21 Westminster windows from the log.
+Two constraints are enforced rather than trusted: every seeded date must
+appear in this run's instance grid (a date that does not proves the seed came
+from a different protocol), and seeded rows carry only the columns the source
+actually had. The recovered rows have AccHR only, so the rest of the metric
+suite stays NaN for those 21 windows - absent, not back-filled.
+
+**Verification.** 9 unit tests plus a stubbed end-to-end run of
+`evaluate_config` confirming that a restart with 4 of 6 windows checkpointed
+performs exactly 2 trainings, returns all 6 results in the right date order,
+and refuses a foreign fingerprint. Full suite: 220 passed.

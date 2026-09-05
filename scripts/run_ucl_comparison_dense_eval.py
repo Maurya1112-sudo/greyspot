@@ -49,6 +49,12 @@ sys.path.insert(0, str(ROOT / "src"))
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
+from greyspot.eval.checkpoint import (  # noqa: E402
+    FINGERPRINT_COLUMN,
+    append_checkpoint,
+    compute_fingerprint,
+    load_checkpoint,
+)
 from greyspot.eval.ucl_metrics import ucl_metric_suite  # noqa: E402
 from greyspot.features.build_features import aggregate_exposure_features  # noqa: E402
 from greyspot.features.daily_features import (  # noqa: E402
@@ -315,15 +321,39 @@ def build_instances(borough_name: str):
     return instances, edge_index
 
 
-def evaluate_config(instances, edge_index, config: dict, n_windows: int) -> list[dict]:
+def evaluate_config(
+    instances, edge_index, config: dict, n_windows: int,
+    *, candidate_name: str, checkpoint_path: Path, fingerprint: str,
+) -> list[dict]:
     """Expanding-window walk-forward: for each of the last `n_windows`
     instances, standardise features (fit on everything strictly before
-    it), train on everything strictly before it, evaluate on it."""
+    it), train on everything strictly before it, evaluate on it.
+
+    RESUMABLE: each window is appended to `checkpoint_path` the moment it
+    finishes, and windows already present there are skipped. At ~9 minutes
+    per window over 38 windows this run spans hours, so an interrupted
+    machine previously cost the entire run (it has, once). Now it costs
+    only the window that was mid-training.
+    """
     results = []
     n = len(instances)
+    done = load_checkpoint(checkpoint_path, candidate_name, fingerprint)
+    if done:
+        logger.info(
+            "Checkpoint: resuming with %d window(s) already complete in %s",
+            len(done), checkpoint_path.name,
+        )
     for held_out_idx in range(n - n_windows, n):
-        train_slice = instances[:held_out_idx]
         held_out_x_raw, held_out_y, held_out_start = instances[held_out_idx]
+        if held_out_start in done:
+            cached = done[held_out_start]
+            results.append(cached)
+            logger.info(
+                "  window %s: reused from checkpoint, AccHR@20=%.4f",
+                held_out_start.date(), cached["AccHR"],
+            )
+            continue
+        train_slice = instances[:held_out_idx]
 
         train_x_seqs = [x for x, _, _ in train_slice]
         mean, std = fit_feature_standardizer(train_x_seqs)
@@ -350,6 +380,10 @@ def evaluate_config(instances, edge_index, config: dict, n_windows: int) -> list
         metrics["held_out_start"] = held_out_start
         metrics["n_train_instances"] = len(train_slice)
         results.append(metrics)
+        append_checkpoint(
+            checkpoint_path,
+            {"candidate": candidate_name, **metrics, FINGERPRINT_COLUMN: fingerprint},
+        )
         logger.info(
             "  window %s (trained on %d instances): AccHR@20=%.4f",
             held_out_start.date(), len(train_slice), metrics["AccHR"],
@@ -357,7 +391,52 @@ def evaluate_config(instances, edge_index, config: dict, n_windows: int) -> list
     return results
 
 
-def main(borough_name: str = "Westminster") -> None:
+def _seed_checkpoint(
+    seed_path: Path, checkpoint_path: Path, candidate: str, fingerprint: str, instances,
+) -> None:
+    """Adopt windows from a previous, uncheckpointed run of THIS EXACT config.
+
+    Recovers work that would otherwise be re-computed. Written for the
+    2026-09-05 Westminster run: 21 of 38 windows had completed under the
+    pre-checkpointing script when the machine had to be shut down, so their
+    AccHR values existed only in the log.
+
+    Two honesty constraints, both enforced:
+
+    1. Every seeded date must actually appear in this run's instance grid.
+       A date that does not is proof the seed came from a different
+       protocol, and adopting it would mix two experiments.
+    2. Seeded rows carry ONLY the columns the source had (here AccHR,
+       recovered from log lines). The other entries of the metric suite are
+       genuinely absent and stay absent - written as NaN in the final
+       per-window CSV rather than back-filled with anything invented.
+    """
+    if checkpoint_path.exists() and checkpoint_path.stat().st_size > 0:
+        logger.info("Checkpoint %s already exists - ignoring --seed-from", checkpoint_path.name)
+        return
+    seed = pd.read_csv(seed_path)
+    seed["held_out_start"] = pd.to_datetime(seed["held_out_start"])
+    grid = {d for _, _, d in instances}
+    unknown = sorted(set(seed["held_out_start"]) - grid)
+    if unknown:
+        raise ValueError(
+            f"{seed_path} contains {len(unknown)} held-out date(s) absent from this run's "
+            f"instance grid (first: {unknown[0].date()}). The seed was produced by a "
+            f"DIFFERENT protocol and must not be adopted."
+        )
+    for _, row in seed.iterrows():
+        append_checkpoint(
+            checkpoint_path,
+            {"candidate": candidate, **row.to_dict(), FINGERPRINT_COLUMN: fingerprint},
+        )
+    logger.info(
+        "Seeded %d window(s) from %s. Columns carried: %s - every other metric in the "
+        "suite is UNAVAILABLE for these windows and will be NaN.",
+        len(seed), seed_path.name, sorted(seed.columns),
+    )
+
+
+def main(borough_name: str = "Westminster", seed_from: Path | None = None) -> None:
     logger.info("=== Multi-window AccHR@20 evaluation: %s ===", borough_name)
     instances, edge_index = build_instances(borough_name)
     logger.info("Built %d total instances; evaluating the last %d as held-out windows", len(instances), N_WINDOWS)
@@ -368,9 +447,29 @@ def main(borough_name: str = "Westminster") -> None:
     reports_dir.mkdir(parents=True, exist_ok=True)
     all_rows = []
     summary_rows = []
+    checkpoint_path = reports_dir / "ucl_multiwindow_denseeval_checkpoint.csv"
     for name, config in CANDIDATES.items():
         logger.info("--- Candidate: %s ---", name)
-        results = evaluate_config(instances, edge_index, config, N_WINDOWS)
+        # Everything that must be identical for a resumed window to be
+        # measuring the same quantity. `len(instances)` is included because
+        # the walk-forward indexes windows from the END of the instance
+        # list - a different instance count silently shifts which dates the
+        # last N_WINDOWS refer to.
+        fingerprint = compute_fingerprint(
+            borough=borough_name, config=config, years=YEARS,
+            history_years=HISTORY_YEARS, long_lookbacks=LONG_LOOKBACKS,
+            rolling_windows=ROLLING_WINDOWS, table_start=TABLE_START_DATE,
+            start=START_DATE, end=END_DATE, input_window=INPUT_WINDOW,
+            horizon=HORIZON, stride=STRIDE_DAYS, n_windows=N_WINDOWS,
+            feature_columns=FEATURE_COLUMNS, n_instances=len(instances),
+        )
+        if seed_from is not None:
+            _seed_checkpoint(seed_from, checkpoint_path, name, fingerprint, instances)
+        results = evaluate_config(
+            instances, edge_index, config, N_WINDOWS,
+            candidate_name=name, checkpoint_path=checkpoint_path,
+            fingerprint=fingerprint,
+        )
         for r in results:
             all_rows.append({"candidate": name, **r})
         acchr_values = [r["AccHR"] for r in results]
@@ -394,5 +493,7 @@ def main(borough_name: str = "Westminster") -> None:
 
 
 if __name__ == "__main__":
-    borough_arg = sys.argv[1] if len(sys.argv) > 1 else "Westminster"
-    main(borough_arg)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    borough_arg = args[0] if args else "Westminster"
+    seed_arg = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--seed-from=")), None)
+    main(borough_arg, Path(seed_arg) if seed_arg else None)
