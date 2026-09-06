@@ -19,17 +19,19 @@ Effect size predicts non-replication but not replication: every effect
 below the measured ~4-point seed-noise band failed (4/4), while only 4 of
 6 effects above it survived — a small effect is reliable evidence against,
 a large one is weak evidence for. Failure is characteristically a **sign
-reversal** between boroughs, not a shrinkage toward zero: four of the
-seven changed direction. We further show that at matched history depth
+reversal**, not a shrinkage toward zero: four of the seven changed
+direction between boroughs, and the one effect we multi-seeded reverses
+sign between random *seeds* within a single borough — so a single-seed
+run of that experiment could not have supported any conclusion, in
+either direction. We further show that at matched history depth
 our graph neural network is **statistically indistinguishable from sorting
 road segments by their past crash count**, and that the reference
 architecture, given the same data and its own tuned settings, **loses to
 that sort on 18 of 18 held-out windows** (−19.49 points, *p* < 10⁻⁵). The
 sort also converts three further years of history into a significant
 +2.95-point gain (*p* = 0.041) where the same extension moves our network
-by −0.12 (*p* = 0.86, 5 seeds, 2 boroughs). The
-reference paper does include a historical-average baseline, but its data
-covers a single year; we argue that the apparent margin of graph networks
+by −0.12 (*p* = 0.86, 5 seeds, 2 boroughs). The reference paper does
+include a historical-average baseline, but its data covers a single year; we argue that the apparent margin of graph networks
 over historical baselines in this literature is substantially a function
 of how short a horizon those baselines were computed over.
 
