@@ -265,19 +265,43 @@ Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper
 that we could not explain.
 
-Generalisation to five further boroughs is incomplete. The OSM Overpass
-API degraded mid-study — reporting free capacity while resetting
-connections during larger transfers — and one borough's POI download lost
-an entire feature category on three separate attempts while appearing
-successful. We quarantined it rather than report it. This is worth stating
-plainly because the failure was **silent**: the truncated download
-produced a plausible-looking file that would have been cached and reused
-indefinitely. We now refuse such responses in code, validating both that
-every category returned and that POI density clears a floor calibrated on
-verified downloads. That check initially rejected a *valid* outer-London
-borough, whose floor we had calibrated only on inner-London ones; we
-established the download was complete by confirming two independent
-downloads were byte-identical, which a truncated response cannot be.
+**Generalisation.** The model was run on four further London boroughs
+beyond the three benchmark ones. Across all seven (single seed, so not
+quotable as point estimates):
+
+| Borough | AccHR@20 | | Borough | AccHR@20 |
+|---|---|---|---|---|
+| Camden | 84.66% | | Westminster | 78.92% |
+| Tower Hamlets | 83.93% | | Brent | 77.64% |
+| Lambeth | 79.44% | | Kensington & Chelsea | 74.54% |
+| | | | Wandsworth | 73.83% |
+
+The range is 73.83–84.66%, so performance does not collapse outside the
+benchmark set. Brent — the only outer-London borough, and the least
+POI-dense — has by far the widest per-window spread (±11.92 against a
+5.16–7.35 range elsewhere, one window at 57.69%), consistent with the
+measured dependence of AccHR@20 on crash volume: sparser boroughs are
+measured less reliably, which is a property of the evaluation.
+
+**A data-collection failure worth reporting.** The OSM Overpass API
+degraded mid-study, reporting free capacity while truncating larger
+transfers. One borough's POI download lost an entire feature category on
+four separate attempts across two days while appearing successful. The
+failure was **silent**: it produced a plausible-looking file that would
+have been cached and reused indefinitely. When that borough was eventually
+downloaded intact, the truncated file proved to have held **24% of the
+real data** (1,637 vs 6,816 POI adjacencies).
+
+We now refuse such responses in code, checking both that every category
+returned and that POI density clears a floor calibrated on verified
+downloads. Two lessons came out of building that check. It initially
+rejected a *valid* outer-London borough, because we had calibrated the
+floor only on inner-London ones; we established that download was complete
+by confirming two independent fetches were byte-identical, which a
+truncated response cannot be. And adding retries for the transient failure
+made a *timeout* case four times slower, because a timeout means the query
+is too heavy rather than unlucky — the two failure modes need opposite
+handling.
 
 ---
 
