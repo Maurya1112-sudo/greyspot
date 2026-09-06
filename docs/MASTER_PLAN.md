@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-06 13:25 (S5 null WITHDRAWN; 4 of 11 claims replicate; Fig 1 + SOP done)
+Last updated: 2026-09-06 21:10 (all compute complete; arXiv package built; SOP dossier written)
 
 ---
 
@@ -214,44 +214,31 @@ plausible but still need one replication each before publication.
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
 
-### Live state — 2026-09-06 12:30
+### Live state — 2026-09-06 21:10 — COMPLETE
 
-**Running now:** Wandsworth, with the new tiled POI fallback (Monitor attached).
+**No jobs running.** All compute finished; ledger closed (23 done, 2
+closed as superseded, 1 deprioritised, 0 open).
 
-**Settled since yesterday — three claims withdrawn, none by choice:**
+**Final multi-seed settlement.** Every claim that reached an output is now
+multi-seeded per borough:
 
-| Claim | Was | Now |
+| claim | 5-seed result | single-seed had said |
 |---|---|---|
-| 13 features ≈ 35 | downgraded | **FAILS** — sign flips (+0.77 on TH) |
-| Architecture × history substitution | needed a 3rd borough | **FAILS** — sign reverses; needed NO GPU, the data was already on disk |
-| Model can't use >5yr history | null on Lambeth | **WITHDRAWN** — Westminster +2.98 (p=0.023) |
-| Effect size predicts replication | asserted both ways | **one-directional only** — 0/4 below band replicated, 4/6 above |
+| Reference architecture vs trivial sort | **−17.37, 0/18 windows**, p<10⁻⁶ | −19.49 |
+| Our architecture vs theirs | **+13.51 pooled, 81/90** | +18.53 / +8.01 / +22.28 |
+| Encoder ordering | **+15.79, 54/60** | −13.61 / −9.42 |
+| Deep history (5→9yr) | **−0.12, p=0.86** | −0.72 / +2.98 |
 
-Scoreboard: **4 of 11 replicated, 7 failed.** (Depth and encoder order are
-counted separately: they are separate experiments varying one factor each, per R1.) Four of the
-seven failed by SIGN REVERSAL rather than shrinkage toward zero — that is
-the characteristic failure mode at this evaluation scale and is a more
-useful finding than "small effects are noisy".
+Seed 42 was the project default, so every single-seed comparison
+inherited what that seed favoured — and it erred in **both** directions
+(overstating Lambeth by 9 points, understating Westminster by 5.6).
 
-**Infrastructure added:** per-window checkpointing (runs survive shutdown);
-POI download guards with a calibrated density floor plus tiled fallback;
-`verify_preprint_claims.py` (16 mechanical checks, all passing).
+**Outputs delivered.** arXiv package (`paper/arxiv/`, IEEEtran two-column,
+36 static checks); reading PDF (`paper/greyspot_preprint.pdf`); SOP
+dossier (`docs/SOP_PROJECT_DOSSIER.md`).
 
-**Queue, highest value first:**
-1. **Multi-seed S5 on both boroughs.** Its ±3-point effects are inside the
-   noise band at a single seed, so neither borough's figure is
-   interpretable. This is the only way to settle whether the model can use
-   deep history at all. GPU, ~2h.
-2. **Wandsworth** — running; completes the 5-borough generalisation.
-3. **S3 dense eval** — resume via
-   `--seed-from=reports/westminster/s3_dense_partial_recovered.csv`.
-   Still lowest value: narrows a CI on an established number, tests no
-   claim.
-
-**Not worth doing:** more single-seed single-borough experiments. Today
-produced four withdrawals and every one came from adding a borough or a
-seed to something already "established". The binding constraint on this
-project is evidence per claim, not number of claims.
+**The one thing not verified:** the LaTeX has never been compiled — no
+toolchain on this machine. Overleaf before upload.
 
 ---
 

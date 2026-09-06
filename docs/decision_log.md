@@ -7492,3 +7492,44 @@ This is the third instability of the same shape: depth 2 diverges on
 Westminster windows, the reference architecture (which uses depth 2)
 spreads 35.7 points across seeds, and now temporal_first collapses on a
 specific seed. All three are the reference paper's architectural choices.
+
+## 2026-09-06 - Project complete: outputs and final state
+
+All compute finished. Ledger closed: 23 done, 2 closed as superseded, 1
+deprioritised with reasoning, 0 open.
+
+**Every claim that reaches an output is now multi-seeded per borough.**
+The final settlement changed magnitudes throughout while leaving every
+direction intact:
+
+| claim | 5 seeds | single seed had said |
+|---|---|---|
+| Reference architecture vs trivial sort | −17.37, **0/18 windows** | −19.49 |
+| Our architecture vs theirs | +13.51 pooled, 81/90 | +18.53 / +8.01 / +22.28 |
+| Encoder ordering | +15.79, 54/60 | −13.61 / −9.42 |
+| Deep history (5→9yr) | −0.12, p=0.86 | −0.72 / +2.98 |
+
+Seed 42 was the project default, so every single-seed comparison
+inherited whatever that seed happened to favour — and it erred in **both**
+directions, overstating Lambeth by 9 points and understating Westminster
+by 5.6. That is the cleanest single justification for R10 the project
+produced.
+
+**Outputs.**
+
+- `paper/arxiv/` — IEEEtran two-column submission package (main.tex,
+  fig_horizon.tex). 36 static checks pass. Rewritten from narrative-report
+  form into conventional research-paper structure after studying the
+  reference paper's own organisation and register.
+- `paper/greyspot_preprint.pdf` — readable 8-page render, built from the
+  markdown because no LaTeX toolchain exists here. Separate provenance
+  from the arXiv source, so its builder refuses to run unless the markdown
+  contains the computed headline figures.
+- `docs/SOP_PROJECT_DOSSIER.md` — project dossier for statement-of-purpose
+  drafting, with every figure cross-checked against its source artefact
+  and an explicit list of claims that are *not* usable.
+
+**The one thing not verified:** the LaTeX has never been compiled. There
+is no toolchain on this machine, so the 36 checks cover only what is
+detectable statically. That is stated in the package README rather than
+left implicit.
