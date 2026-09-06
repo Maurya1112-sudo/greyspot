@@ -37,7 +37,11 @@ and remains one at n=31 on the dense grid.
 
 **Against this project's own session-start baseline**, paired on
 identical windows: 66.99% → 80.76%, **+13.78 points, 18/18 windows,
-t=6.4610, p=0.0000059** (Wilcoxon p=0.0000076).
+t=6.4610, p=0.0000059** (Wilcoxon p=0.0000076). Both sides of this
+comparison are **single-seed (seed 42)** runs, which is why 80.76 appears
+here rather than the 5-seed 80.14 of the table above; the pairing is
+valid because it is seed-42 against seed-42 on identical windows, but the
+80.76 is not the headline.
 
 §7 lists four reasons this still must not be overstated — chiefly that
 no *paired* test against Gao et al. is possible, and the protocols
@@ -171,6 +175,11 @@ and rejected; clipped z-score at ±5σ was a clean null, p=0.9899.)
 ## 3. Full results
 
 ### 3.1 AccHR@20 per window
+
+**These are single-seed (seed 42) figures**, kept because the per-window
+detail is what the paired tests operate on. Their means (78.92 / 83.93 /
+79.44) are *not* the headline — see §1 for the 5-seed figures, which
+differ by up to 1.7 points and in both directions.
 
 | Window | Train inst. | Westminster | Tower Hamlets | Lambeth |
 |---|---|---|---|---|
@@ -416,7 +425,10 @@ Test suite: **207 passing** (`python -m pytest tests/ -q`).
    one-sample form is what the available data supports. The significance
    reported in §1 is real but rests on this weaker design.
 
-2. **Lambeth is a tie, not a win** (79.44% vs 76.59%, p=0.3059). Two of
+2. **Lambeth is a tie, not a win** (77.75% ± 1.67 vs 76.59%, p=0.1941,
+   5 seeds; the superseded single-seed figures were 79.44%, p=0.3059 —
+   the verdict is unchanged, and it remains a tie at n=31 on the dense
+   grid too). Two of
    three boroughs are individually significant; the third is higher but
    not resolvably so. "Beats them on every borough" would be false.
 

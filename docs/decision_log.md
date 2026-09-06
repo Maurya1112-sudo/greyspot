@@ -6918,3 +6918,40 @@ did.
 sources but has never looked at `final_model.md`. Extending it to cover
 the canonical spec is the obvious next step, and is worth more than
 another experiment.
+
+## 2026-09-06 - A cross-document checker, and the negative control that saved it
+
+`verify_preprint_claims.py` checks the preprint against its source data.
+It cannot catch a document that is internally consistent about something
+wrong, and two such cases surfaced within an hour today: the ten-vs-eleven
+finding count, and `final_model.md` carrying a superseded headline and two
+overturned nulls. Neither was found by a check — one surfaced while tracing
+SOP claims to source, the other while drafting a Methods section.
+
+`scripts/verify_cross_document.py` makes that class detectable: canonical
+figures must read the same wherever stated, no document may assert a
+superseded value outside a correction, no overturned claim may recur, and
+the replication totals must agree.
+
+**The negative control is the part worth recording.** The first working
+version scoped its exemption to the enclosing markdown SECTION, on the
+reasoning that a table's caption governs its rows. It reported 14/14 OK.
+Re-injecting the exact stale claim that had survived two days — "2 layers
+tested, null" — into a section that happened to contain a correction note
+*still* reported 14/14 OK. One correction note was blanket-exempting every
+other claim in its section. The checker looked healthy and was blind.
+
+A checker that fails to fail is worse than none, because it converts an
+unchecked area into one believed checked. The exemption is now narrow: the
+line carries a marker itself, or it is inside a blockquote (the form every
+correction note here uses), or it is a table row whose caption carries one.
+Re-running the injection now fails correctly.
+
+**Two real stale claims were caught by the fixed version**, both in the
+canonical document: a per-window table whose means could be mistaken for
+the headline, now labelled single-seed; and the session-start comparison
+(66.99% → 80.76%), which is a valid seed-42-to-seed-42 paired test but sat
+unlabelled beside a 5-seed headline.
+
+The general lesson: **write the negative control before trusting the
+check.** Both verifiers in this repo now have one.
