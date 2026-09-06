@@ -6955,3 +6955,55 @@ unlabelled beside a 5-seed headline.
 
 The general lesson: **write the negative control before trusting the
 check.** Both verifiers in this repo now have one.
+
+## 2026-09-06 - The window discrepancy, resolved exactly (and my correction was wrong)
+
+I have now taken three positions on the Westminster 2023-10-13
+discrepancy. The evidence finally settles it, and the first position was
+right.
+
+**The record.** On 2026-09-05 I attributed it to AccHR@20's step-function
+behaviour over tied segments, asserting the mechanism without measuring it.
+Earlier today I withdrew that, because re-running the S5 config at seed 42
+reproduced its window exactly, and proposed provenance instead (stale
+artefacts predating version control). The reproducibility check then
+refuted *that* too: current code reproduces the committed CSV exactly, so
+the CSV was never stale.
+
+**What settles it.** The S5 multi-seed run reached Westminster and its seed
+42 disagreed with yesterday's S5 run - on the *same window*, by 0.0119,
+against 0.0117 for the original V8 anomaly. Two different configurations
+(5-year and 9-year history), same borough, same window, same magnitude,
+with every other window bit-identical at 0.0000.
+
+**And the magnitude is exact.** AccHR@20 averages a per-day hit rate over a
+window's days, so its smallest possible change is one crash crossing the
+threshold on one day:
+
+    1 / (crashes that day) / (days in window)
+
+The 2023-10-13 window holds 59 crashes over 14 days, six on several of
+them. One crash moving on a 6-crash day is worth **1/6/14 = 0.011905** -
+the observed difference to four decimals.
+`scripts/diagnose_metric_granularity.py` computes this per window.
+
+**So the mechanism is confirmed and quantified**: the metric is a step
+function of the ranking, 94%+ of segments are tied at zero recent crashes,
+and a floating-point difference invisible in the predictions can reorder a
+tie group and move one crash across the 20% cut. Reruns are therefore
+usually bit-identical and occasionally differ by exactly one step.
+
+**What I got wrong, in order.** Asserting the mechanism without measuring
+it (R6). Then withdrawing it on a single reproduction - one window
+reproducing shows only that *that* window's ranking was stable, not that
+the mechanism is absent, and I generalised from n=1 while writing a rule
+about not generalising from n=1. The withdrawal was better than the
+assertion, but a third option existed throughout: say the mechanism is
+plausible, state what would confirm it, and compute the step size - which
+costs minutes and needs no GPU.
+
+**This is a reportable measurement property, not just an incident.** The
+step size is set by target sparsity, not by the model: sparse windows have
+a coarse metric. It belongs in the paper's measurement section alongside
+the crash-volume dependence, since it bounds how precisely any AccHR@20
+figure can be quoted.
