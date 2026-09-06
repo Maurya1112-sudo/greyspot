@@ -1,0 +1,25 @@
+candidate,seed,borough,arm,held_out_start,AccHR,n_train_instances,run_fingerprint
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.5575757575757575,6,dfcafa5d2b67cc0c
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.608974358974359,7,dfcafa5d2b67cc0c
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.5055555555555555,8,dfcafa5d2b67cc0c
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.7499999999999999,9,dfcafa5d2b67cc0c
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.6583333333333333,10,dfcafa5d2b67cc0c
+42,42,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.5743589743589743,11,dfcafa5d2b67cc0c
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.7924242424242425,6,b9dbc32007c49255
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.7371794871794871,7,b9dbc32007c49255
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.5541666666666667,8,b9dbc32007c49255
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.7115384615384615,9,b9dbc32007c49255
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.8452380952380952,10,b9dbc32007c49255
+1,1,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.6897435897435896,11,b9dbc32007c49255
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.6409090909090909,6,d51001917152f8a0
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.5448717948717948,7,d51001917152f8a0
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.5055555555555555,8,d51001917152f8a0
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.6987179487179487,9,d51001917152f8a0
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.7154761904761904,10,d51001917152f8a0
+7,7,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.6141025641025641,11,d51001917152f8a0
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.653030303030303,6,7ff15c2310fb43aa
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.6282051282051282,7,7ff15c2310fb43aa
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.6166666666666667,8,7ff15c2310fb43aa
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.7051282051282051,9,7ff15c2310fb43aa
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.8107142857142857,10,7ff15c2310fb43aa
+123,123,Lambeth,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.5935897435897435,11,7ff15c2310fb43aa

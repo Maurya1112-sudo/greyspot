@@ -7355,3 +7355,38 @@ that inference does not hold.
    `CUBLAS_WORKSPACE_CONFIG=:4096:8`. Not applied retroactively here - it
    would invalidate comparability with every result already recorded - but
    it should be the default for new work.
+
+## 2026-09-06 - The reference architecture is highly seed-sensitive, and we already knew why
+
+Multi-seeding the reference arm (`run_headtohead_multiseed.py`) to settle
+the paper's 18/18 claim immediately showed something the single-seed run
+could not. Lambeth, theirs-LONG, first four seeds:
+
+    seed 42  0.6091
+    seed 1   0.7217
+    seed 7   0.6199
+    seed 123 0.6679
+
+An **11.3-point spread** between seeds, against the ~4-point band measured
+for our own architecture. The 18/18 margin was therefore measured at
+whichever value seed 42 happened to produce.
+
+**This is not a new phenomenon - it is our depth finding, seen along a
+different axis.** The reference architecture uses `gat_layers=2`, and this
+project's own architecture ablation already recorded 2 layers as unstable:
+on Lambeth it scores 0.5298 with a per-window spread of 0.289 against 1
+layer's 0.7944 and 0.179, and on Westminster it diverged outright on 2 of
+6 windows. Depth-2 instability shows up across windows in the ablation and
+across seeds here.
+
+Two independent measurements of one property, which strengthens both: the
+depth ablation is not a Lambeth artefact, and the seed spread is not
+noise-of-unknown-origin.
+
+**Consequence for the paper.** The direction of the 18/18 claim is very
+likely safe - the sort scores 83.20 on Lambeth against a theirs-LONG range
+of 60.9-72.2, so it leads on every seed measured - but the *margin* will
+narrow and the claim must be restated with the reference architecture's
+seed variance shown rather than a single point estimate. That is a better
+claim than the one it replaces: "loses to a trivial sort at every seed we
+tried" is stronger evidence than "loses by 19.49 points at seed 42".
