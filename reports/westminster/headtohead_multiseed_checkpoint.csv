@@ -1,0 +1,14 @@
+candidate,seed,borough,arm,held_out_start,AccHR,n_train_instances,run_fingerprint
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.623469387755102,6,2b1acab6d23c4880
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.6921768707482994,7,2b1acab6d23c4880
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.8803030303030301,8,2b1acab6d23c4880
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.6974358974358974,9,2b1acab6d23c4880
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.7441391941391942,10,2b1acab6d23c4880
+42,42,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.6346153846153846,11,2b1acab6d23c4880
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.7319727891156463,6,155f7a10b6529731
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.7517006802721088,7,155f7a10b6529731
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.809090909090909,8,155f7a10b6529731
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.708974358974359,9,155f7a10b6529731
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.7221611721611721,10,155f7a10b6529731
+1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.5897435897435899,11,155f7a10b6529731
+7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.5437074829931973,6,76952547d7a93628
