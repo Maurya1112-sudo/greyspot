@@ -6686,3 +6686,54 @@ This also explains why the finding was available to us and not to them:
 it is a property of the data window, not of insight. Worth stating in the
 paper, since it makes the critique structural rather than a criticism of
 their execution.
+
+## 2026-09-06 - The horizon curve: the strongest result in the project
+
+`scripts/run_baseline_horizon_curve.py` sweeps the same parameter-free
+ranker (sort segments by crash count over the prior N days) across
+lookbacks, on our data and our six windows per borough:
+
+| Lookback | Mean AccHR@20 |
+|---|---|
+| 30 days | 22.71% |
+| 90 days | 32.19% |
+| 180 days | 41.61% |
+| 1 year | 54.17% |
+| 2 years | 66.35% |
+| 3 years | 73.78% |
+| 5 years | 80.99% |
+| 7 years | 83.53% |
+| 9 years | 83.94% |
+
+**A 61-point range from one ranker with no parameters, varying only how
+far back it looks.** Every published figure in this line of work is
+matched by that sort at a short horizon: their HA at ~1 year, the
+reference architecture at ~2, their STZITD-GNN at ~3, our own model at ~5.
+
+The mapping is suggestive rather than controlled - their figures are on
+their data and segments - and the paper says so. What it supports is
+narrower and still substantial: the *quantity* of published improvement
+over a historical baseline here is of the same order as the improvement
+available from lengthening that baseline's horizon by a year or two, using
+data that is free and public for both.
+
+**Two things this settles internally.**
+
+1. **The curve PLATEAUS after ~7 years** (83.53 -> 83.94). An earlier entry
+   in this log recorded "no plateau - still climbing steeply at three
+   years", measured only out to 1095 days. That reading was correct for
+   the range measured and wrong as a general statement; it is now bounded.
+
+2. **S5's borough-specific sign is a DATA property, not a model property.**
+   Over the same interval the sort moves the same way as the network:
+
+   | borough | sort 7->9yr | network 5->9yr |
+   |---|---|---|
+   | Lambeth | -0.43 | -0.72 |
+   | Westminster | +1.96 | +2.98 |
+
+   Both agree in sign on both boroughs. Lambeth has exhausted the
+   information in its crash record by about seven years; Westminster has
+   not. This is a satisfying resolution: the S5 sign flip that looked like
+   noise or model instability is neither - it is visible in a
+   parameter-free ranker on the same data.

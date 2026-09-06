@@ -168,8 +168,69 @@ We state this carefully: it is the reference *architecture* evaluated on
 which we cannot reproduce for lack of per-window outputs. What it
 establishes is that the trivial baseline is not clearing a bar our model
 happens to fall under — neither graph network in this study clears it.
-The natural question for the subfield is how many road-level crash
-prediction results have been reported without one.
+
+### 3.1 The baseline's strength is almost entirely its horizon
+
+This literature does *not* omit a historical baseline. Gao et al. report a
+Historical Average at Acc@20 = 0.4496 (mean of 0.4520 / 0.4752 / 0.4217),
+against their model's 0.7260 — a ~28-point margin that reads as clear
+evidence for the network. Reconciling that with our sort's 0.8394 requires
+only one variable: **their dataset covers 2019 alone**, so their historical
+baseline can look back at most one year.
+
+Sweeping the *same* parameter-free ranker across lookback horizons on our
+data and windows (`scripts/run_baseline_horizon_curve.py`):
+
+| Lookback | Lambeth | Westminster | Tower Hamlets | Mean |
+|---|---|---|---|---|
+| 30 days | 21.86% | 23.71% | 22.56% | 22.71% |
+| 90 days | 30.33% | 34.78% | 31.44% | 32.19% |
+| 180 days | 38.40% | 44.13% | 42.29% | 41.61% |
+| 1 year | 50.50% | 54.26% | 57.74% | 54.17% |
+| 2 years | 60.26% | 68.13% | 70.66% | 66.35% |
+| 3 years | 70.58% | 71.72% | 79.04% | 73.78% |
+| 5 years | 80.81% | 76.46% | 85.69% | 80.99% |
+| 7 years | 83.62% | 79.29% | 87.67% | 83.53% |
+| 9 years | 83.20% | 81.25% | 87.37% | 83.94% |
+
+The same ranker spans **22.71% to 83.94%** — a 61-point range — with no
+change but how far back it looks. Laid against the published figures, each
+is matched by a sort at a strikingly short horizon:
+
+| Reported system | Score | Matched by a crash-count sort at |
+|---|---|---|
+| Gao et al., Historical Average | 44.96% | ~1 year |
+| Reference architecture (our data) | 64.45% | ~2 years |
+| Gao et al., STZITD-GNN | 72.60% | ~3 years |
+| Our GNN (5 seeds) | 80.14% | ~5 years |
+
+**This mapping is suggestive, not a controlled comparison** — their two
+figures are on their data and segments, ours on ours. It cannot show that
+their model would lose to a sort on their own data. What it does show is
+that the *quantity* of published improvement over a historical baseline in
+this task is of the same order as the improvement obtainable by lengthening
+that baseline's horizon by a year or two, on data that is freely available
+for both. That is a cheap check, and we could find no paper in this line
+that reports it.
+
+The curve also **plateaus after about seven years** (83.53% → 83.94%),
+which corrects an earlier reading of our own: at three years it is still
+climbing steeply and appears not to plateau at all.
+
+A final internal consistency check. Section 3 reported that the network's
+response to history beyond five years is borough-specific — negative on
+Lambeth, positive on Westminster. The sort behaves the same way over the
+same interval:
+
+| Borough | Sort, 7→9 years | Network, 5→9 years |
+|---|---|---|
+| Lambeth | −0.43 | −0.72 |
+| Westminster | +1.96 | +2.98 |
+
+Both agree in sign on both boroughs. The borough-specific response to deep
+history is therefore a property of **the data**, not of the model — Lambeth
+has simply exhausted the information in its crash record by seven years,
+and Westminster has not.
 
 We note that seed-averaging and paired testing made this result
 *stronger*, not weaker. The earlier single-seed comparison of means could
