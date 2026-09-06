@@ -7309,3 +7309,49 @@ along, so re-running "only confirmed" the headline in the sense that
 mattered least. The value was in forcing every figure through a script
 that computes them one way — `make_headline_table.py` — instead of
 inheriting a number whose derivation nobody could reconstruct.
+
+## 2026-09-06 - Training is NOT deterministic at a fixed seed
+
+The probe trained the same window, at the same seed, three times:
+
+| case | values | spread |
+|---|---|---|
+| Westminster 2024-10-07, seed 1 | 0.755128, 0.832051, 0.844872 | **0.0897** |
+| Westminster 2023-10-13, seed 42 | 0.817177, 0.799320, 0.811224 | 0.0179 |
+| Lambeth 2024-10-07, seed 1 (control) | 0.807692 x3 | **0.000000** |
+
+**The hypothesis was right.** GATConv's scatter-based aggregation has no
+fixed accumulation order on CUDA, and nothing in this project pins it
+(`use_deterministic_algorithms` off, `cudnn.deterministic` off,
+`CUBLAS_WORKSPACE_CONFIG` unset). `torch.manual_seed` makes initialisation
+reproducible; the aggregation order is not, and over 200 epochs it
+compounds.
+
+**The 2023-10-13 case is a complete explanation of a two-day puzzle.** Its
+three repeats land on 0.817177, 0.799320 and 0.811224 - exactly the
+regenerated, committed-CSV and V8-log values recorded historically. Every
+value that window has ever produced appeared in three consecutive runs.
+
+**Lambeth is genuinely deterministic** (0.000000 over 3 repeats), so this
+is window- and borough-specific rather than universal - consistent with
+Westminster being where the 2-layer ablation also diverged.
+
+**A distinction worth stating carefully.** The spreads decompose into
+exact metric steps (0.0897 = 1/1/13 + 1/6/13). That is NOT evidence that
+"only the tie order moved": AccHR@20 can only take step-multiples, so a
+materially different model produces exact steps too. The metric quantises
+the effect; it does not reveal the cause. Earlier today I twice reasoned
+from "the difference equals a step" to "therefore only ties moved", and
+that inference does not hold.
+
+**Consequences.**
+
+1. Per-window figures on affected windows are reproducible only to ~0.09.
+2. A per-borough 6-window mean inherits up to ~0.015 of that.
+3. The pooled figure over 15 seed-runs is the least exposed, which is
+   another reason to lead with it.
+4. **Recommendation for the paper and for anyone rerunning this**: set
+   `torch.use_deterministic_algorithms(True)` and
+   `CUBLAS_WORKSPACE_CONFIG=:4096:8`. Not applied retroactively here - it
+   would invalidate comparability with every result already recorded - but
+   it should be the default for new work.
