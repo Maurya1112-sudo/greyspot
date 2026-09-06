@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-05 16:20 (C2 FAILS on 3rd borough; C6 substitution FAILS; effect-size heuristic corrected; 16 preprint claims machine-verified)
+Last updated: 2026-09-06 12:30 (S5 deep-history null WITHDRAWN; 3 of 10 claims replicate; tiled POI fallback)
 
 ---
 
@@ -248,6 +248,19 @@ project is evidence per claim, not number of claims.
 
 ## 6. Change log
 
+- **2026-09-06** Tiled Overpass fallback: once retries are exhausted a
+  category is re-fetched as a 3×3 grid of smaller bboxes and de-duplicated
+  on OSM identity. Wandsworth's `amenity` query had failed four times over
+  two days — always that one category, never the others, while Overpass
+  reported free slots — which is a response too large to transfer, not bad
+  luck. A tiling with any failed tile is refused rather than returned
+  partial, and the duplicates removed matter: left in, they would inflate
+  POI density and defeat the density guard.
+- **2026-09-06** S5 deep-history null **WITHDRAWN**: Westminster gains
+  +2.98 (p=0.0230, 5/6 windows) against Lambeth's −0.72 (p=0.7438). The
+  preprint abstract had asserted the model "cannot exploit" history beyond
+  five years on one borough's evidence. What survives is comparative and
+  holds on both: the trivial sort gains more from the same extra history.
 - **2026-09-05** R14 codified in code, not just in this document
   (`greyspot.ingest.poi`): a POI download that loses a category, returns
   nothing, or falls below a calibrated density floor now raises
