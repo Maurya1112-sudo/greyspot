@@ -104,3 +104,34 @@ def test_torn_final_line_is_dropped_not_counted(tmp_path):
         fh.write(f"cand,2023-07-21,")  # truncated mid-row: no AccHR
     done = load_checkpoint(path, "cand", fp)
     assert set(done) == {pd.Timestamp("2023-07-07")}
+
+
+def test_candidates_may_have_different_fingerprints(tmp_path):
+    """One file legitimately holds several candidates, and a per-seed sweep
+    hashes differently for each. Checking the fingerprint across all rows
+    before filtering made such a file self-rejecting: the second candidate
+    saw the first's rows and refused. Broke the S5 multi-seed run on
+    2026-09-06 after its first seed completed."""
+    path = tmp_path / "sweep.csv"
+    fp42 = compute_fingerprint(seed=42)
+    fp1 = compute_fingerprint(seed=1)
+    append_checkpoint(path, _row("2023-07-07", 0.7872, fp42, candidate="42"))
+
+    # seed 42 resumes and still sees its own work
+    assert len(load_checkpoint(path, "42", fp42)) == 1
+    # seed 1 starts fresh rather than raising on seed 42's rows
+    assert load_checkpoint(path, "1", fp1) == {}
+
+    append_checkpoint(path, _row("2023-07-07", 0.8100, fp1, candidate="1"))
+    assert load_checkpoint(path, "1", fp1)[pd.Timestamp("2023-07-07")]["AccHR"] == pytest.approx(0.81)
+    assert load_checkpoint(path, "42", fp42)[pd.Timestamp("2023-07-07")]["AccHR"] == pytest.approx(0.7872)
+
+
+def test_same_candidate_with_a_changed_config_is_still_refused(tmp_path):
+    """The guard must still catch what it exists for: one candidate's rows
+    computed under a different configuration."""
+    path = tmp_path / "sweep.csv"
+    append_checkpoint(path, _row("2023-07-07", 0.7872, compute_fingerprint(seed=42, lookback=1825),
+                                 candidate="42"))
+    with pytest.raises(ValueError, match="DIFFERENT configuration"):
+        load_checkpoint(path, "42", compute_fingerprint(seed=42, lookback=3285))

@@ -79,17 +79,34 @@ def load_checkpoint(path: Path, candidate: str, fingerprint: str) -> dict[pd.Tim
         done = done[~torn]
     if done.empty:
         return {}
+    # Filter to THIS candidate BEFORE checking the fingerprint. One file
+    # legitimately holds several candidates, and a candidate is free to have
+    # its own fingerprint - a per-seed sweep, for instance, varies the seed
+    # between candidates and so hashes differently for each. Checking the
+    # fingerprint across every row first made such a file self-rejecting:
+    # the second candidate would see the first candidate's rows, read a
+    # different hash, and refuse. That is what happened to the S5 multi-seed
+    # run on 2026-09-06, and it was latent for any multi-candidate script.
+    #
+    # The guard is not weakened. What it must prevent is a candidate
+    # adopting windows computed under a DIFFERENT configuration under its
+    # own name, and that is exactly what the check still tests, on the rows
+    # that would actually be adopted.
+    # Compare as text: pandas infers dtypes on read, so a numeric candidate
+    # name (a seed, say) is written as "42" and read back as int64 42, and a
+    # direct == against the string silently matches nothing. The symptom is a
+    # checkpoint that appears empty and re-runs work it already holds.
+    done = done[done["candidate"].astype(str) == str(candidate)].copy()
+    if done.empty:
+        return {}
     stale = set(done[FINGERPRINT_COLUMN].unique()) - {fingerprint}
     if stale:
         raise ValueError(
-            f"Checkpoint {path} was written by a DIFFERENT configuration "
-            f"(fingerprint(s) {sorted(stale)}, this run is {fingerprint}). Resuming would "
-            f"mix results from two different experiments into one average. "
+            f"Checkpoint {path} has rows for candidate {candidate!r} written by a DIFFERENT "
+            f"configuration (fingerprint(s) {sorted(stale)}, this run is {fingerprint}). "
+            f"Resuming would mix results from two different experiments into one average. "
             f"Delete the file to re-run, or point this run at a different checkpoint path."
         )
-    done = done[done["candidate"] == candidate].copy()
-    if done.empty:
-        return {}
     done["held_out_start"] = pd.to_datetime(done["held_out_start"])
     # Later duplicates win: a window re-run after a partial write should
     # supersede the earlier row rather than be silently ignored.

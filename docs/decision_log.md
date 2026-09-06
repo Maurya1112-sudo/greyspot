@@ -6812,3 +6812,45 @@ large file feels like it undid the mistake, and the working tree agrees.
 The object store does not. `git count-objects -vH` is the check, and the
 symptom - a pack far larger than any tracked file - is easy to miss because
 nothing in normal use surfaces it.
+
+## 2026-09-06 - Two real bugs in my own checkpoint guard, found by using it
+
+The S5 multi-seed run crashed after its first seed completed:
+
+    ValueError: Checkpoint ...s5_multiseed_checkpoint.csv was written by a
+    DIFFERENT configuration (fingerprint ['a0347a9ba114f855'], this run is
+    bc89bb4a217040c6)
+
+The guard fired correctly on its own terms. The design was wrong.
+
+**Bug 1 - the fingerprint was checked before the candidate filter.** One
+checkpoint file legitimately holds several candidates, and in a per-seed
+sweep each candidate hashes differently *because the seed is part of the
+configuration*. Checking every row's fingerprint before narrowing to the
+candidate being resumed made such a file **self-rejecting**: seed 1 saw
+seed 42's rows, read a different hash, and refused.
+
+Fixed by filtering to the candidate first and checking the fingerprint on
+the rows that would actually be adopted. The guard is not weakened - what
+it must prevent is one candidate adopting windows computed under a
+different configuration under its own name, which is still exactly what it
+tests. This was **latent for any multi-candidate script**, including the
+dense-eval one, which has escaped it only by having a single candidate.
+
+**Bug 2 - found while writing the test for bug 1.** Candidate names were
+compared with `==` against a column pandas had type-inferred on read. A
+numeric candidate name (a seed) is written as `42` and read back as int64,
+so `done["candidate"] == "42"` matched nothing. The symptom is silent and
+expensive: the checkpoint appears empty and the run redoes work it already
+holds. Now compared as text on both sides.
+
+**No work was lost.** Seed 42's six windows were verified byte-identical to
+the independent single-seed S5 run from 2026-09-05 (max |diff| 0.000000)
+and load correctly under the fixed guard, so the sweep resumes at seed 1.
+
+Two observations worth keeping. First, the guard caught a genuine
+inconsistency - it was doing its job; the bug was that my fingerprint
+definition made a legitimate file look inconsistent. Second, both bugs
+appeared only when the module met its second real caller. The nine unit
+tests written with it all passed throughout, because they exercised one
+candidate per file with string names.
