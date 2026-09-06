@@ -27,7 +27,8 @@ either direction. We further show that at matched history depth
 our graph neural network is **statistically indistinguishable from sorting
 road segments by their past crash count**, and that the reference
 architecture, given the same data and its own tuned settings, **loses to
-that sort on 18 of 18 held-out windows** (−19.49 points, *p* < 10⁻⁵). The
+that sort on 18 of 18 held-out windows** (−17.37 points, *p* < 10⁻⁶,
+5 seeds). The
 sort also converts three further years of history into a significant
 +2.95-point gain (*p* = 0.041) where the same extension moves our network
 by −0.12 (*p* = 0.86, 5 seeds, 2 boroughs). The reference paper does
@@ -162,7 +163,7 @@ them by about 40%.
 | Finding | Effect (borough 1) | Second borough |
 |---|---|---|
 | Message-passing depth (1→2 layers) | −26.46 | **replicated** |
-| Encoder ordering (GAT→GRU vs GRU→GAT) | −13.61 | **replicated** |
+| Encoder ordering (GAT→GRU vs GRU→GAT) | −13.61 | **replicated** (+15.79 at 5 seeds) [^enc] |
 | Long-horizon crash history | +15.85 | **replicated** (+9.70) |
 | Our architecture vs theirs | +18.53 | **replicated** (+9.08, +22.28) |
 | hidden=42/42 | +1.46 | failed (−9.97) |
@@ -174,6 +175,14 @@ them by about 40%.
 | Rank-transform scaling | +5.80 (best ever) | failed (−39.7, worst ever) |
 
 **Four of eleven survived; seven failed.**
+
+[^enc]: `scripts/run_encoder_multiseed.py`. The averaged figure conceals
+    two distinct behaviours: on the four seeds where training converges the
+    reference ordering costs ~6 points (6.8 Lambeth, 5.6 Westminster), and
+    on the fifth it **diverges to near-random** (27.5% and 21.7% against a
+    ~20% random baseline). The collapse occurs on the *same seed* on both
+    boroughs, so it is systematic rather than chance. Reporting a single
+    mean averages a modest penalty with a total training failure.
 
 [^c2]: `scripts/run_c2_three_borough_analysis.py`
 [^c6]: `scripts/run_c6_substitution_analysis.py`
@@ -270,18 +279,28 @@ crashed, and extracts less from additional history than the sort does.
 
 **This is not a property of our implementation alone.** Running the
 reference architecture on our data — at its own swept optimum, with the
-same long history, on the same windows — it loses to the crash-count sort
-by **19.49 points, on 18 of 18 windows** (paired *p* = 0.000001), and by
-16.54 points against the horizon-matched sort (16 of 18 windows,
-*p* = 0.000013) and 19.39 against Empirical Bayes (17 of 18,
-*p* = 0.000001) (`scripts/run_reference_vs_trivial.py`).
+same long history, on the same windows, **averaged over 5 seeds** — it
+loses to the crash-count sort by **17.37 points on 18 of 18 windows**
+(paired *p* < 10⁻⁶), by 14.41 against the horizon-matched sort and 17.27
+against Empirical Bayes, each also 0 of 18
+(`scripts/run_headtohead_multiseed_analysis.py`).
+
+**Multi-seeding was necessary, and it changed the surrounding numbers.**
+The reference architecture's seed variance is extreme: per-borough spreads
+of 18.2, 20.8 and 35.7 points, against ~4 for ours. One Westminster seed
+scores 42.58% — barely twice random. Its per-borough advantage over ours
+was consequently mis-estimated in *both* directions at a single seed
+(+18.53 published vs +9.55 true on Lambeth; +8.01 vs +13.57 on
+Westminster). Pooled over 90 paired (seed, window) observations our
+architecture leads by **+13.51 points, 81 of 90 windows** (*p* < 10⁻⁶).
+The direction of every comparison survived; none of the magnitudes did.
 
 | Ranker (pooled, 18 windows) | AccHR@20 |
 |---|---|
 | Crash-count sort (~8yr) | 83.94% |
 | Sort capped to 5yr | 80.99% |
 | Our GNN | 80.08% |
-| Reference architecture (swept optimum, long history) | 64.45% |
+| Reference architecture (swept optimum, long history, 5 seeds) | 66.57% |
 
 We state this carefully: it is the reference *architecture* evaluated on
 *our* data and protocol, not a re-evaluation of their published results,
@@ -328,7 +347,7 @@ is matched by a sort at a strikingly short horizon:
 | Reported system | Score | Matched by a crash-count sort at |
 |---|---|---|
 | Gao et al., Historical Average | 44.96% | ~1 year |
-| Reference architecture (our data) | 64.45% | ~2 years |
+| Reference architecture (our data, 5 seeds) | 66.57% | ~2 years |
 | Gao et al., STZITD-GNN | 72.60% | ~3 years |
 | Our GNN (5 seeds) | 80.08% | ~5 years |
 
@@ -406,6 +425,16 @@ swept optimum throughout, not at settings where it fails.
 Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper
 that we could not explain.
+
+**The reference paper's architectural choices fail by divergence, not
+degradation.** Three independent measurements found the same shape: depth
+2 diverges on 2 of 6 Westminster windows; the full reference architecture
+spreads 35.7 points across seeds with one run at 42.58%; and their encoder
+ordering costs ~6 points on four seeds but collapses to near-random on the
+fifth, on the same seed in both boroughs. A mean over seeds therefore
+misdescribes all three — it averages a modest penalty with an outright
+training failure, and the failure rate (roughly 1 in 5 here) is the more
+useful quantity.
 
 **Training is not deterministic at a fixed seed.** Re-training the same
 window at the same seed three times gave 0.755, 0.832 and 0.845 on one
