@@ -68,6 +68,31 @@ SLUGS = {"Lambeth": "lambeth", "Westminster": "westminster", "Tower Hamlets": "t
 _SEED_RE = re.compile(r"seed\s+(\d+)\s+6-window mean AccHR@20 = ([0-9.]+)\s+\(windows: ([0-9. ]+)\)")
 
 
+def load_gnn_per_window(borough: str, log_path: Path) -> tuple[pd.DataFrame, str]:
+    """Per-seed, per-window GNN scores, preferring the full-precision CSV.
+
+    `run_headline_multiseed.py` regenerates the same quantity on current
+    code and writes every (seed, window) score to
+    `reports/<borough>/headline_multiseed_per_window.csv`. That is strictly
+    better than parsing the V8 logs, which store per-window values to 3
+    decimal places, so this uses it wherever it exists and falls back to
+    the log otherwise.
+
+    The source is returned so the caller can report which was used: a
+    comparison that silently mixed full-precision and 3dp inputs across
+    boroughs would be worse than one consistently using either.
+    """
+    csv = ROOT / "reports" / SLUGS[borough] / "headline_multiseed_per_window.csv"
+    if csv.exists():
+        d = pd.read_csv(csv)
+        d["held_out_start"] = pd.to_datetime(d["held_out_start"])
+        complete = d.groupby("seed").filter(lambda g: len(g) == len(EVAL_STARTS))
+        if complete.seed.nunique() >= 5:
+            return (complete[["borough", "seed", "held_out_start", "AccHR"]],
+                    "regenerated CSV (full precision)")
+    return parse_v8_log(log_path, borough), "V8 log (3dp)"
+
+
 def parse_v8_log(path: Path, borough: str) -> pd.DataFrame:
     """Per-seed, per-window GNN scores from a V8 multi-seed run log."""
     rows = []
@@ -157,12 +182,15 @@ def main() -> None:
     print("=" * 78)
 
     gnn_all, base_all = [], []
+    sources: set[str] = set()
     for borough, log in V8_LOGS.items():
         if not log.exists():
             print("\n%s: V8 log missing (%s) - SKIPPED" % (borough, log))
             continue
         print("\n%s" % borough)
-        g = parse_v8_log(log, borough)
+        g, source = load_gnn_per_window(borough, log)
+        sources.add(source)
+        print("    source: %s" % source)
         print("    seeds: %s" % sorted(g.seed.unique()))
         crosscheck_seed42(g, borough)
         b_path = ROOT / "reports" / SLUGS[borough] / "s2_empirical_bayes_per_window.csv"
@@ -178,6 +206,12 @@ def main() -> None:
         print("\nNothing to compare yet.")
         return
 
+    if len(sources) > 1:
+        print()
+        print("WARNING: boroughs used DIFFERENT sources (%s)." % ", ".join(sorted(sources)))
+        print("Each borough is internally consistent, but the POOLED figure then mixes")
+        print("3dp and full-precision inputs. Re-run once every borough has a")
+        print("regenerated CSV.")
     gnn = pd.concat(gnn_all, ignore_index=True)
     base = pd.concat(base_all, ignore_index=True)
     # Seed-average per (borough, window) - the GNN score for that window.
