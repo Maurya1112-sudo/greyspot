@@ -7269,3 +7269,43 @@ the move equals an exact step for that specific window, which requires
 computing the window's crash structure rather than comparing against a
 constant. `diagnose_metric_granularity.py` does that, and I should have
 used it here before reaching for a threshold.
+
+## 2026-09-06 - The published pooled uncertainty was wrong (and unreproducible)
+
+Regeneration complete on all three boroughs. Final comparison:
+
+| borough | published | regenerated | change |
+|---|---|---|---|
+| Westminster | 80.03 ± 1.40 | 79.75 ± 0.89 | −0.28 |
+| Tower Hamlets | 82.63 ± 2.01 | 82.75 ± 2.13 | +0.12 |
+| Lambeth | 77.75 ± 1.67 | 77.75 ± 1.67 | **0.00** |
+| **Pooled** | **80.14 ± 1.12** | **80.08 ± 2.62** | −0.06 mean, **+1.50 SD** |
+
+The per-borough figures move by at most 0.28 points, all within the
+metric-granularity band, and no verdict changes.
+
+**But the pooled ± 1.12 is wrong.** For every per-borough row the ± is the
+sample SD, and each checks out exactly (1.40 / 2.01 / 1.67). The pooled
+sample SD over the same 15 seed-means is **2.60**, not 1.12.
+
+It is also not reproducible under any other convention. Eight were tested
+against the same data: sample SD (2.61), SEM (0.67), SD of 18
+seed-averaged windows (6.52), SEM of those (1.54), SD of the 3 borough
+means (2.45), mean of the 3 per-borough SDs (1.70), SD of all 90 raw
+windows (7.43), SEM of those (0.78). None is 1.12.
+
+**The published CI was roughly right** — [78.74, 81.53] against a correct
+t-interval of [78.70, 81.58] — so the ± label was inconsistent with the
+interval printed beside it, which is what first drew attention to it.
+
+**Nothing about the conclusion changes**: the pooled figure still beats
+72.60% at p<0.0001, and the interval still lies entirely above it. What
+changes is that the stated uncertainty on the paper's single most
+prominent number was understated by more than half, and would have been
+quoted that way.
+
+**This is what the regeneration was for.** The mean was reproducible all
+along, so re-running "only confirmed" the headline in the sense that
+mattered least. The value was in forcing every figure through a script
+that computes them one way — `make_headline_table.py` — instead of
+inheriting a number whose derivation nobody could reconstruct.
