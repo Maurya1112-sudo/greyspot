@@ -171,9 +171,9 @@ plausible but still need one replication each before publication.
 
 | ID | Task | State | Notes |
 |---|---|---|---|
-| P1 | arXiv preprint | ☐ | Blocked on Phase 1 |
-| P2 | Public GitHub repo | ☐ | git initialised; needs README + reproduction instructions |
-| P3 | SOP paragraph | ☐ | Must be defensible line-by-line |
+| P1 | arXiv preprint | ◐ **substantially drafted** | `paper/DRAFT_preprint.md`: abstract, §1-6, Figure 1 (horizon curve), all 16 claims machine-verified against source. **Remaining: a Methods section** (the paper currently goes straight to results, which a reviewer will flag) and a short related-work paragraph. Not blocked on Phase 1 - Phase 1 is complete (20 rows ☑). |
+| P2 | Public GitHub repo | ☑ **ready** (2026-09-06) | README rewritten for public use: setup, a data-acquisition table with URLs and target paths, the eight GPU-free analysis scripts that regenerate each paper claim, and the Overpass failure mode with its diagnostic. **Blocker found and cleared**: `.git` was 1.1 GB from unreachable objects (a 969 MB archive staged before `.gitignore` covered it), which would have been rejected by GitHub's 100 MB file limit; now 1.35 MiB with all 82 commits intact. |
+| P3 | SOP paragraph | ☑ **done** (2026-09-06) | `docs/sop_paragraph.md`: two lengths, a table mapping every claim to the script that regenerates it, and an explicit list of stronger-sounding lines left out because they do not survive the obvious follow-up. Writing it surfaced the 10-vs-11 finding-count disagreement between documents, which no single-document check could have caught. |
 
 ---
 
