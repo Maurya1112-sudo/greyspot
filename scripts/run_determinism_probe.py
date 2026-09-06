@@ -32,6 +32,29 @@ Westminster is already known to be the unstable borough - the 2-layer
 ablation diverged there on 2 of 6 windows while behaving on Lambeth - so a
 borough-specific answer is plausible rather than surprising.
 
+**A mechanism that would explain it, stated as a hypothesis for this probe
+to test rather than as a conclusion.** The model uses
+`torch_geometric.nn.GATConv`, whose neighbourhood aggregation is
+scatter-based; scatter/atomicAdd accumulation order on CUDA is not fixed,
+so identical inputs can produce floating-point differences in the last
+bits. Nothing in this project pins that down - measured on the current
+environment (torch 2.6.0+cu124, pyg 2.8.0):
+
+    torch.are_deterministic_algorithms_enabled()  False
+    torch.backends.cudnn.deterministic            False
+    CUBLAS_WORKSPACE_CONFIG                       unset
+
+`torch.manual_seed` does seed CUDA, so *initialisation* is reproducible;
+the aggregation order is not. Over 200 epochs those differences compound,
+usually to nothing visible and occasionally - near a decision boundary -
+to a different local optimum.
+
+That is a plausible story, and this project has already been burned once
+today by asserting a plausible story about run-to-run differences and
+having to withdraw it. So it is written here as the hypothesis the probe
+tests, not as the answer. If training proves deterministic, the story is
+wrong and the cause is elsewhere.
+
 Run: python scripts/run_determinism_probe.py [n_repeats]
 """
 from __future__ import annotations
