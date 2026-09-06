@@ -119,7 +119,20 @@ def in_correction_context(lines: list[str], idx: int) -> bool:
             if stripped.startswith("|") or not stripped:
                 continue
             return any(m in " ".join(lines[max(0, i - 3):i + 1]).lower() for m in MARKERS)
-    return False
+        return False
+    # Prose: the enclosing PARAGRAPH, bounded by blank lines. A qualifying
+    # sentence ("both sides of this comparison are single-seed") often
+    # follows the figure it qualifies rather than sharing its line, and
+    # markdown wraps prose at arbitrary points. The paragraph is the unit
+    # such a sentence actually governs - narrow enough that a correction
+    # note cannot exempt unrelated claims, unlike section scoping.
+    lo = idx
+    while lo > 0 and lines[lo - 1].strip():
+        lo -= 1
+    hi = idx
+    while hi + 1 < len(lines) and lines[hi + 1].strip():
+        hi += 1
+    return any(m in " ".join(lines[lo:hi + 1]).lower() for m in MARKERS)
 
 
 def main() -> None:
