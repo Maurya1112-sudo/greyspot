@@ -7209,3 +7209,27 @@ fingerprints, no NaNs.
 window is reproducible. That determines whether this is one anomalous run
 to be noted, or genuine run-to-run variation that every per-borough figure
 inherits.
+
+## 2026-09-06 - The cross-document checker was weaker than it looked
+
+`verify_cross_document.py` hard-coded the canonical headline figures. That
+verified the documents AGREE WITH EACH OTHER but not that they agree with
+what the scripts produce — so every document could drift together, or the
+computed artefact could move under them, and it would pass cleanly.
+
+That is not hypothetical: the regeneration is about to move Westminster
+from 80.03 to 79.75, and those figures appear in **25 places across 5
+documents**. A checker that only compares documents to each other would
+have reported 14/14 OK throughout an incomplete update.
+
+It now reads the canonical values from `reports/headline_table.csv`, the
+artefact `make_headline_table.py` writes, falling back to hard-coded
+values only when that file is absent (so a fresh clone still runs). The
+documents are therefore checked against the evidence rather than against
+one another.
+
+**Negative-controlled**, as R17 requires: setting the artefact's
+Westminster figure to 79.75 while the documents still said 80.03 produced
+`FAIL canonical: Westminster headline — stated in 0 doc(s)`. Restoring it
+passes. Without that control the change would have looked like an
+improvement while being untested.

@@ -41,13 +41,43 @@ DOCS = {
     "sop_paragraph.md": ROOT / "docs" / "sop_paragraph.md",
 }
 
+def _canonical_from_artefacts() -> dict[str, list[str]]:
+    """Canonical figures read from the computed artefacts, not hard-coded.
+
+    Hard-coding them made this checker weaker than it looked: it verified
+    that documents AGREE with each other, but not that they agree with the
+    numbers the scripts actually produce. Every document could drift
+    together - or the artefact could move under them - and it would pass.
+    Reading `reports/headline_table.csv` (written by
+    `scripts/make_headline_table.py`) ties the documents to the evidence.
+
+    Falls back to the hard-coded values when the artefact is absent, so the
+    check still runs on a fresh clone before anything has been computed.
+    """
+    fallback = {
+        "pooled headline": ["80.14"],
+        "Westminster headline": ["80.03"],
+        "Tower Hamlets headline": ["82.63"],
+        "Lambeth headline": ["77.75"],
+    }
+    path = ROOT / "reports" / "headline_table.csv"
+    if not path.exists():
+        return fallback
+    import pandas as pd
+    d = pd.read_csv(path)
+    out: dict[str, list[str]] = {}
+    for _, r in d.iterrows():
+        label = ("pooled headline" if r.borough == "POOLED"
+                 else "%s headline" % r.borough)
+        out[label] = ["%.2f" % r["mean"]]
+    # only trust it once every borough plus the pooled row is present
+    return out if len(out) == 4 else fallback
+
+
 # Figures that must read identically wherever they appear at all. A document
 # that does not mention one is fine; a document that contradicts it is not.
 CANONICAL = {
-    "pooled headline": ["80.14"],
-    "Westminster headline": ["80.03"],
-    "Tower Hamlets headline": ["82.63"],
-    "Lambeth headline": ["77.75"],
+    **_canonical_from_artefacts(),
     "trivial sort (uncapped)": ["83.94"],
     "matched-horizon gap": ["-0.85", "−0.85"],
 }
