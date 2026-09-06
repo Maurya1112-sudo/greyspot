@@ -20,12 +20,15 @@ below the measured ~4-point seed-noise band failed (4/4), while only 4 of
 6 effects above it survived — a small effect is reliable evidence against,
 a large one is weak evidence for. Failure is characteristically a **sign
 reversal** between boroughs, not a shrinkage toward zero: four of the
-seven changed direction. We further show that at
-matched history depth our graph neural network is **statistically
-indistinguishable from sorting road segments by their past crash count**,
-and that the sort converts three further years of history into a
-significant +2.95-point gain (*p* = 0.041) that the network does not
-reliably match.
+seven changed direction. We further show that at matched history depth
+our graph neural network is **statistically indistinguishable from sorting
+road segments by their past crash count**, and that the reference
+architecture, given the same data and its own tuned settings, **loses to
+that sort on 18 of 18 held-out windows** (−19.49 points, *p* < 10⁻⁵). The
+sort also converts three further years of history into a significant
++2.95-point gain (*p* = 0.041) that neither network reliably matches. We
+therefore recommend a crash-count baseline as a routine reporting
+requirement for this task.
 
 ---
 
