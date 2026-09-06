@@ -7167,3 +7167,45 @@ up to one step (~0.3 points on a 6-window mean) between runs, purely from
 which side of a tie this one window lands on. Any per-borough figure
 should be read with that in mind; the pooled figure over 18 windows is
 correspondingly less exposed.
+
+## 2026-09-06 - Headline regeneration: Lambeth exact, Westminster shifts 0.28
+
+Two of three boroughs are regenerated on current code, at full precision,
+into committed per-window CSVs.
+
+| borough | published (V8 logs) | regenerated | verdict |
+|---|---|---|---|
+| Lambeth | 77.75 ± 1.67, p=0.1941 | **identical to every digit** | tie, unchanged |
+| Westminster | 80.03 ± 1.40, p=0.0001 | 79.75 ± 0.89, p<0.0001 | better, unchanged |
+
+**Lambeth reproduces exactly** — all 30 windows, mean, SD and CI. That is
+the control: the regeneration path computes the same quantity as the
+original, so any Westminster difference is about Westminster, not about
+the script.
+
+**Westminster shifts −0.28 points and its CI narrows** (±1.40 → ±0.89).
+Per seed, four of five reproduce to two decimal places; one does not:
+
+| seed | log | regenerated | diff |
+|---|---|---|---|
+| 1 | 0.8215 | 0.806518 | **−1.50** |
+| 7 | 0.7919 | 0.791921 | +0.00 |
+| 42 | 0.7912 | 0.792149 | +0.09 (one metric tie step) |
+| 123 | 0.8078 | 0.807778 | −0.00 |
+| 2024 | 0.7891 | 0.789088 | −0.00 |
+
+Seed 1's entire difference sits in one window (2024-10-07: 0.845 → 0.755,
+−0.090). That window's largest single-crash step is 0.0769, so the move
+needs 2–7 crashes changing side — a materially different model, not the
+metric granularity that explains seed 42's +0.09.
+
+**Nothing about the conclusion changes.** Westminster remains
+significantly better than the reference paper's 68.98%, marginally more
+so (p=0.0001 → p<0.0001) because the narrower spread outweighs the lower
+mean. Data integrity checks pass: 30 rows, 6 windows per seed, 5 distinct
+fingerprints, no NaNs.
+
+`scripts/run_determinism_probe.py` is queued to establish whether seed 1's
+window is reproducible. That determines whether this is one anomalous run
+to be noted, or genuine run-to-run variation that every per-borough figure
+inherits.
