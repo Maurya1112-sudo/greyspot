@@ -7390,3 +7390,38 @@ narrow and the claim must be restated with the reference architecture's
 seed variance shown rather than a single point estimate. That is a better
 claim than the one it replaces: "loses to a trivial sort at every seed we
 tried" is stronger evidence than "loses by 19.49 points at seed 42".
+
+## 2026-09-06 - "Our architecture beats theirs" survives, at half the published effect
+
+Lambeth complete at 5 seeds. The reference arm: mean 0.6820, sd 0.0757,
+range 0.6091-0.7913.
+
+Per-seed advantage of our architecture over theirs, paired on seed and
+window:
+
+| seed | ours | theirs | diff |
+|---|---|---|---|
+| 42 | 0.7944 | 0.6091 | **+18.53** |
+| 7 | 0.7559 | 0.6199 | +13.59 |
+| 123 | 0.7710 | 0.6679 | +10.31 |
+| 1 | 0.7944 | 0.7217 | +7.27 |
+| 2024 | 0.7719 | 0.7913 | **−1.94** |
+
+**The published +18.53 was the most favourable of five seeds**, and seed
+2024 reverses the sign outright. Pooled over 30 paired (seed, window)
+observations the effect is **+9.55 points** (t p=0.000006, 25/30 windows)
+- the claim survives, at roughly half its published magnitude, and the
+per-seed ranges overlap (ours 0.7559-0.7944, theirs 0.6091-0.7913).
+
+This is exactly the selection effect R10 exists to catch. Seed 42 is the
+project's default, so every single-seed comparison inherits whatever that
+seed happens to favour; here it favoured our architecture by 9 points more
+than the average seed does.
+
+The reference arm's spread (7.6 sd) is itself the depth-2 instability
+already recorded in the architecture ablation, so the same property that
+makes their architecture worse on average also makes any single comparison
+against it unreliable.
+
+Two boroughs remain. The 18/18 sort claim is unaffected so far: the sort
+scores 83.20 on Lambeth against a theirs-LONG maximum of 79.13.
