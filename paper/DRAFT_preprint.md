@@ -181,6 +181,14 @@ baseline can look back at most one year.
 Sweeping the *same* parameter-free ranker across lookback horizons on our
 data and windows (`scripts/run_baseline_horizon_curve.py`):
 
+![Figure 1: AccHR@20 of a crash-count sort against its lookback horizon,
+per borough and averaged, with published model scores marked. Dotted
+reference lines are measured on Gao et al.'s data; dashed on
+ours.](../reports/figures/fig1_horizon_curve.svg)
+
+*Figure 1. The same parameter-free ranker across lookback horizons. Each
+reported system is matched by the sort at a short horizon.*
+
 | Lookback | Lambeth | Westminster | Tower Hamlets | Mean |
 |---|---|---|---|---|
 | 30 days | 21.86% | 23.71% | 22.56% | 22.71% |
