@@ -143,7 +143,17 @@ def main() -> None:
               "computed %d of %d replicated below the band" % (b_rep, b_n))
 
     # --- 5. internal consistency of the replication counts ------------
-    sec = text.split("## 2. The main result")[1].split("## 3.")[0]
+    # Locate the replication table by its HEADING TEXT, not its number.
+    # Section numbers shift whenever a section is inserted - adding Methods
+    # renumbered five headings at once and broke a hard-coded "## 2." split.
+    m_sec = re.search(r"^##\s*\d+\.\s*The main result.*?$", text, re.M)
+    if not m_sec:
+        check(False, "replication table located", "no 'The main result' heading")
+        sec = ""
+    else:
+        rest = text[m_sec.end():]
+        nxt = re.search(r"^##\s", rest, re.M)
+        sec = rest[:nxt.start()] if nxt else rest
     rows = [ln for ln in sec.splitlines()
             if ln.startswith("|") and "---" not in ln and "Finding" not in ln
             and "Borough-1 effect" not in ln and "Below the" not in ln and "Above it" not in ln]

@@ -58,7 +58,63 @@ measurably sparser than theirs (99.97% vs their reported 95.72–96.71%
 zero-inflation), a discrepancy we could not resolve after checking their
 TCR formula, segment consolidation and evaluation protocol.
 
-## 2. The main result: replication is the exception
+## 2. Data and method
+
+**Road network.** OS Open Roads (Ordnance Survey, Open Government
+Licence), clipped to each borough's administrative *polygon* by an
+endpoint-inside test rather than a bounding box — Westminster's bbox
+extends across the Thames and admits roughly twice the true link count.
+Segments are junction-to-junction links; a line-graph transform gives
+segment adjacency for message passing. Westminster yields 11,098 directed
+edges over 4,026 nodes.
+
+**Target.** Daily collision counts per segment from STATS19 (UK
+Department for Transport), 2021–2024, snapped to the nearest edge (median
+2.3 m; 0.22% beyond 100 m). The target is **99.97% zero** at segment-day
+resolution. We use plain counts rather than a severity-weighted rate; the
+weighted variant was tested and is null.
+
+**Features (35).** Segment geometry and node degree; day of week; crash
+history over 7/14/30/90/365 days and 2/3/5 years; casualty-type
+breakdown; AADF traffic counts; four OpenStreetMap POI-density classes;
+and nine IMD-2019 socio-demographic columns. The long horizons are
+computed from the sparse collision list via a cumulative-sum matrix
+rather than by rolling over the segment-day table, which would need ~30M
+additional rows; this makes horizon length essentially free and is what
+allowed the horizon sweep in §4.1. Features are z-scored with statistics
+fitted on training instances only.
+
+**Model.** A GAT layer per timestep feeds a GRU over the resulting
+embeddings (3 attention heads, 1 GAT layer, hidden 16/32, residual
+connections), decoded by a zero-inflated Poisson head. Adam, lr 0.01,
+200 epochs, no weight decay or early stopping. Prediction intervals come
+from split conformal calibration at 90% on the last training instance.
+Both the encoder ordering and the single GAT layer are load-bearing: the
+alternatives cost 13.61 and 26.46 points respectively (§3).
+
+**Evaluation.** Expanding-window walk-forward: 20-day input, 14-day
+horizon, stride 90, six held-out windows per borough spanning
+2023-07-15 to 2024-10-07, with training data growing from 6 to 11
+instances. The feature table begins a year before the instance grid so
+the 365-day feature is complete for every instance; the grid anchor is
+assertion-enforced, because shifting it by the 5-day remainder of
+365 mod 90 would make paired tests match **zero** windows while still
+printing plausible output.
+
+**Metric.** AccHR@20 — for each day, the share of that day's crashes
+falling on the top 20% of predicted-risk segments, averaged over the
+window's days. This is the reference paper's Acc@20. Its granularity is
+bounded by target sparsity (§5).
+
+**Statistics.** All model figures are means over 5 random seeds
+(42, 1, 7, 123, 2024). Comparisons are paired window-by-window and report
+both a paired *t*-test and a Wilcoxon signed-rank test; where both arms
+are model runs, they are paired on seed as well as window so that a
+seed's shared bias cancels. Confidence intervals use the *t* distribution
+(n=5, t(4)=2.776), not the normal approximation, which would understate
+them by about 40%.
+
+## 3. The main result: replication is the exception
 
 | Finding | Effect (borough 1) | Second borough |
 |---|---|---|
@@ -108,7 +164,7 @@ upper bound — would have had the direction wrong, not just the magnitude.
 sub-noise single-borough result can be discarded without further runs,
 while a large one still has to be replicated before it can be believed.
 
-## 3. The model adds little over a trivial baseline
+## 4. The model adds little over a trivial baseline
 
 | Ranker | Lambeth | Westminster | Tower Hamlets | Mean |
 |---|---|---|---|---|
@@ -170,7 +226,7 @@ which we cannot reproduce for lack of per-window outputs. What it
 establishes is that the trivial baseline is not clearing a bar our model
 happens to fall under — neither graph network in this study clears it.
 
-### 3.1 The baseline's strength is almost entirely its horizon
+### 4.1 The baseline's strength is almost entirely its horizon
 
 This literature does *not* omit a historical baseline. Gao et al. report a
 Historical Average at Acc@20 = 0.4496 (mean of 0.4520 / 0.4752 / 0.4217),
@@ -246,7 +302,7 @@ We note that seed-averaging and paired testing made this result
 produce no *p*-value at all and recorded the matched-horizon gap with the
 sign reversed.
 
-## 4. Measurement properties practitioners should know
+## 5. Measurement properties practitioners should know
 
 - **Seed variance is large and its sign is borough-specific.** Spread
   3.2–4.7 points across 5 seeds. One seed was +1.69 optimistic on one
@@ -274,14 +330,14 @@ sign reversed.
   (`scripts/diagnose_metric_granularity.py`). **No AccHR@20 figure on a
   sparse window should be quoted more precisely than its own step size.**
 
-## 5. Reproducibility notes on the reference method
+## 6. Reproducibility notes on the reference method
 
 Gao et al.'s published learning rate (0.01) **diverges to NaN** on our
 data; their predecessor code's 1e-5 scores 24.74%. The optimum we found
 (5e-4) appears in neither source. We report their architecture at its own
 swept optimum throughout, not at settings where it fails.
 
-## 6. Limitations
+## 7. Limitations
 
 Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper
