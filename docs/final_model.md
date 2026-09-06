@@ -1,6 +1,6 @@
 # The Greyspot final model — definitive specification
 
-**Status as of 2026-09-03.** This is the canonical reference for the
+**Status as of 2026-09-06.** This is the canonical reference for the
 best-performing configuration produced by this project. Every number
 here comes from a run recorded in `reports/<borough>/`, and every
 design choice is traceable to a dated entry in `docs/decision_log.md`.
@@ -12,17 +12,28 @@ document disagrees with this one, this one is correct.
 
 ## 1. Headline result
 
+All figures are **seed-averaged over 5 seeds** with 95% CIs from the
+*t* distribution (n=5, so t(4)=2.776 — not the normal approximation).
+
 | Borough | AccHR@20 | 95% CI | Gao et al. (2024) | Verdict |
 |---|---|---|---|---|
-| Westminster | **78.92%** | [71.20, 86.63] | 68.98% | ✅ **better, p=0.0212** |
-| Tower Hamlets | **83.93%** | [78.51, 89.34] | 72.24% | ✅ **better, p=0.0026** |
-| Lambeth | **79.44%** | [73.01, 85.87] | 76.59% | tie (p=0.3059) |
-| **Pooled (n=18)** | **80.76%** | **[77.61, 83.91]** | **72.60%** | ✅ **better, p=0.000042** |
+| Westminster | **80.03% ± 1.40** | [78.29, 81.77] | 68.98% | **better, p=0.0001** |
+| Tower Hamlets | **82.63% ± 2.01** | [80.14, 85.12] | 72.24% | **better, p=0.0003** |
+| Lambeth | 77.75% ± 1.67 | [75.68, 79.82] | 76.59% | **tie, p=0.1941** |
+| **Pooled** | **80.14% ± 1.12** | **[78.74, 81.53]** | **72.60%** | **better, p=0.000115** |
+
+> **Correction 2026-09-06.** This table previously carried the SINGLE-SEED
+> figures (78.92 / 83.93 / 79.44, pooled 80.76) with much wider CIs. Those
+> were superseded by the 5-seed results (V8/V11, 2026-09-04) everywhere
+> else in the project — README, preprint and MASTER_PLAN — but not here,
+> in the document that declares itself canonical. Seed 42 is +1.69
+> optimistic on Lambeth and −1.11 conservative on Westminster, so the old
+> per-borough numbers were biased in *different directions*.
 
 **The pooled 95% CI lies entirely above the paper's figure**, so this is
 a genuine statistical result rather than a favourable point estimate.
-Two of three boroughs are individually significant; Lambeth scores
-higher (79.44% vs 76.59%) but not resolvably so at n=6.
+Two of three boroughs are individually significant; Lambeth is a tie —
+and remains one at n=31 on the dense grid.
 
 **Against this project's own session-start baseline**, paired on
 identical windows: 66.99% → 80.76%, **+13.78 points, 18/18 windows,
@@ -100,12 +111,23 @@ and rejected; clipped z-score at ±5σ was a clean null, p=0.9899.)
 
 ### 2.4 Architecture
 
+> **Correction 2026-09-06.** Two rows below previously read "2 layers
+> tested, null" and "the paper's GRU→GAT order is *equivalent*". Both were
+> measured in the superseded pre-feature configuration (the 63.59%-baseline
+> era) and were invalidated by the architecture ablation of 2026-09-04,
+> which found −26.46 and −13.61 respectively, both replicating on a second
+> borough. They contradicted this project's own verification ledger for two
+> days. MASTER_PLAN §4 already warned that **no pre-2026-09-04 null
+> transfers unless re-measured**; this document had not been swept for
+> them. Found while drafting the preprint's Methods section, by checking
+> the spec against the ablation rather than reading it.
+
 `GATTemporal` (`src/greyspot/models/gat_temporal.py`)
 
 | Parameter | Value | Notes |
 |---|---|---|
-| Encoder order | `spatial_first` | GAT per timestep → GRU over embeddings. The paper's GRU→GAT order is *equivalent* once each is given its own optimal lr (63.59% vs 60.93%, p=0.2832) |
-| GAT layers | **1** | 2 layers tested, null |
+| Encoder order | `spatial_first` | GAT per timestep → GRU over embeddings. **Load-bearing**: their GRU→GAT order scores 65.83% against this baseline's 79.44% (−13.61, p=0.0135) *even at its own separately swept learning rate*, and 14.31% at the shared one. Replicates on Westminster (−9.42) |
+| GAT layers | **1** | **Load-bearing**: 2 layers scores 52.98% vs 79.44% (−26.46, p=0.0003) and *diverges* on Westminster (2 of 6 windows below random), so it is better described as unstable than as costing a fixed amount. Replicates on both boroughs |
 | GAT hidden | **16** | |
 | GRU hidden | **32** | |
 | Attention heads | **3** | Matches the paper; heads=1 significantly worse (p=0.036) in the pre-features context |
@@ -343,10 +365,10 @@ matched windows and, where positive-looking, cross-borough replication.
 | Lever | Result |
 |---|---|
 | GAT heads on top of features | p=0.56, null |
-| GAT layers (1 vs 2) | null |
+| GAT layers (1 vs 2) | ~~null~~ **OVERTURNED 2026-09-04**: −26.46, p=0.0003 (§2.4) |
 | Hidden size 42/42 (the paper's own) | **caught false positive** — won Lambeth +1.46, lost Westminster −9.97 |
 | Decoder family (ZINB, Zero-Inflated Tweedie) | ZIP best |
-| Encoder order (paper's GRU→GAT) | equivalent at each order's own optimal lr, p=0.2832 |
+| Encoder order (paper's GRU→GAT) | ~~equivalent~~ **OVERTURNED 2026-09-04**: −13.61, p=0.0135, even at its own lr (§2.4) |
 | Learning-rate sweep (0.003–0.02) | null, p=0.6129 — 0.01 already near-optimal |
 | Multi-seed ensembling | null, p=0.6881 |
 | **Architecture ensembling** | **caught false positive** — won 2 boroughs, died on the 3rd, p=0.5535 at n=18 |

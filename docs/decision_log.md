@@ -6883,3 +6883,38 @@ The verifier is now generalised so this class of drift is harder: the
 composition check derives counts from the table instead of hard-coding
 them, and the number-word list runs past ten (it raised IndexError at
 eleven, which is how the mismatch first became visible).
+
+## 2026-09-06 - The canonical spec was two days behind its own ledger
+
+Drafting the preprint's Methods section meant reading `docs/final_model.md`
+against the results rather than trusting it. It declares itself canonical
+("where another document disagrees with this one, this one is correct") and
+three of its statements were wrong.
+
+**1. Two architecture rows contradicted the verification ledger.** §2.4
+read "2 layers tested, **null**" and "the paper's GRU→GAT order is
+*equivalent*". The architecture ablation of 2026-09-04 measured −26.46
+(p=0.0003) and −13.61 (p=0.0135), and both replicated on Westminster.
+The stale figures came from the pre-feature era (the 63.59%-baseline
+configuration). The same two claims appeared a second time in the null
+ledger further down the document; both locations are now corrected.
+
+**2. The headline table was still single-seed.** §1 carried 78.92 / 83.93
+/ 79.44, pooled 80.76, with the wide single-run CIs. The 5-seed results
+(V8/V11) replaced those in the README, the preprint and MASTER_PLAN on
+2026-09-04 — but not in the document that claims precedence over all of
+them. Since seed 42 is +1.69 optimistic on Lambeth and −1.11 conservative
+on Westminster, the old per-borough numbers were biased in *opposite*
+directions, so no single correction factor would have fixed them.
+
+**Why this survived so long.** MASTER_PLAN §4 already carried the rule -
+"**Any pre-2026-09-04 null, unless re-measured**" cannot be cited - and
+three overturned nulls were listed as the evidence for it. The rule was
+written and then not applied to this document. A rule that names a class
+of stale claim is only useful if something sweeps for that class; nothing
+did.
+
+`scripts/verify_preprint_claims.py` checks the preprint against its
+sources but has never looked at `final_model.md`. Extending it to cover
+the canonical spec is the obvious next step, and is worth more than
+another experiment.
