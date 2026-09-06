@@ -6773,3 +6773,42 @@ re-run the multiyear Westminster window on current code and compare — and
 is queued behind the S5 multi-seed rather than run concurrently (R5). No
 conclusion depends on it: the leave-one-out sensitivity check already
 showed every S2b figure holds with that window removed.
+
+## 2026-09-06 - P2 blocker found and cleared: the repo was 1.1 GB
+
+Assessing the repository for public release (P2) turned up a blocker that
+nothing in the working tree revealed: `.git` was **1.1 GB**, with
+`size-pack` at 1020.75 MiB, while the largest *tracked* file was 803 KB
+and the largest blob in *reachable history* was the same 803 KB.
+
+The bloat was **unreachable objects**. The OS Open Roads archive (969 MB)
+and a 41 MB PDF had been `git add`-ed before `.gitignore` covered them,
+then unstaged with `git reset`. That removes them from the index but the
+blobs stay in the object store indefinitely, and `git gc`'s default
+`--prune=2.weeks.ago` would not have touched them for a fortnight.
+
+This would have blocked publication outright: GitHub rejects individual
+files over 100 MB, and a 1 GB clone is a poor artefact regardless.
+
+**Checked before pruning**, since the operation is irreversible: the real
+files are all still on disk (`oproad_gb.gpkg` 2,045 MB,
+`oproad_gpkg_gb.zip`, the PDFs), all are now matched by `.gitignore`
+(confirmed with `git check-ignore -v`, not by reading the file), there were
+no stashes, and only one branch existed.
+
+| | before | after |
+|---|---|---|
+| size-pack | 1020.75 MiB | **1.35 MiB** |
+| `.git` on disk | 1.1 GB | **1.6 MB** |
+| commits | 82 | 82 |
+| HEAD | 8b683bc | 8b683bc |
+
+Verified after: `git fsck` clean, the full history readable including the
+initial commit's file list, 235 tests passing, and the running S5 job
+undisturbed.
+
+**Worth knowing generally:** `git reset` after an accidental `git add` of a
+large file feels like it undid the mistake, and the working tree agrees.
+The object store does not. `git count-objects -vH` is the check, and the
+symptom - a pack far larger than any tracked file - is easy to miss because
+nothing in normal use surfaces it.
