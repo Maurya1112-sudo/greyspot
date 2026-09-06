@@ -105,15 +105,25 @@ def crosscheck_seed42(gnn: pd.DataFrame, borough: str) -> None:
     status = "OK" if n_off == 0 else "%d/%d WINDOW(S) DIFFER" % (n_off, len(diffs))
     print("    seed-42 cross-check vs committed CSV: max |diff| = %.5f  [%s]" % (worst, status))
     if n_off:
-        # NOT fatal, but never silent. A difference concentrated in ONE window
-        # while the rest agree to 4dp cannot be a configuration difference -
-        # that would move every window. It is the AccHR@20 metric being a step
-        # function of the ranking: when many segments are tied at the top-20%
-        # cut (94%+ of segments have zero recent crashes, so ties are the norm
-        # here), a numerically tiny change in predictions reorders the tie
-        # group and moves a whole block of segments across the threshold at
-        # once. Same-seed reruns are therefore NOT bit-identical on this
-        # metric, which is itself worth reporting.
+        # NOT fatal, but never silent.
+        #
+        # MECHANISM UNRESOLVED - corrected 2026-09-06. This comment
+        # previously asserted that AccHR@20's step-function behaviour over
+        # tied segments makes same-seed reruns non-identical. That was a
+        # plausible story, not a measurement, and direct evidence now
+        # contradicts it: re-running the S5 config at seed 42 through a
+        # different script reproduced the original per-window score exactly
+        # (0.8106 vs 0.8106, Lambeth 2023-07-15).
+        #
+        # The likelier explanation is provenance. The per-window CSVs were
+        # committed when version control was initialised (775fe87), so they
+        # capture whatever was on disk at that moment - which may predate
+        # the code the V8 logs were produced with. A single differing
+        # window is consistent with an older artefact, not with
+        # non-determinism, which would perturb every window.
+        #
+        # Either way the discrepancy is reported and the sensitivity check
+        # below confirms no conclusion rests on it.
         for d, v_log, v_csv in zip(diffs.index, got, exp):
             if abs(v_log - v_csv) > 0.0005:
                 print("        %s: log %.4f vs CSV %.4f (%+.4f)"

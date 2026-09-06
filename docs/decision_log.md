@@ -6737,3 +6737,39 @@ data that is free and public for both.
    not. This is a satisfying resolution: the S5 sign flip that looked like
    noise or model instability is neither - it is visible in a
    parameter-free ranker on the same data.
+
+## 2026-09-06 - CORRECTION: "same-seed reruns are not bit-identical" was wrong
+
+Yesterday's S2b entry recorded that a Westminster window differed by
+0.0117 between two same-seed runs, and attributed it to AccHR@20 being a
+step function over tied segments: with 94%+ of segments tied at zero, a
+tiny numerical change reorders the tie group and moves a block across the
+top-20% cut. It concluded that **"same-seed reruns are not bit-identical
+on this metric"**.
+
+That mechanism was a plausible story, not a measurement — precisely what
+rule R6 exists to prevent. Direct evidence today contradicts it.
+
+`run_s5_multiseed.py` re-ran the S5 configuration at seed 42 through a
+different script from the original S5 run. Lambeth's first window
+reproduced **exactly**: 0.8106 vs 0.8106, difference 0.0000. Same-seed
+reruns across different scripts ARE bit-identical here.
+
+**Two candidate explanations were also ruled out by inspection**, not by
+argument: the two scripts pass identical training parameters
+(`negative_binomial` defaults to `False`, so passing it explicitly changes
+nothing), and no tracked commit touches `gat_temporal.py` or
+`daily_features.py` between the CSV and the V8 run.
+
+**What remains likely is provenance, not non-determinism.** The per-window
+CSVs were committed at 775fe87 — the commit that *initialised* version
+control — so they capture whatever was on disk then, which may predate the
+code that produced the V8 logs by an unknown amount. A single differing
+window fits an older artefact; genuine non-determinism would perturb every
+window, and it demonstrably does not perturb any.
+
+The mechanism is recorded as **unresolved**. A definitive test is cheap —
+re-run the multiyear Westminster window on current code and compare — and
+is queued behind the S5 multi-seed rather than run concurrently (R5). No
+conclusion depends on it: the leave-one-out sensitivity check already
+showed every S2b figure holds with that window removed.
