@@ -17,10 +17,10 @@ All figures are **seed-averaged over 5 seeds** with 95% CIs from the
 
 | Borough | AccHR@20 | 95% CI | Gao et al. (2024) | Verdict |
 |---|---|---|---|---|
-| Westminster | **80.03% ± 1.40** | [78.29, 81.77] | 68.98% | **better, p=0.0001** |
-| Tower Hamlets | **82.63% ± 2.01** | [80.14, 85.12] | 72.24% | **better, p=0.0003** |
+| Westminster | **79.75% ± 0.89** | [78.64, 80.86] | 68.98% | **better, p<0.0001** |
+| Tower Hamlets | **82.75% ± 2.13** | [80.11, 85.40] | 72.24% | **better, p=0.0004** |
 | Lambeth | 77.75% ± 1.67 | [75.68, 79.82] | 76.59% | **tie, p=0.1941** |
-| **Pooled** | **80.14% ± 1.12** | **[78.74, 81.53]** | **72.60%** | **better, p=0.000115** |
+| **Pooled** | **80.08% ± 2.62** | **[78.64, 81.53]** | **72.60%** | **better, p<0.000115** |
 
 > **Correction 2026-09-06.** This table previously carried the SINGLE-SEED
 > figures (78.92 / 83.93 / 79.44, pooled 80.76) with much wider CIs. Those
@@ -131,7 +131,7 @@ and rejected; clipped z-score at ±5σ was a clean null, p=0.9899.)
 | Parameter | Value | Notes |
 |---|---|---|
 | Encoder order | `spatial_first` | GAT per timestep → GRU over embeddings. **Load-bearing**: their GRU→GAT order scores 65.83% against this baseline's 79.44% (−13.61, p=0.0135) *even at its own separately swept learning rate*, and 14.31% at the shared one. Replicates on Westminster (−9.42) |
-| GAT layers | **1** | **Load-bearing**: 2 layers scores 52.98% vs 79.44% (−26.46, p=0.0003) and *diverges* on Westminster (2 of 6 windows below random), so it is better described as unstable than as costing a fixed amount. Replicates on both boroughs |
+| GAT layers | **1** | **Load-bearing**: 2 layers scores 52.98% vs 79.44% (−26.46, p=0.0004) and *diverges* on Westminster (2 of 6 windows below random), so it is better described as unstable than as costing a fixed amount. Replicates on both boroughs |
 | GAT hidden | **16** | |
 | GRU hidden | **32** | |
 | Attention heads | **3** | Matches the paper; heads=1 significantly worse (p=0.036) in the pre-features context |
@@ -249,7 +249,7 @@ This belongs at the top of any honest reading of the results.
 | Sort by cumulative crash count (~8 yr) | 83.20% | 81.25% | 87.37% | **83.94%** |
 | Empirical Bayes (HSM method) | 82.11% | 81.93% | 87.48% | 83.84% |
 | Same count, capped to this model's 5-yr horizon | 80.81% | 76.46% | 85.69% | 80.99% |
-| **This model** | 77.75% | 80.03% | 82.63% | **80.14%** |
+| **This model** | 77.75% | 79.75% | 82.75% | **80.08%** |
 
 Every model figure is a 5-seed mean. The comparisons below are **paired
 window-by-window** across the same 18 held-out windows (6 × 3 boroughs);
@@ -258,12 +258,12 @@ model's side (`scripts/run_s2_paired_comparison.py`).
 
 | Model vs | Δ (points) | paired *t* | Wilcoxon | model wins |
 |---|---|---|---|---|
-| Empirical Bayes (HSM method) | **−3.71** | 0.0146 | 0.0237 | 6/18 |
-| Cumulative crash count | **−3.80** | 0.0289 | 0.0342 | 5/18 |
-| Same count, capped to the 5-yr horizon | −0.85 | 0.6398 | 0.7987 | 9/18 |
+| Empirical Bayes (HSM method) | **−3.76** | 0.0146 | 0.0182 | 6/18 |
+| Cumulative crash count | **−3.85** | 0.0289 | 0.0342 | 5/18 |
+| Same count, capped to the 5-yr horizon | −0.90 | 0.6398 | 0.7660 | 9/18 |
 
 **At matched history depth the model and a parameter-free sort are
-statistically indistinguishable** (−0.85, p=0.6398, 9/18 windows).
+statistically indistinguishable** (−0.90, p=0.6102, 9/18 windows).
 Uncapped, both trivial baselines beat it *significantly*. Given three
 MORE years of history the sort gains +2.95 (paired p=0.0409, 12/18
 windows).
@@ -280,7 +280,7 @@ windows).
 > See `scripts/run_s5_two_borough_analysis.py`.
 
 > **Correction (2026-09-05).** This section previously recorded the
-> matched-horizon gap as **+0.85 in the model's favour**. It is −0.85,
+> matched-horizon gap as **+0.85 in the model's favour**. It is −0.90,
 > against: the earlier figure came from a single-seed score compared
 > against baseline means, with the subtraction the wrong way round. The
 > conclusion — a tie — is unchanged, since p=0.64 either way. Seed
@@ -374,7 +374,7 @@ matched windows and, where positive-looking, cross-borough replication.
 | Lever | Result |
 |---|---|
 | GAT heads on top of features | p=0.56, null |
-| GAT layers (1 vs 2) | ~~null~~ **OVERTURNED 2026-09-04**: −26.46, p=0.0003 (§2.4) |
+| GAT layers (1 vs 2) | ~~null~~ **OVERTURNED 2026-09-04**: −26.46, p=0.0004 (§2.4) |
 | Hidden size 42/42 (the paper's own) | **caught false positive** — won Lambeth +1.46, lost Westminster −9.97 |
 | Decoder family (ZINB, Zero-Inflated Tweedie) | ZIP best |
 | Encoder order (paper's GRU→GAT) | ~~equivalent~~ **OVERTURNED 2026-09-04**: −13.61, p=0.0135, even at its own lr (§2.4) |

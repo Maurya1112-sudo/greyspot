@@ -46,14 +46,36 @@ def check(ok: bool, label: str, detail: str = "") -> None:
     results.append((ok, label, detail))
 
 
+SLUGS = {"Lambeth": "lambeth", "Westminster": "westminster", "Tower Hamlets": "tower_hamlets"}
+
+
+def _seed_means(borough: str):
+    """Per-seed 6-window means, preferring the regenerated full-precision
+    CSV over the V8 run log.
+
+    The logs were the only source until 2026-09-06 and store per-window
+    values to 3 decimal places. `run_headline_multiseed.py` now writes
+    every (seed, window) score at full precision, and the paper's table is
+    computed from those, so this must read the same thing or it checks the
+    paper against a source the paper no longer uses.
+    """
+    csv = ROOT / "reports" / SLUGS[borough] / "headline_multiseed_per_window.csv"
+    if csv.exists():
+        d = pd.read_csv(csv)
+        complete = d.groupby("seed").filter(lambda g: len(g) == 6)
+        if complete.seed.nunique() >= 5:
+            return complete.groupby("seed").AccHR.mean().to_numpy()
+    t = (ROOT / "reports" / "run_logs" / f"{V8_LOGS[borough]}.log").read_text(
+        encoding="utf-8", errors="replace")
+    return np.array([float(m.group(2)) for m in _SEED_MEAN.finditer(t)])
+
+
 def seed_stats(borough: str):
     """Mean, sd and 95% CI over the 5 seeds. The CI uses the t
     distribution, not the normal approximation: with n=5 the difference is
     material (t(4)=2.776 vs z=1.96, ~40% wider), and using z here would
     understate the interval by roughly half a point."""
-    t = (ROOT / "reports" / "run_logs" / f"{V8_LOGS[borough]}.log").read_text(
-        encoding="utf-8", errors="replace")
-    v = np.array([float(m.group(2)) for m in _SEED_MEAN.finditer(t)])
+    v = _seed_means(borough)
     if len(v) == 0:
         return None
     sd = v.std(ddof=1)
@@ -94,9 +116,7 @@ def main() -> None:
     # --- 2. pooled figure ---------------------------------------------
     allv = []
     for borough in V8_LOGS:
-        t = (ROOT / "reports" / "run_logs" / f"{V8_LOGS[borough]}.log").read_text(
-            encoding="utf-8", errors="replace")
-        allv += [float(m.group(2)) for m in _SEED_MEAN.finditer(t)]
+        allv += list(_seed_means(borough))
     pooled = 100 * float(np.mean(allv))
     m = re.search(r"\*\*Pooled\*\*\s*\|\s*\*\*([\d.]+)%", text)
     if m:

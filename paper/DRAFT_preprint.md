@@ -10,7 +10,7 @@ replication are reported alongside those that survived.
 
 We attempt to replicate and extend Gao et al. (2024)'s STZITD-GNN for
 road-level crash prediction on three London boroughs, using independently
-constructed data. Our model reaches AccHR@20 of 80.14% ± 1.12 (5 seeds)
+constructed data. Our model reaches AccHR@20 of 80.08% ± 2.62 (5 seeds)
 against their reported 72.60%, significantly better on two of three
 boroughs. But the more transferable results are negative and
 methodological: of eleven findings that appeared significant on a single
@@ -48,10 +48,15 @@ averaged over 5 random seeds, 95% CI):
 
 | Borough | This work | 95% CI | Gao et al. | |
 |---|---|---|---|---|
-| Westminster | **80.03% ± 1.40** | [78.29, 81.77] | 68.98% | p=0.0001 |
-| Tower Hamlets | **82.63% ± 2.01** | [80.14, 85.12] | 72.24% | p=0.0003 |
+| Westminster | **79.75% ± 0.89** | [78.64, 80.86] | 68.98% | p<0.0001 |
+| Tower Hamlets | **82.75% ± 2.13** | [80.11, 85.40] | 72.24% | p=0.0004 |
 | Lambeth | 77.75% ± 1.67 | [75.68, 79.82] | 76.59% | tie, p=0.1941 |
-| **Pooled** | **80.14% ± 1.12** | [78.74, 81.53] | 72.60% | p=0.000115 |
+| **Pooled** | **80.08% ± 2.62** | [78.64, 81.53] | 72.60% | p<0.0001 |
+
+> All figures regenerated on current code by
+> `scripts/run_headline_multiseed.py` into committed per-window CSVs, with
+> the table computed by `scripts/make_headline_table.py`. ± is the sample
+> SD over 5 seeds; intervals use the *t* distribution (n=5, t(4)=2.776).
 
 **This is not a like-for-like comparison** and should not be read as one.
 Gao et al. evaluate within 2019 on a 6:2:2 split; we use multi-year
@@ -212,7 +217,7 @@ while a large one still has to be replicated before it can be believed.
 | Sort by cumulative crash count (~8yr) | 83.20% | 81.25% | 87.37% | **83.94%** |
 | Empirical Bayes (HSM) | 82.11% | 81.93% | 87.48% | 83.84% |
 | Same count, capped to the GNN's 5yr | 80.81% | 76.46% | 85.69% | 80.99% |
-| **Our GNN** | 77.75% | 80.03% | 82.63% | **80.14%** |
+| **Our GNN** | 77.75% | 79.75% | 82.75% | **80.08%** |
 
 Every GNN figure above is a 5-seed mean, and every comparison below is
 **paired window-by-window** on the same 18 held-out windows (6 windows ×
@@ -223,12 +228,12 @@ sits on the GNN side.
 
 | GNN vs | Δ (points) | paired *t* | Wilcoxon | GNN wins |
 |---|---|---|---|---|
-| Empirical Bayes (HSM) | **−3.71** | 0.0146 | 0.0237 | 6/18 |
-| Cumulative crash count | **−3.80** | 0.0289 | 0.0342 | 5/18 |
-| Count capped to the GNN's 5yr | −0.85 | 0.6398 | 0.7987 | 9/18 |
+| Empirical Bayes (HSM) | **−3.76** | 0.0116 | 0.0182 | 6/18 |
+| Cumulative crash count | **−3.85** | 0.0227 | 0.0342 | 5/18 |
+| Count capped to the GNN's 5yr | −0.90 | 0.6102 | 0.7660 | 9/18 |
 
 At **matched history depth** the GNN and a parameter-free sort are
-statistically indistinguishable (−0.85, *p* = 0.64, 9 of 18 windows).
+statistically indistinguishable (−0.90, *p* = 0.61, 9 of 18 windows).
 Uncapped, both trivial baselines beat it *significantly*: given three
 further years of history the sort gains **+2.95 points** (paired *p* =
 0.041, 12/18 windows).
@@ -275,7 +280,7 @@ by **19.49 points, on 18 of 18 windows** (paired *p* = 0.000001), and by
 |---|---|
 | Crash-count sort (~8yr) | 83.94% |
 | Sort capped to 5yr | 80.99% |
-| Our GNN | 80.14% |
+| Our GNN | 80.08% |
 | Reference architecture (swept optimum, long history) | 64.45% |
 
 We state this carefully: it is the reference *architecture* evaluated on
@@ -325,7 +330,7 @@ is matched by a sort at a strikingly short horizon:
 | Gao et al., Historical Average | 44.96% | ~1 year |
 | Reference architecture (our data) | 64.45% | ~2 years |
 | Gao et al., STZITD-GNN | 72.60% | ~3 years |
-| Our GNN (5 seeds) | 80.14% | ~5 years |
+| Our GNN (5 seeds) | 80.08% | ~5 years |
 
 **This mapping is suggestive, not a controlled comparison** — their two
 figures are on their data and segments, ours on ours. It cannot show that
@@ -401,6 +406,20 @@ swept optimum throughout, not at settings where it fails.
 Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper
 that we could not explain.
+
+**Training is not deterministic at a fixed seed.** Re-training the same
+window at the same seed three times gave 0.755, 0.832 and 0.845 on one
+Westminster window — a spread of 9.0 points — while a Lambeth control was
+bit-identical across three repeats
+(`scripts/run_determinism_probe.py`). The cause is that the GAT layer's
+neighbourhood aggregation is scatter-based and CUDA does not fix
+accumulation order; `torch.manual_seed` makes initialisation reproducible
+but not aggregation. We did not enable
+`torch.use_deterministic_algorithms(True)` retroactively, because it would
+break comparability with results already recorded, but **it should be the
+default for new work on this task**. Affected windows are reproducible
+only to ~0.09; a 6-window borough mean inherits up to ~0.015 of that, and
+the pooled figure over 15 seed-runs less still.
 
 **Individual figures are less precise than their digits suggest.** As §6
 sets out, AccHR@20 moves in steps of 1/(crashes that day)/(days in

@@ -28,10 +28,10 @@ intervals — single-seed numbers are not reported, for reasons given below.
 
 | Borough | This project | 95% CI | Gao et al. | Verdict |
 |---|---|---|---|---|
-| Westminster | **80.03% ± 1.40** | [78.29, 81.77] | 68.98% | **better**, p=0.0001 |
-| Tower Hamlets | **82.63% ± 2.01** | [80.14, 85.12] | 72.24% | **better**, p=0.0003 |
+| Westminster | **79.75% ± 0.89** | [78.64, 80.86] | 68.98% | **better**, p<0.0001 |
+| Tower Hamlets | **82.75% ± 2.13** | [80.11, 85.40] | 72.24% | **better**, p=0.0004 |
 | Lambeth | **77.75% ± 1.67** | [75.68, 79.82] | 76.59% | **tie**, p=0.1941 |
-| **Pooled** | **80.14% ± 1.12** | **[78.74, 81.53]** | **72.60%** | **better**, p=0.000115 |
+| **Pooled** | **80.08% ± 2.62** | **[78.64, 81.53]** | **72.60%** | **better**, p<0.000115 |
 
 ### Read these caveats before quoting any number
 
@@ -66,13 +66,13 @@ segments by their past crash count.**
 | Sort by cumulative crash count (~8 yr) | **83.94%** |
 | Empirical Bayes (Highway Safety Manual) | 83.84% |
 | Same count, capped to this model's 5-yr horizon | 80.99% |
-| **This GNN** | **80.14%** |
+| **This GNN** | **80.08%** |
 
 Paired window-by-window over 18 held-out windows, with the GNN
 seed-averaged over 5 seeds: at **matched** history depth the two are
-statistically indistinguishable (−0.85, p=0.64, 9/18 windows). Uncapped,
+statistically indistinguishable (−0.90, p=0.61, 9/18 windows). Uncapped,
 both trivial baselines beat the GNN *significantly* (Empirical Bayes
-−3.71, p=0.015; raw count −3.80, p=0.029). Given three more years of
+−3.76, p=0.012; raw count −3.85, p=0.023). Given three more years of
 history the sort gains **+2.95** (paired p=0.041, 12/18 windows).
 
 Whether the GNN can use that same extra history is **borough-specific**:
@@ -115,7 +115,7 @@ found no paper in this line that reports it.
 ## What was actually learned
 
 **Topology is decisive; capacity is inert.** Changing message-passing
-depth (−26.46, p=0.0003) or encoder ordering (−13.61, p=0.0135) is
+depth (−26.46, p=0.0004) or encoder ordering (−13.61, p=0.0135) is
 catastrophic. Changing hidden size (−2.87) or decoder family (−3.50) is
 not distinguishable from seed noise.
 
