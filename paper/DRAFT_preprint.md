@@ -402,6 +402,20 @@ Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper
 that we could not explain.
 
+**Individual figures are less precise than their digits suggest.** As §6
+sets out, AccHR@20 moves in steps of 1/(crashes that day)/(days in
+window) — 0.0102 to 0.0909 here — so which side of a tie a single crash
+falls on is visible in the fourth decimal place. We observed one window
+take three different values across three independent runs of the same
+configuration and seed, separated by exact single-crash steps, while its
+five sibling windows were bit-identical. A per-borough mean over six such
+windows can therefore shift by roughly 0.3 points between runs for
+reasons that have nothing to do with the model. Comparisons in this paper
+are paired window-by-window and pooled across boroughs precisely because
+that is far less exposed than any single figure; readers should treat the
+per-borough numbers as accurate to a few tenths of a point, not to the
+two decimals we print.
+
 **Generalisation.** The model was run on four further London boroughs
 beyond the three benchmark ones. Across all seven (single seed, so not
 quotable as point estimates):
