@@ -71,7 +71,14 @@ seed-averaged over 5 seeds: at **matched** history depth the two are
 statistically indistinguishable (−0.85, p=0.64, 9/18 windows). Uncapped,
 both trivial baselines beat the GNN *significantly* (Empirical Bayes
 −3.71, p=0.015; raw count −3.80, p=0.029). Given three more years of
-history the sort gains +2.95; the GNN gains −0.72.
+history the sort gains **+2.95** (paired p=0.041, 12/18 windows).
+
+Whether the GNN can use that same extra history is **borough-specific**:
+−0.72 on Lambeth (p=0.74) but +2.98 on Westminster (p=0.023, 5/6 windows).
+An earlier version of this README reported the Lambeth null alone as
+evidence the model "cannot exploit" deeper history; a second borough does
+not support that. What holds on both is weaker: the sort gains *more* from
+the same extra history than the GNN does.
 
 The model does provide calibrated uncertainty intervals (PICP ≈ 0.901)
 that a sort cannot, and that has real value for prioritisation. But the

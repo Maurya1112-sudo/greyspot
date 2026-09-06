@@ -234,8 +234,19 @@ model's side (`scripts/run_s2_paired_comparison.py`).
 **At matched history depth the model and a parameter-free sort are
 statistically indistinguishable** (−0.85, p=0.6398, 9/18 windows).
 Uncapped, both trivial baselines beat it *significantly*. Given three
-MORE years of history the sort gains +2.95 while this model gains −0.72
-with rising variance (S5, p=0.7438).
+MORE years of history the sort gains +2.95 (paired p=0.0409, 12/18
+windows).
+
+> **S5 correction, 2026-09-05.** This previously read "while this model
+> gains −0.72 with rising variance (S5, p=0.7438)", presented as evidence
+> the model cannot use deeper history. That was Lambeth alone. On
+> Westminster the same change gains **+2.98 (p=0.0230, 5/6 windows)** — the
+> sign flips, so the claim is not supportable. Both figures sit inside the
+> ~4-point seed-noise band and neither is individually interpretable. The
+> defensible statement is comparative: on both boroughs measured, the sort
+> gains more from the same extra history than this model does (+2.38 vs
+> −0.72 Lambeth; +4.79 vs +2.98 Westminster).
+> See `scripts/run_s5_two_borough_analysis.py`.
 
 > **Correction (2026-09-05).** This section previously recorded the
 > matched-horizon gap as **+0.85 in the model's favour**. It is −0.85,

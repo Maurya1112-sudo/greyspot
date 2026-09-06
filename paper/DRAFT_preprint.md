@@ -23,8 +23,9 @@ reversal** between boroughs, not a shrinkage toward zero: four of the
 seven changed direction. We further show that at
 matched history depth our graph neural network is **statistically
 indistinguishable from sorting road segments by their past crash count**,
-and that it cannot exploit additional history that the trivial sort
-converts into a +2.95-point gain.
+and that the sort converts three further years of history into a
+significant +2.95-point gain (*p* = 0.041) that the network does not
+reliably match.
 
 ---
 
@@ -123,11 +124,24 @@ sits on the GNN side.
 
 At **matched history depth** the GNN and a parameter-free sort are
 statistically indistinguishable (−0.85, *p* = 0.64, 9 of 18 windows).
-Uncapped, both trivial baselines beat it *significantly*. Given *more*
-history the sort gains +2.95; the GNN gains −0.72 with rising variance
-(§5). A graph network with 35 features, conformal intervals and 200
-training epochs does not beat sorting segments by how often they have
-crashed — and given history it cannot use, loses to it outright.
+Uncapped, both trivial baselines beat it *significantly*: given three
+further years of history the sort gains **+2.95 points** (paired *p* =
+0.041, 12/18 windows).
+
+Whether the network can use that same extra history is **borough-specific**
+(`scripts/run_s5_two_borough_analysis.py`). Extending its history features
+from 5 to 9 years costs −0.72 points on Lambeth (*p* = 0.74) but gains
++2.98 on Westminster (*p* = 0.023, 5/6 windows). We previously reported
+the Lambeth null alone as evidence the model "cannot exploit" deeper
+history; a second borough does not support that. What does hold on both
+boroughs measured is weaker and directional: **the sort gains more from
+the same extra history than the network does** (+2.38 vs −0.72 on Lambeth;
++4.79 vs +2.98 on Westminster). Both network figures sit inside the
+~4-point seed-noise band, so neither is individually interpretable.
+
+A graph network with 35 features, conformal intervals and 200 training
+epochs therefore does not beat sorting segments by how often they have
+crashed, and extracts less from additional history than the sort does.
 
 We note that seed-averaging and paired testing made this result
 *stronger*, not weaker. The earlier single-seed comparison of means could
