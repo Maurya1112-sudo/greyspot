@@ -7233,3 +7233,39 @@ Westminster figure to 79.75 while the documents still said 80.03 produced
 `FAIL canonical: Westminster headline — stated in 0 doc(s)`. Restoring it
 passes. Without that control the change would have looked like an
 improvement while being untested.
+
+## 2026-09-06 - Two phenomena, not one: tie flips are common, divergence is rare
+
+I initially flagged Tower Hamlets seed 123 as "diverged" on a crude
+threshold (>0.35 points on the 6-window mean). That conflated two things
+which need separating, and the threshold was the wrong instrument.
+
+Its whole difference is one window (2023-10-13) moving +0.035762. That
+window holds 29 crashes over 14 days including several 2-crash days, so
+one crash crossing the top-20% threshold there is worth 1/2/14 =
+**0.035714** — matching to within the log's 3dp rounding. It is a metric
+tie flip, not a different model.
+
+Across 14 regenerated seed-runs the picture separates cleanly:
+
+| borough | reproduce exactly | tie flip | genuine divergence |
+|---|---|---|---|
+| Lambeth | 5/5 | 0 | 0 |
+| Westminster | 3/5 | 1 (seed 42, +0.006) | **1 (seed 1, −0.090 on one window)** |
+| Tower Hamlets | 3/4 | 1 (seed 123, +0.036) | 0 |
+
+**Tie flips are common and exactly quantified** — 2 of 14 runs, each an
+exact single-crash step, each explained by the metric's granularity.
+
+**Genuine divergence is rare and unexplained** — 1 of 14. Westminster
+seed 1's 2024-10-07 window moved 0.090, where that window's largest single
+step is 0.0769, so it needs 2–7 crashes changing side. Only the probe can
+settle whether that is reproducible.
+
+**The lesson about the threshold.** A magnitude cutoff cannot distinguish
+these: a tie flip on a sparse window (0.0714 on a 1-crash day) is larger
+than a genuine model difference on a dense one. The right test is whether
+the move equals an exact step for that specific window, which requires
+computing the window's crash structure rather than comparing against a
+constant. `diagnose_metric_granularity.py` does that, and I should have
+used it here before reaching for a threshold.
