@@ -8,8 +8,10 @@ traffic crash prediction"* (Accident Analysis & Prevention), on three
 London boroughs.
 
 **Status: research code under active verification.** Numbers below are
-current as of 2026-09-04 and are stated with the caveats that apply to
-them. See [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the live
+current as of 2026-09-06 and are stated with the caveats that apply to
+them. Seven of ten single-borough findings failed replication on a second
+borough, four of them by reversing sign; those are reported here alongside
+the three that survived. See [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the live
 verification ledger and [`docs/decision_log.md`](docs/decision_log.md)
 for every experiment run, including the negative and invalidated ones.
 
@@ -85,6 +87,31 @@ that a sort cannot, and that has real value for prioritisation. But the
 ranking performance should not be presented without this baseline
 beside it.
 
+### This is not specific to our implementation
+
+Run on the same data with its own tuned settings, the **reference
+architecture loses to the crash-count sort on 18 of 18 held-out windows**
+(64.45% vs 83.94%, paired p=0.000001). Neither graph network in this study
+clears the trivial baseline.
+
+### Almost all of the baseline's strength is its horizon
+
+The same parameter-free ranker, swept across lookback windows:
+
+| Lookback | 30d | 90d | 1yr | 2yr | 3yr | 5yr | 7yr | 9yr |
+|---|---|---|---|---|---|---|---|---|
+| Mean AccHR@20 | 22.71% | 32.19% | 54.17% | 66.35% | 73.78% | 80.99% | 83.53% | 83.94% |
+
+A 61-point range from one ranker with no parameters. Every published
+figure in this line of work is matched by that sort at a short horizon —
+Gao et al.'s Historical Average at ~1 year, their model at ~3, ours at ~5.
+Their dataset covers 2019 alone, so their historical baseline could not
+have looked back further. The curve plateaus after ~7 years.
+
+That mapping is suggestive rather than controlled — two of those figures
+are on their data, not ours — but the implication is cheap to check and we
+found no paper in this line that reports it.
+
 ## What was actually learned
 
 **Topology is decisive; capacity is inert.** Changing message-passing
@@ -121,19 +148,80 @@ supportable as a general claim.
 
 ## Reproducing
 
+### Setup
+
 ```bash
-python -m pytest tests/ -q                                  # 232 tests
-python scripts/run_ucl_comparison_multiyear.py Lambeth      # final model
-python scripts/run_v8_multiseed.py Lambeth                  # multi-seed check
+python -m venv .venv && .venv/Scripts/activate   # Windows; use bin/activate on POSIX
+pip install -r requirements.txt
+python -m pytest tests/ -q                       # 237 tests, no data or GPU needed
 ```
 
-Requires: OS Open Roads GeoPackage (OS Data Hub, free), STATS19
-collision/casualty CSVs 2016–2024 (DfT), AADF traffic counts, LSOA
-boundaries and IMD 2019. Data directories are gitignored — see
-`docs/final_model.md` §2 for the full specification.
+The test suite runs on synthetic fixtures, so it passes before any data is
+downloaded. It is the fastest check that the environment is sound.
 
-Runtime ≈ 12 min/borough on an RTX 4060 (8 GB). **Run one GPU job at a
-time.**
+### Data
+
+None of it is redistributable here, and all of it is free. `data/` is
+gitignored.
+
+| Source | Where | Goes in |
+|---|---|---|
+| STATS19 collisions + casualties, 2012–2024 | [data.gov.uk road safety data](https://www.data.gov.uk/dataset/cb7ae6f0-4be6-4935-9277-47e5ce24a11f/road-safety-data) | `data/raw/collision-YYYY.csv`, `casualty-YYYY.csv` |
+| OS Open Roads (GeoPackage) | [OS Data Hub](https://osdatahub.os.uk/downloads/open/OpenRoads) — free account | `oproad_gpkg_gb/Data/oproad_gb.gpkg` |
+| AADF traffic counts | [DfT road traffic statistics](https://roadtraffic.dft.gov.uk/downloads) | `data/raw/aadf_raw/dft_traffic_counts_aadf.csv` |
+| LSOA 2011 boundaries (BGC) | [London Datastore](https://data.london.gov.uk/) | `data/raw/boundaries/lsoa_bgc/` |
+| IMD 2019 | [London Datastore](https://data.london.gov.uk/dataset/indices-of-deprivation-2l15g) | `data/raw/imd2019_london_lsoa.xlsx` |
+
+POI features are fetched from the Overpass API on first run and cached to
+`data/interim/`. **Overpass is the flakiest dependency in this pipeline** —
+see the note below.
+
+`docs/final_model.md` §2 carries the full specification, including the
+exact columns used and how segments are constructed.
+
+### Running the model
+
+```bash
+python scripts/run_ucl_comparison_multiyear.py Lambeth     # final model, one borough
+python scripts/run_headline_multiseed.py                   # 5 seeds x 3 boroughs (~2.5h)
+python scripts/run_s5_multiseed.py                         # deep-history arm, 5 seeds
+```
+
+≈12 min per borough on an RTX 4060 (8 GB). **Run one GPU job at a time** —
+concurrent runs caused four CUDA OOM crashes here. Long runs checkpoint per
+window and resume automatically if interrupted.
+
+### Reproducing the paper's claims
+
+Each of these regenerates one result and needs no GPU — they read the
+per-window CSVs the model runs produce:
+
+```bash
+python scripts/run_s2_paired_comparison.py        # GNN vs trivial baselines, paired
+python scripts/run_reference_vs_trivial.py        # reference architecture vs the sort
+python scripts/run_baseline_horizon_curve.py      # AccHR@20 vs lookback horizon
+python scripts/run_c2_three_borough_analysis.py   # feature-count replication
+python scripts/run_c6_substitution_analysis.py    # architecture x history substitution
+python scripts/run_s5_two_borough_analysis.py     # deep-history replication
+python scripts/check_effect_size_heuristic.py     # does effect size predict replication
+python scripts/verify_preprint_claims.py          # checks the paper against its sources
+```
+
+`verify_preprint_claims.py` is the one to run first if you only run one: it
+re-derives every headline number from its source file and exits non-zero on
+any mismatch.
+
+### A note on the Overpass API
+
+POI downloads failed repeatedly during this study, and **silently** — a
+truncated response produces a plausible-looking file that gets cached and
+reused. One borough's cached file turned out to hold 24% of the real data.
+The ingest code now refuses such responses, checking that every tag
+category returned and that POI density clears a floor calibrated on
+verified downloads (`src/greyspot/ingest/poi.py`). If a borough is refused
+and you suspect it is genuinely low-density rather than truncated,
+`scripts/check_poi_density_calibration.py` settles it by downloading twice
+and comparing — a truncated response cannot be reproducible.
 
 ---
 
