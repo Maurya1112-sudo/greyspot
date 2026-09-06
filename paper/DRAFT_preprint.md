@@ -26,7 +26,8 @@ road segments by their past crash count**, and that the reference
 architecture, given the same data and its own tuned settings, **loses to
 that sort on 18 of 18 held-out windows** (−19.49 points, *p* < 10⁻⁵). The
 sort also converts three further years of history into a significant
-+2.95-point gain (*p* = 0.041) that neither network reliably matches. The
++2.95-point gain (*p* = 0.041) where the same extension moves our network
+by −0.12 (*p* = 0.86, 5 seeds, 2 boroughs). The
 reference paper does include a historical-average baseline, but its data
 covers a single year; we argue that the apparent margin of graph networks
 over historical baselines in this literature is substantially a function
@@ -190,16 +191,31 @@ Uncapped, both trivial baselines beat it *significantly*: given three
 further years of history the sort gains **+2.95 points** (paired *p* =
 0.041, 12/18 windows).
 
-Whether the network can use that same extra history is **borough-specific**
-(`scripts/run_s5_two_borough_analysis.py`). Extending its history features
-from 5 to 9 years costs −0.72 points on Lambeth (*p* = 0.74) but gains
-+2.98 on Westminster (*p* = 0.023, 5/6 windows). We previously reported
-the Lambeth null alone as evidence the model "cannot exploit" deeper
-history; a second borough does not support that. What does hold on both
-boroughs measured is weaker and directional: **the sort gains more from
-the same extra history than the network does** (+2.38 vs −0.72 on Lambeth;
-+4.79 vs +2.98 on Westminster). Both network figures sit inside the
-~4-point seed-noise band, so neither is individually interpretable.
+**The network gains nothing from the same extra history.** Extending its
+history features from 5 to 9 years moves it by **−0.12 points** (paired
+*p* = 0.86, 5 of 12 windows), seed-averaged over 5 seeds on two boroughs
+(`scripts/run_s5_multiseed_analysis.py`): −0.46 on Lambeth (*p* = 0.70)
+and +0.21 on Westminster (*p* = 0.83).
+
+The per-seed detail is the more useful result, because it shows how
+easily this measurement misleads. The effect **reverses sign between
+seeds within a single borough**:
+
+| Borough | Per-seed difference (5 seeds) | Mean |
+|---|---|---|
+| Lambeth | +0.27, +1.53, −0.72, −1.79, −1.58 | −0.46 |
+| Westminster | −1.93, +0.96, **+2.60**, −0.86, +0.28 | +0.21 |
+
+An earlier draft of this paper reported, from a single seed on Lambeth,
+that the model "cannot exploit" deeper history (−0.72), and we withdrew
+that when the same seed gave +2.98 on Westminster. The multi-seed
+evidence restores the conclusion but shows neither single-seed run could
+have supported it: the largest per-seed effect (+2.60) is a seed artefact,
+and its sign is not stable within either borough.
+
+So the comparison that matters is between the two rankers given the *same*
+extra history: the sort converts it into **+2.95 points (*p* = 0.041)**,
+the network into **−0.12 (*p* = 0.86)**.
 
 A graph network with 35 features, conformal intervals and 200 training
 epochs therefore does not beat sorting segments by how often they have

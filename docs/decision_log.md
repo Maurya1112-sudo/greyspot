@@ -7007,3 +7007,38 @@ step size is set by target sparsity, not by the model: sparse windows have
 a coarse metric. It belongs in the paper's measurement section alongside
 the crash-volume dependence, since it bounds how precisely any AccHR@20
 figure can be quoted.
+
+## 2026-09-06 - S5 settled: the withdrawn claim is restored, on better evidence
+
+5 seeds x 6 windows x 2 boroughs on the deep arm, paired against the same
+5 seeds on the 5-year baseline — so the arms pair on seed as well as
+window and a seed's shared bias cancels.
+
+**Result: the model gains nothing from history beyond five years.**
+Pooled −0.12 points (paired p=0.8617, 5 of 12 windows); Lambeth −0.46
+(p=0.7015), Westminster +0.21 (p=0.8281).
+
+**The per-seed detail is the more useful finding.** The effect reverses
+sign between seeds *within* a single borough:
+
+| Borough | per-seed | mean |
+|---|---|---|
+| Lambeth | +0.27, +1.53, −0.72, −1.79, −1.58 | −0.46 |
+| Westminster | −1.93, +0.96, +2.60, −0.86, +0.28 | +0.21 |
+
+Yesterday's withdrawal rested on a borough-level sign flip (−0.72 Lambeth
+vs +2.98 Westminster at seed 42). This is sharper: the sign is not stable
+*within* either borough, so no single-seed run of this experiment was
+interpretable in any direction. Both the original claim and the evidence
+that overturned it were seed artefacts of the same experiment.
+
+**The claim is restored, and better evidenced than when it was made.**
+The paper had said the model "cannot exploit" deeper history on one
+seed's evidence. It now says the same thing on 10 runs, and states the
+comparison that carries the weight: given the same extra history, the
+trivial sort gains **+2.95 (p=0.0409)** and the model **−0.12 (p=0.8617)**.
+
+Worth recording that the withdrawal was correct on the evidence available
+and the restoration does not undo it. A claim can be true and
+insufficiently evidenced at the same time; withdrawing it was right, and
+so is restoring it now that the evidence exists.
