@@ -7456,3 +7456,39 @@ recorded in V11 (+1.69 / −1.11 / +1.30).
 That is a more useful correction than "the claim was inflated". The
 direction was right and the effect is real; the *numbers* attached to it
 were noise-dominated, and no single-seed run could have told us which way.
+
+## 2026-09-06 - Encoder order: the mean was averaging a shift with a failure
+
+Multi-seeded the temporal_first arm (5 seeds x 6 windows x 2 boroughs;
+the spatial_first arm is the headline config and already multi-seeded).
+
+| borough | temporal_first per seed | mean |
+|---|---|---|
+| Lambeth | .735 .738 .658 .706 **.275** | 0.622 |
+| Westminster | .739 .775 .698 .754 **.217** | 0.637 |
+
+Pooled, our ordering is ahead by **+15.79 points** (54/60 windows,
+p<10⁻⁶), against a single-seed claim of −13.61 (Lambeth) / −9.42
+(Westminster). The claim survives and grows.
+
+**But the mean is the wrong summary.** It averages two different things:
+
+- a **~6-point typical penalty** (Lambeth 6.8, Westminster 5.6) on the
+  four seeds where training converges, and
+- **outright divergence to near-random** (0.275, 0.217 against a ~0.20
+  random baseline) on the fifth.
+
+**The collapse is seed 2024 on BOTH boroughs**, which makes it systematic
+rather than chance - some interaction between that seed's initialisation
+and the temporal_first ordering, not bad luck.
+
+So the defensible claim is not "their ordering costs 13.61 points". It is:
+**their ordering costs ~6 points when it trains, and fails outright on 1
+of the 5 seeds tried, reproducibly on the same seed across boroughs.**
+That is both more accurate and more damaging than the averaged figure,
+and no single-seed run could have distinguished the two.
+
+This is the third instability of the same shape: depth 2 diverges on
+Westminster windows, the reference architecture (which uses depth 2)
+spreads 35.7 points across seeds, and now temporal_first collapses on a
+specific seed. All three are the reference paper's architectural choices.

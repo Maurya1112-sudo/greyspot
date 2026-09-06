@@ -14,7 +14,7 @@ candidate,seed,borough,arm,held_out_start,AccHR,n_train_instances,run_fingerprin
 7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.4861111111111111,6,467f8f38313afbd1
 7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.619047619047619,7,467f8f38313afbd1
 7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.5761904761904761,8,467f8f38313afbd1
-7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.42142857142857143,9,467f8f38313afbd1
+7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.4214285714285714,9,467f8f38313afbd1
 7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.6038461538461537,10,467f8f38313afbd1
 7,7,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.548611111111111,11,467f8f38313afbd1
 123,123,Tower Hamlets,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.6041666666666666,6,aa27260799d619b4
