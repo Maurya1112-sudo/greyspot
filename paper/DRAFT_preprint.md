@@ -1,6 +1,6 @@
 # What Actually Matters in Road-Level Crash Prediction: Ten Findings, Three Replications
 
-**Draft 2026-09-05.** Every number below traces to a script in this
+**Draft 2026-09-06.** Every number below traces to a script in this
 repository and an entry in `docs/decision_log.md`. Claims that failed
 replication are reported alongside those that survived.
 
@@ -142,6 +142,29 @@ the same extra history than the network does** (+2.38 vs −0.72 on Lambeth;
 A graph network with 35 features, conformal intervals and 200 training
 epochs therefore does not beat sorting segments by how often they have
 crashed, and extracts less from additional history than the sort does.
+
+**This is not a property of our implementation alone.** Running the
+reference architecture on our data — at its own swept optimum, with the
+same long history, on the same windows — it loses to the crash-count sort
+by **19.49 points, on 18 of 18 windows** (paired *p* = 0.000001), and by
+16.54 points against the horizon-matched sort (16 of 18 windows,
+*p* = 0.000013) and 19.39 against Empirical Bayes (17 of 18,
+*p* = 0.000001) (`scripts/run_reference_vs_trivial.py`).
+
+| Ranker (pooled, 18 windows) | AccHR@20 |
+|---|---|
+| Crash-count sort (~8yr) | 83.94% |
+| Sort capped to 5yr | 80.99% |
+| Our GNN | 80.14% |
+| Reference architecture (swept optimum, long history) | 64.45% |
+
+We state this carefully: it is the reference *architecture* evaluated on
+*our* data and protocol, not a re-evaluation of their published results,
+which we cannot reproduce for lack of per-window outputs. What it
+establishes is that the trivial baseline is not clearing a bar our model
+happens to fall under — neither graph network in this study clears it.
+The natural question for the subfield is how many road-level crash
+prediction results have been reported without one.
 
 We note that seed-averaging and paired testing made this result
 *stronger*, not weaker. The earlier single-seed comparison of means could

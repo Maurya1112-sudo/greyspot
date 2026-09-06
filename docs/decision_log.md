@@ -6610,3 +6610,43 @@ The floor of 40 clears every complete download by at least 1.6x and
 rejects the one known truncation by 1.7x. Wandsworth now appears on both
 sides of the calibration, which is why it is the most useful single data
 point in it.
+
+## 2026-09-06 - The reference architecture also loses to the trivial sort
+
+Section 3 shows our GNN does not beat sorting segments by past crash
+count. The obvious objection is that this indicts our implementation
+rather than the model class, so the same test was run on the reference
+architecture (`scripts/run_reference_vs_trivial.py`).
+
+Pooled over the same 18 held-out windows, with the reference architecture
+at its own swept learning rate and given the same long history:
+
+| Ranker | AccHR@20 |
+|---|---|
+| Crash-count sort (~8yr) | 83.94% |
+| Empirical Bayes (HSM) | 83.84% |
+| Sort capped to 5yr | 80.99% |
+| Our GNN (5-seed mean) | 80.14% |
+| **Reference architecture** | **64.45%** |
+
+| Reference vs | diff | paired p | reference wins |
+|---|---|---|---|
+| crash-count sort | −19.49 | 0.000001 | **0/18** |
+| sort capped to 5yr | −16.54 | 0.000013 | 2/18 |
+| Empirical Bayes | −19.39 | 0.000001 | 1/18 |
+
+It loses on **every one of 18 windows** to the uncapped sort, and the gap
+is an order of magnitude outside the seed-noise band. Per borough:
+Lambeth −22.28, Westminster −10.46, Tower Hamlets −25.72 — no sign
+reversal, unusually for this project.
+
+**Scope, stated carefully.** This is their ARCHITECTURE on OUR data and
+protocol, at a learning rate we found by sweeping on their behalf (their
+published 0.01 diverges to NaN here). It is not a re-evaluation of their
+published results, which cannot be reproduced without per-window outputs.
+
+What it establishes is narrow but useful: the trivial baseline is not a
+bar our model uniquely falls under. Neither graph network in this study
+clears it, which turns section 3 from a note about one implementation into
+a question for the subfield — how many road-level crash-prediction results
+have been reported without a crash-count baseline alongside them.
