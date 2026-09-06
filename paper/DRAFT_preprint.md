@@ -260,6 +260,19 @@ sign reversed.
   reported score is a tie-breaking artefact.
 - **The label-shuffle control passes**: permuting targets across segments
   collapses the model to 23.08% from 75.64%.
+- **The metric is a step function, and its step size is set by target
+  sparsity, not by the model.** AccHR@20 averages a per-day hit rate, so
+  its smallest possible change is one crash crossing the threshold on one
+  day: 1/(crashes that day)/(days in window). On our windows that is
+  0.0102–0.0909 — up to nine points. Because 94%+ of segments are tied at
+  zero recent crashes, a floating-point difference invisible in the
+  predictions can reorder a tie group and move one crash across the cut.
+  Independent reruns of the same configuration and seed are therefore
+  usually bit-identical and occasionally differ by exactly one step: we
+  observed 0.0119 on a window whose step is 1/6/14 = 0.011905, twice, in
+  two different configurations
+  (`scripts/diagnose_metric_granularity.py`). **No AccHR@20 figure on a
+  sparse window should be quoted more precisely than its own step size.**
 
 ## 5. Reproducibility notes on the reference method
 
