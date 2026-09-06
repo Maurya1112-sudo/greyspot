@@ -59,7 +59,42 @@ measurably sparser than theirs (99.97% vs their reported 95.72–96.71%
 zero-inflation), a discrepancy we could not resolve after checking their
 TCR formula, segment consolidation and evaluation protocol.
 
-## 2. Data and method
+## 2. Related work
+
+**Deep learning for road-level crash prediction.** Gao et al. (2024)
+introduce STZITD-GNN, a GAT+GRU encoder with a zero-inflated Tweedie
+decoder, evaluated on three London boroughs with 2019 STATS19 data; it is
+the method we replicate. Nippani et al. (NeurIPS 2023) assemble the
+largest benchmark in this line — 9 million US crash records with road
+networks and traffic volume — and find GraphSAGE predicts monthly counts
+to within 22% MAE.
+
+**Both treat past crashes as the label, not as an input.** Nippani et
+al.'s features are graph-structural (degree, betweenness centrality),
+weather and traffic volume, and their leave-one-out ablation covers
+exactly those three categories: −6.9%, −2.3% and −1.2% respectively.
+Historical crash counts appear as edge *labels* to be predicted, split
+temporally, not as a feature the model reads. Gao et al. do include a
+Historical Average baseline, but their dataset covers a single year, so
+its horizon is bounded at one.
+
+**Traditional road safety has used multi-year history for decades.** The
+Highway Safety Manual's Empirical Bayes method shrinks an observed count
+toward a covariate-predicted mean, and is conventionally applied to three
+to five years of crash records precisely because shorter windows are too
+noisy at site level. That method is a standard baseline in the
+practitioner literature and an uncommon one in the deep-learning
+literature.
+
+**The gap this paper addresses** is therefore not a modelling one. Both
+communities know that past crashes predict future crashes; the deep
+learning line largely encodes that knowledge in the *label* while the
+safety-engineering line encodes it in a *multi-year feature*. §5.1 shows
+the choice is worth up to 61 points of AccHR@20 — more than any
+architectural difference we measured, and enough that a crash-count sort
+at a sufficient horizon outperforms both graph networks tested here.
+
+## 3. Data and method
 
 **Road network.** OS Open Roads (Ordnance Survey, Open Government
 Licence), clipped to each borough's administrative *polygon* by an
@@ -105,7 +140,7 @@ printing plausible output.
 **Metric.** AccHR@20 — for each day, the share of that day's crashes
 falling on the top 20% of predicted-risk segments, averaged over the
 window's days. This is the reference paper's Acc@20. Its granularity is
-bounded by target sparsity (§5).
+bounded by target sparsity (§6).
 
 **Statistics.** All model figures are means over 5 random seeds
 (42, 1, 7, 123, 2024). Comparisons are paired window-by-window and report
@@ -115,7 +150,7 @@ seed's shared bias cancels. Confidence intervals use the *t* distribution
 (n=5, t(4)=2.776), not the normal approximation, which would understate
 them by about 40%.
 
-## 3. The main result: replication is the exception
+## 4. The main result: replication is the exception
 
 | Finding | Effect (borough 1) | Second borough |
 |---|---|---|
@@ -165,7 +200,7 @@ upper bound — would have had the direction wrong, not just the magnitude.
 sub-noise single-borough result can be discarded without further runs,
 while a large one still has to be replicated before it can be believed.
 
-## 4. The model adds little over a trivial baseline
+## 5. The model adds little over a trivial baseline
 
 | Ranker | Lambeth | Westminster | Tower Hamlets | Mean |
 |---|---|---|---|---|
@@ -242,7 +277,7 @@ which we cannot reproduce for lack of per-window outputs. What it
 establishes is that the trivial baseline is not clearing a bar our model
 happens to fall under — neither graph network in this study clears it.
 
-### 4.1 The baseline's strength is almost entirely its horizon
+### 5.1 The baseline's strength is almost entirely its horizon
 
 This literature does *not* omit a historical baseline. Gao et al. report a
 Historical Average at Acc@20 = 0.4496 (mean of 0.4520 / 0.4752 / 0.4217),
@@ -318,7 +353,7 @@ We note that seed-averaging and paired testing made this result
 produce no *p*-value at all and recorded the matched-horizon gap with the
 sign reversed.
 
-## 5. Measurement properties practitioners should know
+## 6. Measurement properties practitioners should know
 
 - **Seed variance is large and its sign is borough-specific.** Spread
   3.2–4.7 points across 5 seeds. One seed was +1.69 optimistic on one
@@ -346,14 +381,14 @@ sign reversed.
   (`scripts/diagnose_metric_granularity.py`). **No AccHR@20 figure on a
   sparse window should be quoted more precisely than its own step size.**
 
-## 6. Reproducibility notes on the reference method
+## 7. Reproducibility notes on the reference method
 
 Gao et al.'s published learning rate (0.01) **diverges to NaN** on our
 data; their predecessor code's 1e-5 scores 24.74%. The optimum we found
 (5e-4) appears in neither source. We report their architecture at its own
 swept optimum throughout, not at settings where it fails.
 
-## 7. Limitations
+## 8. Limitations
 
 Three boroughs; six windows per borough (31–38 in the dense evaluation);
 one city; and a target-density discrepancy against the reference paper

@@ -7042,3 +7042,34 @@ Worth recording that the withdrawal was correct on the evidence available
 and the restoration does not undo it. A claim can be true and
 insufficiently evidenced at the same time; withdrawing it was right, and
 so is restoring it now that the evidence exists.
+
+## 2026-09-06 - Related work, verified against the sources rather than memory
+
+The related-work section rests on a claim worth checking rather than
+recalling: that the deep-learning line treats past crashes as a label and
+not as a multi-year input feature.
+
+**Nippani et al. (NeurIPS 2023)**, the largest benchmark in this line
+(9M US crash records), was read directly rather than summarised from
+memory. Confirmed from the paper: node features are graph-structural
+(in/out degree, betweenness centrality) plus weather, with traffic volume
+added by transfer learning; the leave-one-out ablation covers exactly
+those three categories (−6.9%, −2.3%, −1.2%). Crashes appear as edge
+**labels**, split temporally — "given historical accident records as edge
+labels" — not as a feature the model reads.
+
+**Gao et al. (2024)** do include a Historical Average baseline, but their
+dataset is 2019 only, so its horizon is bounded at one year.
+
+That makes the framing precise and defensible: the contribution is not
+"they forgot a baseline". Both communities know past crashes predict
+future crashes. The deep-learning line encodes that in the *label*; the
+safety-engineering line (HSM Empirical Bayes, conventionally 3–5 years)
+encodes it in a *multi-year feature*. Our horizon curve shows the choice
+is worth up to 61 points of AccHR@20 — larger than any architectural
+difference measured here.
+
+Checking this mattered: an earlier draft of the abstract had recommended a
+crash-count baseline "as a routine reporting requirement", which would
+have implied none exists. Gao et al.'s HA baseline makes that false, and
+it is the kind of error a reviewer finds immediately.
