@@ -7533,3 +7533,54 @@ produced.
 is no toolchain on this machine, so the 36 checks cover only what is
 detectable statically. That is stated in the package README rather than
 left implicit.
+
+## 2026-09-06 - Horizon finding tested on independent US data: PARTIAL replication
+
+The horizon curve is the paper's most novel claim and rested on three
+London boroughs and ~10,000 crashes — the narrowest evidence base in the
+paper, and exactly the weakness it criticises in others. Tested against
+the ML4RoadSafety benchmark of Nippani et al. (Harvard Dataverse
+doi:10.7910/DVN/V71K5R), using Delaware: **458,282 crashes over 36,466
+edges and 166 months (2009–2022)** on a 109,107-edge network — roughly 45x
+the crash volume and 1.5x the history depth of the London data.
+
+**At the paper's own top-20% cut the finding does NOT replicate:** the
+curve spans only 5.3 points (87.75% at 1 month to 93.04% at 10 years)
+against London's 61.2. The Delaware task is nearly saturated at the
+shortest lookback, so there is almost no headroom for horizon to matter.
+
+**With headroom, it does replicate directionally:**
+
+| top-% cut | 1 month | 10 years | range |
+|---|---|---|---|
+| 20% | 87.75 | 93.04 | 5.3 |
+| **5%** | 46.18 | 64.57 | **18.4** |
+| 1% | 16.16 | 30.10 | 14.5 |
+| 0.2% | 8.78 | 12.48 | 3.8 |
+
+So the qualitative claim holds — lookback horizon substantially determines
+a crash-count ranker's accuracy, independent of any model — but the
+magnitude is regime-dependent and much smaller here than in London.
+
+**The reason for the magnitude gap is NOT established.** I proposed that
+Delaware's short-lookback baseline starts high because it is less
+tie-saturated, then measured it: Delaware at 1 month leaves **97.6%** of
+edges tied at zero against London's 94.2% at 30 days. It is *more*
+saturated, so that explanation is wrong. Candidate factors not yet
+separated: monthly versus 14-day evaluation periods, crash recurrence
+rates, network density, and US-versus-UK reporting thresholds. Recording
+this as unresolved rather than offering a third mechanism, having already
+been wrong twice today by reasoning from plausibility before measuring
+(R6).
+
+**Consequence for the paper.** The horizon claim must be restated. It is
+supportable as *"lookback horizon is a first-order determinant of a
+crash-count baseline's accuracy, worth 18–61 points depending on
+evaluation regime"* — not as a single 61-point figure. That is a weaker
+headline than the London-only version and a considerably more defensible
+one, and it survives the obvious reviewer question of whether the effect
+is an artefact of one city.
+
+The argument about Gao et al.'s single-year dataset is unaffected: their
+baseline is bounded at a one-year horizon regardless of the magnitude the
+horizon effect takes in their regime.
