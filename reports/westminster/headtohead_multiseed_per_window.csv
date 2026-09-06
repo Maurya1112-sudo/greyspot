@@ -12,11 +12,11 @@ candidate,seed,borough,arm,held_out_start,AccHR,n_train_instances,run_fingerprin
 1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.7221611721611721,10,155f7a10b6529731
 1,1,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.5897435897435899,11,155f7a10b6529731
 7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.5437074829931973,6,76952547d7a93628
-7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.39370748299319736,7,76952547d7a93628
+7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.3937074829931973,7,76952547d7a93628
 7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.5075757575757576,8,76952547d7a93628
 7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-04-10,0.3794871794871794,9,76952547d7a93628
-7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.45860805860805864,10,76952547d7a93628
-7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.27179487179487183,11,76952547d7a93628
+7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-07-09,0.4586080586080586,10,76952547d7a93628
+7,7,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-10-07,0.2717948717948718,11,76952547d7a93628
 123,123,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-07-15,0.6836734693877551,6,b16c1712ca5501d7
 123,123,Westminster,"Gao et al. architecture, LONG history (the key test)",2023-10-13,0.6505102040816327,7,b16c1712ca5501d7
 123,123,Westminster,"Gao et al. architecture, LONG history (the key test)",2024-01-11,0.7939393939393938,8,b16c1712ca5501d7

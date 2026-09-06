@@ -7425,3 +7425,34 @@ against it unreliable.
 
 Two boroughs remain. The 18/18 sort claim is unaffected so far: the sort
 scores 83.20 on Lambeth against a theirs-LONG maximum of 79.13.
+
+## 2026-09-06 - The reference architecture is 4-15x more seed-variable than ours
+
+Two of three boroughs complete on the multi-seeded reference arm.
+
+| borough | theirs-LONG per seed | mean ± sd | ours ± sd |
+|---|---|---|---|
+| Lambeth | .722 .620 .609 .668 .791 | 0.682 ± **0.076** | 0.778 ± 0.017 |
+| Westminster | .719 .426 .712 .670 .782 | 0.662 ± **0.138** | 0.797 ± 0.009 |
+
+The reference arm's seed spread is **4.5x** ours on Lambeth and **15.5x**
+on Westminster. Westminster seed 7 collapses to 0.426 - barely twice
+random - which is the depth-2 divergence this project's own architecture
+ablation already recorded there ("2 of 6 windows below random"). Their
+config uses `gat_layers=2`; the instability shows up across windows in the
+ablation and across seeds here.
+
+**"Our architecture beats theirs" survives on both boroughs**, paired on
+seed and window: +9.55 (p=0.000006, 25/30 windows) on Lambeth and +13.57
+(p=0.000016, 27/30) on Westminster.
+
+**But the per-borough magnitudes were unreliable in BOTH directions.**
+Single-seed said +18.53 on Lambeth (true 5-seed value +9.55, so
+overstated) and +8.01 on Westminster (true +13.57, so understated). Seed
+42 was not systematically flattering - it flattered one borough and
+penalised the other, exactly matching the borough-specific seed bias
+recorded in V11 (+1.69 / −1.11 / +1.30).
+
+That is a more useful correction than "the claim was inflated". The
+direction was right and the effect is real; the *numbers* attached to it
+were noise-dominated, and no single-seed run could have told us which way.
