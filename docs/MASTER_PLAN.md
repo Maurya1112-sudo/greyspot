@@ -179,12 +179,22 @@ plausible but still need one replication each before publication.
 
 **CANNOT**:
 - **"Effect size predicts replication."** It predicts NON-replication only:
-  below the ~4-point seed-noise band 0 of 3 replicated, above it just 4 of 6.
+  below the ~4-point seed-noise band 0 of 4 replicated, above it just 4 of 6.
   Two supra-noise MAIN effects failed — road class (−6.87, sign reversed)
   and rank-transform scaling (+5.80 → −39.7). Corrected 2026-09-05 after
   checking it mechanically (`scripts/check_effect_size_heuristic.py`); the
   abstract, README and final_model.md had all asserted the stronger,
   false version. A large single-borough effect still requires replication.
+- **"The model cannot exploit history beyond 5 years."** WITHDRAWN
+  2026-09-05: Lambeth −0.72 (p=0.74) but Westminster **+2.98 (p=0.023,
+  5/6 windows)** — the sign flips. Both sit inside the noise band, so
+  neither borough settles it. The defensible version is comparative: the
+  trivial sort gains MORE from the same extra history than the model does,
+  on both boroughs measured.
+- **"The architectural advantage is substitutable for history."**
+  WITHDRAWN 2026-09-05: the gap collapses on Westminster (−15.33) but
+  WIDENS on Tower Hamlets (+5.93). The separate claim that our
+  architecture beats theirs is unaffected and holds on all three.
 - "Beats them on every borough" — Lambeth is a tie
 - "Our architecture is better than theirs" — only that these choices matter *in this pipeline*; their published model on their data scores 76.59%
 - Anything from an invalidated run (§3 rows marked ✗)
@@ -196,34 +206,43 @@ plausible but still need one replication each before publication.
 
 Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
 
-### Live state — 2026-09-05 15:05 (post-restart)
+### Live state — 2026-09-06 12:30
 
-**Running now** (both visible as Monitors):
-- S1 resume: City of London training (Camden ☑ 84.66, K&C ☑ 74.54 already done)
-- Chained retry: Wandsworth + Brent, starts automatically when S1 exits
-  (waits rather than running concurrently — R5)
+**Running now:** Wandsworth, with the new tiled POI fallback (Monitor attached).
 
-**Done since the restart:**
-- R14 codified as a real guard (`greyspot.ingest.poi`) and wired into 50
-  scripts. One true positive (Wandsworth, 3rd Overpass failure) and one
-  false positive (Brent — my floor was calibrated on inner-London boroughs
-  only) on day one. Both documented.
-- **S2b**: the trivial-baseline comparison redone seed-averaged and paired.
-  Sign error corrected; conclusion unchanged and now significance-tested.
-  Propagated to README, final_model.md and the preprint.
-- Walk-forward evaluation made resumable (per-window checkpointing).
+**Settled since yesterday — three claims withdrawn, none by choice:**
+
+| Claim | Was | Now |
+|---|---|---|
+| 13 features ≈ 35 | downgraded | **FAILS** — sign flips (+0.77 on TH) |
+| Architecture × history substitution | needed a 3rd borough | **FAILS** — sign reverses; needed NO GPU, the data was already on disk |
+| Model can't use >5yr history | null on Lambeth | **WITHDRAWN** — Westminster +2.98 (p=0.023) |
+| Effect size predicts replication | asserted both ways | **one-directional only** — 0/4 below band replicated, 4/6 above |
+
+Scoreboard: **3 of 10 replicated, 7 failed, 0 unresolved.** Four of the
+seven failed by SIGN REVERSAL rather than shrinkage toward zero — that is
+the characteristic failure mode at this evaluation scale and is a more
+useful finding than "small effects are noisy".
+
+**Infrastructure added:** per-window checkpointing (runs survive shutdown);
+POI download guards with a calibrated density floor plus tiled fallback;
+`verify_preprint_claims.py` (16 mechanical checks, all passing).
 
 **Queue, highest value first:**
-1. **C2 third borough** (Tower Hamlets) — the "13 ≈ 35 features" claim is
-   DOWNGRADED pending it. GPU.
-2. **C6 substitution effect on Tower Hamlets** — currently rests on
-   Westminster alone, and it is in the preprint. GPU.
-3. **S5 deep-history null, second borough** — a single-borough null is
-   exactly what this project has repeatedly seen fail to replicate. GPU.
-4. **S3 dense eval** — resume from the 21 saved windows via
+1. **Multi-seed S5 on both boroughs.** Its ±3-point effects are inside the
+   noise band at a single seed, so neither borough's figure is
+   interpretable. This is the only way to settle whether the model can use
+   deep history at all. GPU, ~2h.
+2. **Wandsworth** — running; completes the 5-borough generalisation.
+3. **S3 dense eval** — resume via
    `--seed-from=reports/westminster/s3_dense_partial_recovered.csv`.
-   Lowest value: it narrows a CI on an established number and tests no
-   claim. Do it last, or not at all.
+   Still lowest value: narrows a CI on an established number, tests no
+   claim.
+
+**Not worth doing:** more single-seed single-borough experiments. Today
+produced four withdrawals and every one came from adding a borough or a
+seed to something already "established". The binding constraint on this
+project is evidence per claim, not number of claims.
 
 ---
 
