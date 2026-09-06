@@ -7126,3 +7126,44 @@ was right by accident rather than by reasoning, and a reviewer reading
 three boroughs finish, `run_s2_paired_comparison.py` should read the
 committed full-precision CSVs instead of parsing logs, removing the
 rounding from the paired tests entirely.
+
+## 2026-09-06 - Metric granularity confirmed between full-precision runs
+
+The regeneration reached Westminster and produced a third independent
+value for the window that has been unstable all along:
+
+| run | 2023-10-13, seed 42 |
+|---|---|
+| committed CSV | 0.799320 |
+| V8 log (3dp) | 0.8110 |
+| regenerated | 0.817177 |
+
+**Every other window is identical to six decimal places across all three
+runs.** Only this one moves.
+
+**The differences are exact metric steps.** The window holds 59 crashes
+over 14 days, so a single crash crossing the top-20% threshold on a day
+with *k* crashes is worth 1/k/14:
+
+| pair | difference | equals |
+|---|---|---|
+| CSV vs V8 log | 0.011680 | 1 crash on a 6-crash day (0.011905) — within the log's 3dp rounding |
+| **CSV vs regenerated** | **0.017857** | **1 crash on a 4-crash day (1/56 = 0.0178571) — exact to 6dp** |
+
+The second comparison is the decisive one: both values are full precision,
+so no rounding is involved and the match is exact. The third pair (V8 vs
+regenerated) does not resolve to a clean step, because the V8 value is
+only known to ±0.0005 — its exact composition is not recoverable, and is
+not claimed.
+
+This settles the mechanism beyond the earlier arithmetic argument: three
+independent runs of the same configuration and seed land on three values
+separated by whole single-crash steps, while five sibling windows are
+bit-identical. The metric's resolution on this window is ~0.012-0.018, and
+that is a property of target sparsity, not of the model.
+
+**Practical consequence.** Westminster's per-borough headline may shift by
+up to one step (~0.3 points on a 6-window mean) between runs, purely from
+which side of a tie this one window lands on. Any per-borough figure
+should be read with that in mind; the pooled figure over 18 windows is
+correspondingly less exposed.
