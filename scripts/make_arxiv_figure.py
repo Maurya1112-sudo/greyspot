@@ -40,11 +40,14 @@ TICKS = [(30, "30d"), (90, "90d"), (365, "1yr"), (730, "2yr"),
 def main() -> None:
     df = pd.read_csv(ROOT / "reports" / "baseline_horizon_curve.csv")
     o: list[str] = []
-    o.append("\\begin{figure}[t]")
+    # figure* spans both columns: IEEEtran is two-column, and this plot
+    # carries labelled reference lines that become unreadable at column
+    # width.
+    o.append("\\begin{figure*}[t]")
     o.append("\\centering")
     o.append("\\begin{tikzpicture}")
     o.append("\\begin{axis}[")
-    o.append("  width=\\linewidth, height=6.4cm,")
+    o.append("  width=0.86\\textwidth, height=6.6cm,")
     o.append("  xmode=log, log basis x=10,")
     o.append("  xlabel={Lookback horizon of the crash-count sort (log scale)},")
     o.append("  ylabel={AccHR@20 (\\%)},")
@@ -86,7 +89,7 @@ def main() -> None:
     o.append("reference paper's published figures on theirs, so their vertical position")
     o.append("is indicative rather than a controlled comparison.}")
     o.append("\\label{fig:horizon}")
-    o.append("\\end{figure}")
+    o.append("\\end{figure*}")
 
     out = ROOT / "paper" / "arxiv" / "fig_horizon.tex"
     out.parent.mkdir(parents=True, exist_ok=True)

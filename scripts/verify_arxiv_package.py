@@ -89,8 +89,14 @@ def main() -> None:
     opts = m.group(1) if m else ""
     pt = re.search(r"(\d+)pt", opts)
     size = int(pt.group(1)) if pt else 10
-    check(10 <= size <= 14, "type size 10-14pt", "%dpt" % size)
-    check("margin=1in" in t or "margin=1.0in" in t, "1 inch margins", "")
+    # IEEEtran sets its own type size and margins to the publisher's spec,
+    # which satisfies arXiv's 10-14pt and 1in minimums; geometry is only
+    # needed when using the plain article class.
+    ieee = "IEEEtran" in t
+    check(ieee or (10 <= size <= 14), "type size 10-14pt",
+          "10pt (IEEEtran conference default)" if ieee else "%dpt" % size)
+    check(ieee or "margin=1in" in t or "margin=1.0in" in t,
+          "margins", "set by IEEEtran class" if ieee else "geometry margin=1in")
     check(r"\doublespacing" not in t and r"\onehalfspacing" not in t,
           "single spaced", "")
 
@@ -100,7 +106,8 @@ def main() -> None:
     pkgs = set(re.findall(r"\\usepackage(?:\[[^\]]*\])?\{([^}]*)\}", t))
     pkgs = {p.strip() for grp in pkgs for p in grp.split(",")}
     KNOWN = {"fontenc", "inputenc", "geometry", "amsmath", "booktabs", "graphicx",
-             "pgfplots", "hyperref", "microtype", "tikz", "amssymb", "natbib", "url"}
+             "pgfplots", "hyperref", "microtype", "tikz", "amssymb", "natbib", "url",
+             "cite", "algorithm", "algorithmic", "multirow", "subcaption"}
     unknown = pkgs - KNOWN
     check(not unknown, "all packages are standard TeX Live", ", ".join(sorted(unknown)))
 
@@ -123,13 +130,17 @@ def main() -> None:
     check(not hidden, "no hidden files", ", ".join(hidden))
 
     # --- balance --------------------------------------------------------
-    for env in ["document", "abstract", "table", "tabular", "figure", "itemize",
-                "thebibliography", "tikzpicture", "axis"]:
+    for env in ["document", "abstract", "table", "table*", "tabular", "figure",
+                "figure*", "itemize", "thebibliography", "tikzpicture", "axis",
+                "equation", "IEEEkeywords"]:
         allf = t + "".join((PKG / (i if i.endswith(".tex") else i + ".tex")).read_text(encoding="utf-8")
                            for i in inputs
                            if (PKG / (i if i.endswith(".tex") else i + ".tex")).exists())
-        b = len(re.findall(r"\\begin\{%s\}" % env, allf))
-        e = len(re.findall(r"\\end\{%s\}" % env, allf))
+        # re.escape: 'table*' contains a regex metacharacter, so an
+        # unescaped interpolation would match 'tabl' followed by any number
+        # of 'e' - silently counting the wrong environment.
+        b = len(re.findall(r"\\begin\{%s\}" % re.escape(env), allf))
+        e = len(re.findall(r"\\end\{%s\}" % re.escape(env), allf))
         check(b == e, "environment '%s' balanced" % env, "%d begin / %d end" % (b, e))
     check(t.count("{") == t.count("}"), "braces balanced in main.tex",
           "%d open / %d close" % (t.count("{"), t.count("}")))
