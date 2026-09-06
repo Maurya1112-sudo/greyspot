@@ -6572,3 +6572,41 @@ are now sample SD, with the convention stated in the document.
 No significance test is affected: `scipy.stats.ttest_rel` and `wilcoxon`
 compute their own variance correctly, so every p-value in the project
 stands.
+
+## 2026-09-06 - Wandsworth completes; the POI guard is validated on real data
+
+Wandsworth's `amenity` category downloaded successfully on the fifth
+attempt (9,732 POIs). The tiled fallback was not needed - Overpass was
+simply healthier - but it remains in place, since the failure recurred on
+four separate occasions across two days and will recur again.
+
+**The density check on the complete download validates the guard
+decisively:**
+
+| Wandsworth POI adjacencies | value | density |
+|---|---|---|
+| Truncated (cached 2026-09-05, quarantined) | 1,637 | 23.6/km² |
+| Complete (2026-09-06) | 6,816 | 98.2/km² |
+
+The cached file held **24% of the real data** while looking entirely
+plausible - a small borough with modest POI coverage. Had it been used,
+Wandsworth would have entered the generalisation study computed on a
+quarter of its POI features, with nothing in the output to indicate it.
+
+**The full density gradient now makes sense as geography**, which is the
+best evidence the measure is meaningful rather than arbitrary:
+
+| borough | adj/km² | character |
+|---|---|---|
+| Westminster | 357.5 | inner, commercial core |
+| Tower Hamlets | 280.9 | inner |
+| Kensington & Chelsea | 232.1 | inner |
+| Camden | 227.6 | inner |
+| Lambeth | 151.7 | inner |
+| Wandsworth | 98.2 | inner, largely residential |
+| Brent | 62.3 | **outer** |
+
+The floor of 40 clears every complete download by at least 1.6x and
+rejects the one known truncation by 1.7x. Wandsworth now appears on both
+sides of the calibration, which is why it is the most useful single data
+point in it.

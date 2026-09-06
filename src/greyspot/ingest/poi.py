@@ -57,37 +57,38 @@ POI_COUNT_COLUMNS = [f"poi_{category}_count" for category in POI_TAG_CATEGORIES]
 _OVERPASS_TIMEOUT_S = 300  # generous, though the bbox queries this module actually uses complete in well under a minute
 
 # Minimum plausible POI-adjacency density (sum of per-segment POI counts
-# per km2 of borough bbox). CALIBRATED, not guessed:
+# per km2 of borough bbox). CALIBRATED on every borough measured:
 #
-#   COMPLETE downloads          | TRUNCATED download
-#   Westminster           357.5 | Wandsworth (amenity dropped)  23.6
-#   Tower Hamlets         280.9 |
-#   Kensington & Chelsea  232.1 |
-#   Camden                227.6 |
-#   Lambeth               151.7 |
-#   Brent (OUTER London)   62.3 |
+#   COMPLETE downloads                   | TRUNCATED
+#   Westminster            357.5  inner  | Wandsworth, 2026-09-05    23.6
+#   Tower Hamlets          280.9  inner  |   (amenity category lost)
+#   Kensington & Chelsea   232.1  inner  |
+#   Camden                 227.6  inner  |
+#   Lambeth                151.7  inner  |
+#   Wandsworth              98.2  inner  |
+#   Brent                   62.3  OUTER  |
 #
-# **Brent is why this is 40 and not 75.** The first version of this guard
-# used 75, calibrated on the five verified boroughs - every one of them
-# INNER London. It then refused Brent at 62.3/km2. That refusal was a false
-# positive: two independent downloads of Brent returned byte-identical
-# results (9,905 raw POIs, identical per-category counts), and a truncated
-# Overpass response cannot be reproducible, because the cut falls in a
-# different place each time. Outer London is genuinely less POI-dense than
-# inner London, and a floor calibrated on inner boroughs does not transfer.
-# See scripts/check_poi_density_calibration.py, which performs that test.
+# **Wandsworth appears on both sides, which is the strongest evidence for
+# this guard.** Its truncated download measured 23.6/km2; the complete one
+# on 2026-09-06 measured 98.2 - so the cached file held **24% of the real
+# data** while looking entirely plausible. Without this check that borough's
+# results would have been computed on a quarter of its POI features and
+# reported as a normal data point.
 #
-# 40 sits 1.7x above the known-truncated download and 1.6x below the
-# lowest verified one. That is a thinner margin than the original, and it
-# is deliberate: this check is only the BACKSTOP. The primary guard is the
-# per-category failure check, which catches the dominant real failure mode
-# directly (a dropped category) rather than inferring it from volume - it
-# is what actually caught Wandsworth on both occasions. This floor exists
-# for the residual case where every category returns but each is truncated.
+# **Brent is why the floor is 40 and not 75.** The first version used 75,
+# calibrated on the five INNER London boroughs, and refused Brent at 62.3.
+# That was a false positive: two independent Brent downloads returned
+# byte-identical results, which a truncated response cannot do (the cut
+# lands elsewhere each time). Outer London is genuinely less POI-dense.
+# See scripts/check_poi_density_calibration.py, which settles such cases by
+# reproducibility rather than assumption.
 #
-# A borough measuring below this should be run through
-# check_poi_density_calibration.py before being either trusted or
-# discarded, rather than assumed one way.
+# 40 clears every complete download by at least 1.6x and rejects the one
+# known truncation by 1.7x. The margin is deliberately modest because this
+# is only the BACKSTOP: the primary guard is the per-category failure
+# check, which detects the dominant failure mode (a dropped category)
+# directly rather than inferring it from volume, and which is what actually
+# caught Wandsworth on all four occasions.
 _MIN_POI_ADJACENCY_PER_KM2 = 40.0
 
 
