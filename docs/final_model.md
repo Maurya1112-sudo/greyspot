@@ -1,6 +1,14 @@
 # The Greyspot final model — definitive specification
 
-**Status as of 2026-09-06.** This is the canonical reference for the
+**Status as of 2026-09-06.**
+
+> **Horizon claim scope, added 2026-09-06.** The 61-point horizon range
+> reported here and in the paper is measured on London data at a top-20%
+> selection threshold. Tested on the ML4RoadSafety US benchmark it gives
+> only 5.3 points at that threshold (the task saturates at 87.75% by a
+> one-month lookback) and 18.4 points where headroom remains. The
+> direction replicates; the magnitude does not transfer, and the reason is
+> unresolved. Quote the range as regime-dependent, not as 61 points. This is the canonical reference for the
 best-performing configuration produced by this project. Every number
 here comes from a run recorded in `reports/<borough>/`, and every
 design choice is traceable to a dated entry in `docs/decision_log.md`.

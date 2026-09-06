@@ -145,6 +145,33 @@ def main() -> None:
     check(t.count("{") == t.count("}"), "braces balanced in main.tex",
           "%d open / %d close" % (t.count("{"), t.count("}")))
 
+    # --- labels and references resolve ---------------------------------
+    # A \ref to a missing \label compiles to a bare "??" in the PDF - which
+    # is easy to miss on a quick read and looks unmistakably broken to a
+    # reviewer. Section numbers also shift whenever a section is inserted,
+    # so this is checked rather than assumed.
+    body = t + "".join(
+        (PKG / (i if i.endswith(".tex") else i + ".tex")).read_text(encoding="utf-8")
+        for i in inputs
+        if (PKG / (i if i.endswith(".tex") else i + ".tex")).exists())
+    labels = set(re.findall(r"\\label\{([^}]+)\}", body))
+    refs = set(re.findall(r"\\(?:page)?ref\{([^}]+)\}", body))
+    dangling = sorted(refs - labels)
+    check(not dangling, "all \\ref targets exist",
+          "%d label(s), %d ref(s); %s" % (len(labels), len(refs),
+                                          "all resolve" if not dangling
+                                          else "DANGLING: " + ", ".join(dangling)))
+    cites = set(re.findall(r"\\cite\{([^}]+)\}", body))
+    cites = {c.strip() for grp in cites for c in grp.split(",")}
+    bibitems = set(re.findall(r"\\bibitem\{([^}]+)\}", body))
+    missing_cites = sorted(cites - bibitems)
+    check(not missing_cites, "all \\cite keys have a \\bibitem",
+          "%d cited, %d defined; %s" % (len(cites), len(bibitems),
+                                        "all present" if not missing_cites
+                                        else "MISSING: " + ", ".join(missing_cites)))
+    unused = sorted(bibitems - cites)
+    check(not unused, "no uncited bibliography entries", ", ".join(unused) or "none")
+
     # --- report ---------------------------------------------------------
     print("=" * 76)
     print("ARXIV PACKAGE CHECK  (static only - NOT a compile test)")

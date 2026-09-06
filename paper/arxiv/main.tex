@@ -392,6 +392,60 @@ The curve plateaus after approximately seven years, which corrects an
 earlier reading of our own data: measured only to three years, it appears
 to be climbing without plateau.
 
+\subsection{Replication on an independent benchmark}
+\label{sec:usrep}
+
+The horizon result above rests on three boroughs of one city and
+approximately $10^{4}$ crashes, which is the narrowest evidence base in
+this paper. We therefore repeated the sweep on the ML4RoadSafety
+benchmark~\cite{nippani2023}, using its Delaware subset: 458,282 crashes
+over 36,466 edges and 166 months (2009--2022) on a network of 109,107
+undirected edges, approximately 45 times the crash volume of the London
+data. That benchmark records monthly rather than daily counts, so the
+sweep is over months and the metric averages over evaluation months; the
+quantity measured is otherwise unchanged.
+
+\begin{table}[t]
+\caption{Horizon sweep on the Delaware subset of ML4RoadSafety at four
+selection thresholds. The dependence appears only where the task retains
+headroom.}
+\label{tab:usrep}
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Threshold & 1 month & 10 years & Range \\
+\midrule
+Top 20\% & 87.75 & 93.04 & 5.3 \\
+Top 5\% & 46.18 & 64.57 & \textbf{18.4} \\
+Top 1\% & 16.16 & 30.10 & 14.5 \\
+Top 0.2\% & 8.78 & 12.48 & 3.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At the top-20\% threshold used throughout this paper the dependence is
+only 5.3 points (Table~\ref{tab:usrep}), because a one-month lookback
+already achieves 87.75\% and the task is close to saturated. At more
+selective thresholds, where headroom remains, the dependence returns: 18.4
+points at top-5\% and 14.5 at top-1\%.
+
+The qualitative claim therefore replicates --- lookback horizon is a
+first-order determinant of a crash-count ranker's accuracy, independent of
+any model --- but its magnitude is regime-dependent, and the 61-point
+figure obtained on London should not be read as general. We were unable to
+establish the source of the magnitude difference. The most obvious
+candidate, that the Delaware baseline starts high because a one-month
+count leaves fewer segments tied at zero, is contradicted by measurement:
+Delaware at one month leaves 97.6\% of edges tied against London's 94.2\%
+at 30 days. Monthly versus fortnightly evaluation periods, crash
+recurrence rates, network density and differing reporting thresholds
+remain unseparated.
+
+This does not affect the argument regarding single-year datasets. A
+baseline computed on one year of data is bounded at a one-year horizon
+whatever magnitude the horizon effect takes in that regime.
+
 \section{Measurement Properties}
 \label{sec:measure}
 

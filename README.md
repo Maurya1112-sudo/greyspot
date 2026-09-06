@@ -112,6 +112,19 @@ That mapping is suggestive rather than controlled — two of those figures
 are on their data, not ours — but the implication is cheap to check and we
 found no paper in this line that reports it.
 
+**Tested on independent US data, and it only partly held.** The same sweep
+on the ML4RoadSafety benchmark (Delaware: 458,282 crashes, 36,466 edges,
+166 months — roughly 45× the London crash volume) gives only **5.3 points**
+at this 20% threshold, because a one-month lookback there already scores
+87.75% and the task is saturated. At thresholds with headroom the
+dependence returns: **18.4 points at top-5%**, 14.5 at top-1%.
+
+So the direction replicates but the 61-point magnitude is London-specific,
+and the reason for the gap is **not established** — the obvious candidate
+(that Delaware is less tie-saturated) is refuted by measurement, since
+Delaware at one month leaves 97.6% of edges tied against London's 94.2% at
+30 days. See `scripts/run_horizon_us_replication.py`.
+
 ## What was actually learned
 
 **Topology is decisive; capacity is inert.** Changing message-passing

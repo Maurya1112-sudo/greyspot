@@ -135,6 +135,45 @@ same order as the improvement obtainable by *lengthening that baseline's
 horizon by a year or two*, on data freely available to both. I found no
 paper in this line that reports such a comparison.
 
+### 3.4b I then tested this on independent US data, and it only partly held
+
+This is the single best anecdote in the project for a research-oriented
+SOP, because it is a case of testing my own strongest claim and finding it
+weaker than advertised.
+
+The horizon result rested on three London boroughs and ~10,000 crashes —
+the narrowest evidence base in the paper, and exactly the weakness the
+rest of the paper criticises in others. So I ran the identical sweep on
+the ML4RoadSafety benchmark (Nippani et al., NeurIPS 2023), Delaware
+subset: **458,282 crashes over 36,466 edges and 166 months** — roughly 45
+times the crash volume.
+
+| Selection threshold | 1 month | 10 years | Range |
+|---|---|---|---|
+| Top 20% (the paper's own cut) | 87.75% | 93.04% | **5.3 pts** |
+| Top 5% | 46.18% | 64.57% | **18.4 pts** |
+| Top 1% | 16.16% | 30.10% | 14.5 pts |
+
+**At my own headline threshold it did not replicate.** A one-month
+lookback already scores 87.75%, so the task is saturated and horizon has
+nowhere to move it. With headroom the dependence returns, but at 18 points
+rather than 61.
+
+So the claim survives qualitatively — horizon is a first-order determinant
+of a crash-count ranker's accuracy — but "61 points" is a London-regime
+number, not a general one. I restated it in the paper as regime-dependent
+(18–61 points), which is a weaker headline and a considerably more
+defensible one: it now survives the obvious question of whether the effect
+is one city's artefact, which the London-only version could not.
+
+**And I could not explain the gap.** My first hypothesis was that
+Delaware's short-lookback baseline starts high because fewer segments are
+tied at zero. I measured it: Delaware at one month leaves **97.6%** of
+edges tied against London's 94.2% at 30 days — it is *more* saturated, so
+the explanation is wrong. I recorded the mechanism as unresolved rather
+than proposing a third story, having already been wrong twice that day by
+reasoning from plausibility before measuring.
+
 ### 3.5 Measurement findings
 
 - **Training is not deterministic at a fixed seed.** Re-training one
@@ -316,6 +355,10 @@ Draw from these; do not invent variants.
 - "The same ranker spans 23% to 84% accuracy depending only on how far
   back it looks, which is more than any architectural difference I
   measured."
+- "I tested my own strongest finding on an independent benchmark of 458,000
+  US crashes. It replicated directionally but at a third of the magnitude,
+  so I restated the claim rather than reporting the number that flattered
+  it."
 - "I found that training was not deterministic at a fixed seed, and
   quantified what that means for how precisely any result can be quoted."
 - "I wrote a verifier to catch inconsistencies in my own work, then proved
@@ -348,7 +391,11 @@ An interviewer or admissions reader may raise these; the paper states them
 rather than hiding them.
 
 - **Scale.** Three boroughs for the benchmark comparison, seven for
-  generalisation, one city, six held-out windows per borough.
+  generalisation, one city, six held-out windows per borough. The horizon
+  finding is additionally tested on one US state.
+- **The horizon magnitude is regime-dependent** and the reason is not
+  established. The 61-point London figure does not transfer; the
+  independent replication gives 18 points where the task has headroom.
 - **No paired test against the reference work** is possible, because they
   publish point estimates rather than per-window results.
 - **The horizon mapping is indicative, not controlled** — two of the
