@@ -117,7 +117,7 @@ and nine IMD-2019 socio-demographic columns. The long horizons are
 computed from the sparse collision list via a cumulative-sum matrix
 rather than by rolling over the segment-day table, which would need ~30M
 additional rows; this makes horizon length essentially free and is what
-allowed the horizon sweep in §4.1. Features are z-scored with statistics
+allowed the horizon sweep in §5.1. Features are z-scored with statistics
 fitted on training instances only.
 
 **Model.** A GAT layer per timestep feeds a GRU over the resulting

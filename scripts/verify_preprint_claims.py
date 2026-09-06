@@ -179,6 +179,21 @@ def main() -> None:
     check(rep + fail + unres == total, "counts sum to table size",
           "%d + %d + %d vs %d rows" % (rep, fail, unres, total))
 
+    # --- 6. internal cross-references resolve --------------------------
+    # Section numbers shifted twice on 2026-09-06 (inserting Methods, then
+    # Related work). Each insertion renumbered every later heading, and a
+    # stale reference points confidently at the wrong section without any
+    # visible breakage - the reader simply follows it to the wrong place.
+    # The trailing dot after a heading number is optional ("### 5.1 The
+    # baseline's ..."), so it must not be required when parsing.
+    heads = {m.group(1) for m in re.finditer(r"^#{2,3}\s*(\d+(?:\.\d+)?)\.?\s+\S", text, re.M)}
+    refs = set(re.findall(r"§(\d+(?:\.\d+)?)", text))
+    dangling = sorted(refs - heads)
+    check(not dangling, "cross-references resolve",
+          "%d reference(s), %s" % (len(refs),
+                                   "all resolve" if not dangling
+                                   else "DANGLING: " + ", ".join("§" + d for d in dangling)))
+
     # --- report --------------------------------------------------------
     print("=" * 76)
     print("PREPRINT CLAIM VERIFICATION")

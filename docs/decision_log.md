@@ -7073,3 +7073,23 @@ Checking this mattered: an earlier draft of the abstract had recommended a
 crash-count baseline "as a routine reporting requirement", which would
 have implied none exists. Gao et al.'s HA baseline makes that false, and
 it is the kind of error a reviewer finds immediately.
+
+## 2026-09-06 - A dangling cross-reference, and the check that now catches it
+
+Adding the Methods and Related-work sections renumbered every later
+heading, twice. A reference written as §4.1 before the second insertion
+now points at §5.1's content under a number that resolves to a different
+section — and the failure is invisible: nothing breaks, the reader simply
+follows it to the wrong place.
+
+One had gone stale (§4.1 → §5.1), found by parsing headings and
+references and diffing the two sets. `verify_preprint_claims.py` now does
+that as check 17, negative-controlled by breaking a reference (it fails
+correctly, and passes once restored).
+
+One parser detail worth recording, because it produced a false alarm on
+the first attempt: a heading number may or may not be followed by a dot
+("## 4. The main result" but "### 5.1 The baseline's strength"). Requiring
+the dot split "5.1" into section "5" with title "1 The baseline's ...",
+so §5.1 appeared not to exist while §5 appeared to be the horizon
+subsection. The dot has to be optional.
