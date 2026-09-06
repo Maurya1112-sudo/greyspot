@@ -6296,7 +6296,7 @@ file - confirming the log-parsed per-window data describes the same runs.
 **One same-seed discrepancy found, investigated, and reported.** The
 seed-42 cross-check against the committed per-window CSV flagged Westminster
 2023-10-13: log 0.8110 vs CSV 0.7993 (+0.0117), with the other five windows
-agreeing to 4 decimal places. A configuration difference would move every
+agreeing to within the log's 3-decimal precision. A configuration difference would move every
 window, so this is not one. The likely mechanism is that AccHR@20 is a step
 function of the ranking: with 94%+ of segments tied at zero recent crashes,
 a numerically tiny change reorders the tie group and moves a block of
@@ -7093,3 +7093,36 @@ the first attempt: a heading number may or may not be followed by a dot
 the dot split "5.1" into section "5" with title "1 The baseline's ...",
 so §5.1 appeared not to exist while §5 appeared to be the horizon
 subsection. The dot has to be optional.
+
+## 2026-09-06 - Lambeth headline reproduces exactly; a precision claim corrected
+
+The regeneration finished Lambeth and reproduces the published headline
+exactly: mean 0.7775, sample SD 0.0167, 95% CI [0.7568, 0.7982] — the
+figures in the paper to every digit.
+
+Per seed, against the V8 log:
+
+| seed | V8 log | regenerated | max window deviation |
+|---|---|---|---|
+| 1 | 0.7943 | 0.794445 | 0.000462 |
+| 7 | 0.7558 | 0.755884 | 0.000286 |
+| 42 | 0.7943 | 0.794403 | 0.000462 |
+| 123 | 0.7710 | 0.771020 | 0.000487 |
+| 2024 | 0.7718 | 0.771894 | 0.000286 |
+
+**The deviations exposed a documentation error.** I had recorded the V8
+logs as storing per-window values "to 4 significant figures". They store
+**3 decimal places** (`0.788`); only the per-seed MEAN on the same line is
+4dp, which is what I misread. A max deviation of 0.000487 is impossible
+under 4dp rounding (±0.00005) and exactly consistent with 3dp (±0.0005).
+
+**Does it matter?** Not to any conclusion. ±0.0005 per window propagates
+to at most ±0.0005 on a 6-window mean — roughly 1.3% of the ~0.037 effects
+S2b measures. But the tolerance in the cross-check was set to 0.0005, which
+was right by accident rather than by reasoning, and a reviewer reading
+"4 significant figures" beside a 0.000487 deviation would reasonably ask.
+
+**It also makes the regeneration worth more than confirmation.** Once all
+three boroughs finish, `run_s2_paired_comparison.py` should read the
+committed full-precision CSVs instead of parsing logs, removing the
+rounding from the paired tests entirely.

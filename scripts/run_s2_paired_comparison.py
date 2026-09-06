@@ -21,9 +21,18 @@ signed-rank test per borough and pooled. The baselines are deterministic
 (no training, no seed), so all sampling variation sits on the GNN side.
 
 **Inputs.** GNN per-seed per-window scores are parsed from the V8 run logs,
-which record them to 4 significant figures; the seed-42 row is
-cross-checked against the full-precision per-window CSV to confirm the logs
-describe the same run. Baseline per-window scores come from
+which record them to **3 decimal places** (the mean on the same line is
+4dp, which is easy to misread as the per-window precision - an earlier
+version of this docstring did). Rounding is therefore up to +/-0.0005 per
+window, which propagates to at most +/-0.0005 on a 6-window mean: about
+1.3% of the ~0.037 effects measured here, and immaterial to every
+conclusion drawn. The seed-42 row is cross-checked against the
+full-precision per-window CSV at exactly that 0.0005 tolerance.
+
+**This input is superseded.** `scripts/run_headline_multiseed.py`
+regenerates the same quantity at full precision into a committed CSV.
+Once that run completes this script should read it instead of parsing
+logs, removing the rounding entirely. Baseline per-window scores come from
 `reports/<borough>/s2_empirical_bayes_per_window.csv`.
 
 Run: python scripts/run_s2_paired_comparison.py
