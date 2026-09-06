@@ -36,6 +36,9 @@ V8_LOGS = {
 }
 _SEED_MEAN = re.compile(r"seed\s+(\d+)\s+6-window mean AccHR@20 = ([0-9.]+)")
 
+WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+         "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"]
+
 results: list[tuple[bool, str, str]] = []
 
 
@@ -148,14 +151,13 @@ def main() -> None:
     fail = sum(1 for ln in rows if "failed" in ln)
     unres = sum(1 for ln in rows if "downgraded" in ln)
     total = len(rows)
-    check(f"of {['zero','one','two','three','four','five','six','seven','eight','nine','ten'][total]} findings" in text
+    check((total < len(WORDS) and f"of {WORDS[total]} findings" in text)
           or f"of {total} findings" in text,
           "abstract count matches table", "table has %d rows" % total)
     # Do not hard-code the composition - it changes as replications land.
     # The invariant that matters is that the ABSTRACT's stated counts match
     # what the table actually contains.
-    words = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
-             "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+    words = {w: i for i, w in enumerate(WORDS)}
     m_rep = re.search(r"only (\w+) survived replication", flat)
     m_fail = re.search(r"\((\w+) failed", flat)
     stated_rep = words.get(m_rep.group(1)) if m_rep else None

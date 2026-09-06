@@ -13,7 +13,7 @@ than the impressive one.
 > prediction (Gao et al., *Accident Analysis & Prevention*, 2024) and
 > spent most of the project discovering why that framing was wrong.
 > Rebuilding their pipeline independently from UK STATS19 collision
-> records and Ordnance Survey road geometry, I found that seven of ten
+> records and Ordnance Survey road geometry, I found that seven of eleven
 > findings that looked significant on one London borough failed to
 > replicate on a second — four of them by reversing sign rather than
 > shrinking, so a single-region estimate had the direction wrong, not just
@@ -31,7 +31,7 @@ than the impressive one.
 ## Shorter variant (≈95 words)
 
 > Rebuilding a published graph neural network for road-level crash
-> prediction, I found that seven of ten findings significant on one London
+> prediction, I found that seven of eleven findings significant on one London
 > borough failed to replicate on a second — four by reversing sign, not
 > merely shrinking. A parameter-free baseline that ranks road segments by
 > past crash count matched my model and beat the reference architecture on
@@ -45,7 +45,7 @@ than the impressive one.
 
 | Claim in the paragraph | Evidence |
 |---|---|
-| "seven of ten … failed to replicate" | `scripts/check_effect_size_heuristic.py`; MASTER_PLAN §2b scoreboard |
+| "seven of eleven … failed to replicate" | `scripts/check_effect_size_heuristic.py`; MASTER_PLAN §2b scoreboard |
 | "four … by reversing sign" | road class (−6.87 → +2.25), rank scaling (+5.80 → −39.7), architecture×history, feature count (−0.99/−4.08 → +0.77) |
 | "matched my model" | `run_s2_paired_comparison.py`: −0.85, p=0.6398, 9/18 windows at matched horizon |
 | "beat the reference architecture on 18 of 18" | `run_reference_vs_trivial.py`: 64.45% vs 83.94%, p=0.000001, 0/18 wins |

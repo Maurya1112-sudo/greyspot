@@ -9,7 +9,7 @@ London boroughs.
 
 **Status: research code under active verification.** Numbers below are
 current as of 2026-09-06 and are stated with the caveats that apply to
-them. Seven of ten single-borough findings failed replication on a second
+them. Seven of eleven single-borough findings failed replication on a second
 borough, four of them by reversing sign; those are reported here alongside
 the three that survived. See [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the live
 verification ledger and [`docs/decision_log.md`](docs/decision_log.md)

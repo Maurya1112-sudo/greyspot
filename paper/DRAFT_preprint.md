@@ -1,4 +1,4 @@
-# What Actually Matters in Road-Level Crash Prediction: Ten Findings, Three Replications
+# What Actually Matters in Road-Level Crash Prediction: Eleven Findings, Four Replications
 
 **Draft 2026-09-06.** Every number below traces to a script in this
 repository and an entry in `docs/decision_log.md`. Claims that failed
@@ -13,8 +13,8 @@ road-level crash prediction on three London boroughs, using independently
 constructed data. Our model reaches AccHR@20 of 80.14% ± 1.12 (5 seeds)
 against their reported 72.60%, significantly better on two of three
 boroughs. But the more transferable results are negative and
-methodological: of ten findings that appeared significant on a single
-borough, **only three survived replication on a second** (seven failed).
+methodological: of eleven findings that appeared significant on a single
+borough, **only four survived replication on a second** (seven failed).
 Effect size predicts non-replication but not replication: every effect
 below the measured ~4-point seed-noise band failed (4/4), while only 4 of
 6 effects above it survived — a small effect is reliable evidence against,
@@ -62,7 +62,8 @@ TCR formula, segment consolidation and evaluation protocol.
 
 | Finding | Effect (borough 1) | Second borough |
 |---|---|---|
-| Architecture topology (depth, encoder order) | −26.46, −13.61 | **replicated** |
+| Message-passing depth (1→2 layers) | −26.46 | **replicated** |
+| Encoder ordering (GAT→GRU vs GRU→GAT) | −13.61 | **replicated** |
 | Long-horizon crash history | +15.85 | **replicated** (+9.70) |
 | Our architecture vs theirs | +18.53 | **replicated** (+9.08, +22.28) |
 | hidden=42/42 | +1.46 | failed (−9.97) |
@@ -73,7 +74,7 @@ TCR formula, segment consolidation and evaluation protocol.
 | Architecture × history interaction | +25.04 vs +9.70 | failed (reverses sign) |
 | Rank-transform scaling | +5.80 (best ever) | failed (−39.7, worst ever) |
 
-**Three of ten survived; seven failed.**
+**Four of eleven survived; seven failed.**
 
 Effect size is often proposed as a filter for which single-sample results
 to trust. On this evidence it works in **one direction only**

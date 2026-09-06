@@ -4,7 +4,7 @@
 after finishing one.** Every claim in this project must trace to a row
 in §3 marked VERIFIED, or it does not appear in any output.
 
-Last updated: 2026-09-06 12:30 (S5 deep-history null WITHDRAWN; 3 of 10 claims replicate; tiled POI fallback)
+Last updated: 2026-09-06 13:25 (S5 null WITHDRAWN; 4 of 11 claims replicate; Fig 1 + SOP done)
 
 ---
 
@@ -74,13 +74,20 @@ at n=31.
 | weight_decay=0.01 | yes | FAILED |
 | road class harmful | yes | **FAILED** |
 | 13 features == 35 | yes (3 boroughs) | **FAILED** - sign flips: -0.99 Lam, -4.08 WM, **+0.77 TH** |
-| architecture topology | yes | **REPLICATED** |
+| message-passing depth (1→2 layers) | yes | **REPLICATED** |
+| encoder ordering (GAT→GRU vs GRU→GAT) | yes | **REPLICATED** |
 | **history horizon** | yes | **REPLICATED** (+15.85 Lam / +9.70 WM, 6/6 windows) |
 | **our arch beats theirs** | yes (3 boroughs) | **REPLICATED** (+9.08 to +24.42, p<0.01 both tested) |
 | rank-transform scaling | yes | **FAILED** - +5.80 (best ever) became −39.7 (worst ever) |
 | substitution effect (interaction) | yes (3 boroughs) | **FAILED** - sign reverses (WM gap collapses −15.33, TH gap widens +5.93) |
 
-**3 of 10 single-borough findings survived replication intact; 7 failed.**
+**4 of 11 single-borough findings survived replication intact; 7 failed.**
+
+Depth and encoder ordering are counted as separate findings: they are
+separate experiments varying one factor each (R1). Earlier revisions of
+this document grouped them as one "architecture topology" row and reported
+3 of 10, which disagreed with
+`scripts/check_effect_size_heuristic.py`. All documents now use 11.
 
 **Effect size predicts NON-replication only** (corrected 2026-09-05 after
 checking it mechanically — `scripts/check_effect_size_heuristic.py`):
@@ -219,7 +226,8 @@ Always the topmost ☐ or ◐ row in §3, Phase 1 then Phase 1b then Phase 2.
 | Model can't use >5yr history | null on Lambeth | **WITHDRAWN** — Westminster +2.98 (p=0.023) |
 | Effect size predicts replication | asserted both ways | **one-directional only** — 0/4 below band replicated, 4/6 above |
 
-Scoreboard: **3 of 10 replicated, 7 failed, 0 unresolved.** Four of the
+Scoreboard: **4 of 11 replicated, 7 failed.** (Depth and encoder order are
+counted separately: they are separate experiments varying one factor each, per R1.) Four of the
 seven failed by SIGN REVERSAL rather than shrinkage toward zero — that is
 the characteristic failure mode at this evaluation scale and is a more
 useful finding than "small effects are noisy".

@@ -6854,3 +6854,32 @@ definition made a legitimate file look inconsistent. Second, both bugs
 appeared only when the module met its second real caller. The nine unit
 tests written with it all passed throughout, because they exercised one
 candidate per file with string names.
+
+## 2026-09-06 - Finding count reconciled: 10 vs 11 across documents
+
+Verifying the SOP paragraph's claims against their sources surfaced a
+disagreement no single document could reveal: the preprint counted **ten**
+findings (3 replicated, 7 failed) while
+`scripts/check_effect_size_heuristic.py` counted **eleven** (4 replicated,
+7 failed). Both had been passing their own internal checks.
+
+The cause: the preprint's table combined message-passing depth (−26.46)
+and encoder ordering (−13.61) into a single "architecture topology" row,
+while the script listed them separately.
+
+Resolved in favour of **eleven**. They are separate experiments varying
+one factor each, which is what R1 requires, and collapsing them also hides
+that both replicated independently. The preprint, README, MASTER_PLAN and
+the SOP paragraph now all read 4 of 11.
+
+**The verifier could not have caught this**, and that is the more useful
+lesson. It checked the abstract against the preprint's own table, so a
+document internally consistent about a wrong grouping passed cleanly.
+Cross-document consistency needed a different check, and it only happened
+because the SOP forced every number to be traced back to the script that
+produces it rather than to another document.
+
+The verifier is now generalised so this class of drift is harder: the
+composition check derives counts from the table instead of hard-coding
+them, and the number-word list runs past ten (it raised IndexError at
+eleven, which is how the mismatch first became visible).
