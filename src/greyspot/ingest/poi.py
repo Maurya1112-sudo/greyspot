@@ -126,14 +126,62 @@ def _download_category_with_retry(bbox, category: str, osm_place: str, attempts:
             return None
         except Exception as exc:
             if attempt == attempts:
-                logger.warning("POI category '%s' failed for %s after %d attempts: %s",
+                logger.warning("POI category '%s' failed for %s after %d attempts: %s - "
+                               "falling back to tiled download",
                                category, osm_place, attempts, exc)
-                return None
+                return _download_category_tiled(bbox, category, osm_place)
             delay = 5 * 2 ** (attempt - 1)  # 5s, 10s, 20s
             logger.warning("POI category '%s' attempt %d/%d failed for %s (%s) - retrying in %ds",
                            category, attempt, attempts, osm_place, type(exc).__name__, delay)
             time.sleep(delay)
     return None
+
+
+def _download_category_tiled(bbox, category: str, osm_place: str, grid: int = 3):
+    """Last resort: split the bbox into a grid and fetch each tile separately.
+
+    Retrying an identical query only helps when the failure was bad luck.
+    Wandsworth's `amenity` query failed on four separate occasions across
+    two days, always the same category, while its other three categories
+    and every other borough succeeded - that is not bad luck, it is one
+    response that is simply too large to transfer intact (~69 km2 of dense
+    inner-London amenities). Splitting it into 9 smaller responses asks
+    Overpass for the same data in pieces it can actually deliver.
+
+    Features straddling a tile boundary are returned by both tiles, so the
+    result is de-duplicated on OSM identity (the element_type/osmid index
+    OSMnx returns) BEFORE the caller collapses the frame. Without that the
+    duplicates would inflate POI density and quietly defeat the density
+    guard.
+
+    Returns the concatenated GeoDataFrame, or None if any tile fails - a
+    partial tiling is exactly the silent corruption this module exists to
+    prevent.
+    """
+    west, south, east, north = (float(v) for v in bbox)
+    dx, dy = (east - west) / grid, (north - south) / grid
+    frames = []
+    for i in range(grid):
+        for j in range(grid):
+            tile = (west + i * dx, south + j * dy, west + (i + 1) * dx, south + (j + 1) * dy)
+            try:
+                part = ox.features_from_bbox(tile, {category: True})
+            except Exception as exc:
+                logger.warning("POI category '%s' tile %d/%d failed for %s: %s - abandoning "
+                               "tiled download rather than returning part of it",
+                               category, i * grid + j + 1, grid * grid, osm_place, exc)
+                return None
+            if not part.empty:
+                frames.append(part)
+    if not frames:
+        return None
+    combined = pd.concat(frames)
+    before = len(combined)
+    combined = combined[~combined.index.duplicated(keep="first")]
+    logger.info("POI category '%s' recovered by %dx%d tiling for %s: %d features "
+                "(%d duplicates across tile boundaries removed)",
+                category, grid, grid, osm_place, len(combined), before - len(combined))
+    return combined
 
 
 class PoiDownloadError(RuntimeError):

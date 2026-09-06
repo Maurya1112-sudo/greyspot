@@ -190,3 +190,75 @@ def test_truncations_are_still_retried(monkeypatch):
     monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
     assert len(download_borough_pois("Wandsworth")) == 2000
     assert attempts["n"] == 2
+
+
+def test_tiled_fallback_recovers_an_oversized_category(monkeypatch):
+    """Wandsworth's amenity query failed four times across two days - always
+    the same category, never the others. That is one response too large to
+    transfer, not bad luck, so retrying identically cannot fix it. Splitting
+    the bbox into tiles asks for the same data in deliverable pieces."""
+    calls = {"full": 0, "tiles": 0}
+
+    def by_size(bbox, tags):
+        west, south, east, north = bbox
+        is_full = abs(east - west) > 0.05
+        if next(iter(tags)) == "amenity" and is_full:
+            calls["full"] += 1
+            raise ConnectionError("Response ended prematurely")
+        if next(iter(tags)) == "amenity":
+            calls["tiles"] += 1
+        return _gdf(100, next(iter(tags)))
+
+    monkeypatch.setattr(poi_mod.ox, "features_from_bbox", by_size)
+    monkeypatch.setattr(poi_mod, "borough_bbox_wgs84", lambda place: WESTMINSTER_BBOX)
+    monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
+    out = download_borough_pois("Wandsworth")
+    assert calls["full"] == 3, "should exhaust retries first, got %d" % calls["full"]
+    assert calls["tiles"] == 9, "should then fetch a 3x3 grid, got %d" % calls["tiles"]
+    assert "amenity" in set(out.poi_category)
+
+
+def test_tiled_fallback_deduplicates_across_tile_boundaries(monkeypatch):
+    """A feature straddling a boundary is returned by several tiles. Left
+    in, the duplicates inflate POI density and defeat the density guard."""
+    import geopandas as gpd
+    from shapely.geometry import Point
+    shared = gpd.GeoDataFrame(
+        {"amenity": ["pub", "cafe"], "geometry": [Point(-0.15, 51.5), Point(-0.16, 51.5)]},
+        index=pd.MultiIndex.from_tuples([("node", 1), ("node", 2)],
+                                        names=["element_type", "osmid"]),
+        crs="epsg:4326")
+
+    def by_size(bbox, tags):
+        west, south, east, north = bbox
+        if next(iter(tags)) == "amenity":
+            if abs(east - west) > 0.05:
+                raise ConnectionError("Response ended prematurely")
+            return shared  # every tile returns the SAME two features
+        return _gdf(10, next(iter(tags)))
+
+    monkeypatch.setattr(poi_mod.ox, "features_from_bbox", by_size)
+    monkeypatch.setattr(poi_mod, "borough_bbox_wgs84", lambda place: WESTMINSTER_BBOX)
+    monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
+    out = download_borough_pois("Wandsworth")
+    n_amenity = int((out.poi_category == "amenity").sum())
+    assert n_amenity == 2, "9 tiles x 2 features must dedup to 2, got %d" % n_amenity
+
+
+def test_partial_tiling_is_refused(monkeypatch):
+    """If one tile fails, returning the other eight would be exactly the
+    silent partial download this module exists to prevent."""
+    def one_bad_tile(bbox, tags):
+        west, south, east, north = bbox
+        if next(iter(tags)) == "amenity":
+            if abs(east - west) > 0.05:
+                raise ConnectionError("Response ended prematurely")
+            if west < -0.19:  # one specific tile always fails
+                raise ConnectionError("Response ended prematurely")
+        return _gdf(50, next(iter(tags)))
+
+    monkeypatch.setattr(poi_mod.ox, "features_from_bbox", one_bad_tile)
+    monkeypatch.setattr(poi_mod, "borough_bbox_wgs84", lambda place: WESTMINSTER_BBOX)
+    monkeypatch.setattr(poi_mod.time, "sleep", lambda s: None)
+    with pytest.raises(PoiDownloadError, match="amenity"):
+        download_borough_pois("Wandsworth")
