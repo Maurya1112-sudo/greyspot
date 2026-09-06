@@ -26,9 +26,11 @@ road segments by their past crash count**, and that the reference
 architecture, given the same data and its own tuned settings, **loses to
 that sort on 18 of 18 held-out windows** (−19.49 points, *p* < 10⁻⁵). The
 sort also converts three further years of history into a significant
-+2.95-point gain (*p* = 0.041) that neither network reliably matches. We
-therefore recommend a crash-count baseline as a routine reporting
-requirement for this task.
++2.95-point gain (*p* = 0.041) that neither network reliably matches. The
+reference paper does include a historical-average baseline, but its data
+covers a single year; we argue that the apparent margin of graph networks
+over historical baselines in this literature is substantially a function
+of how short a horizon those baselines were computed over.
 
 ---
 

@@ -6650,3 +6650,39 @@ bar our model uniquely falls under. Neither graph network in this study
 clears it, which turns section 3 from a note about one implementation into
 a question for the subfield — how many road-level crash-prediction results
 have been reported without a crash-count baseline alongside them.
+
+## 2026-09-06 - Literature check: the "no baseline" framing was an OVERCLAIM
+
+Before publishing the recommendation that a crash-count baseline should be
+a routine reporting requirement, I checked whether the literature already
+does this. **It does, and my draft framing was wrong.**
+
+Gao et al. include a **Historical Average (HA)** baseline, and so do the
+neighbouring papers (STGCN/STGAT comparisons routinely carry HA). The
+abstract had been edited to say we "recommend a crash-count baseline as a
+routine reporting requirement", which reads as though none exists. That
+would have been an easy and embarrassing reviewer catch.
+
+**What the numbers actually show** (their Table 4, their data):
+
+| | Lambeth | Tower Hamlets | Westminster | mean |
+|---|---|---|---|---|
+| HA | 0.4520 | 0.4752 | 0.4217 | 0.4496 |
+| STZITD-GNN | 0.7659 | 0.7224 | 0.6898 | 0.7260 |
+
+Their model beats their historical baseline by ~28 points. On our data a
+crash-count sort scores **0.8394** and beats both graph networks. Those
+are only reconcilable through HORIZON: **their dataset is 2019 only**, so
+their HA can look back at most one year, whereas our sort has ~8.
+
+So the defensible claim is not "they omitted a baseline" — they did not —
+but that a historical baseline's strength is largely a function of its
+horizon, and at the horizon a single-year dataset permits it is weak
+enough to be easily beaten. `scripts/run_baseline_horizon_curve.py` tests
+this directly and internally by sweeping the same parameter-free ranker
+across lookbacks on our own data and windows.
+
+This also explains why the finding was available to us and not to them:
+it is a property of the data window, not of insight. Worth stating in the
+paper, since it makes the critique structural rather than a criticism of
+their execution.
