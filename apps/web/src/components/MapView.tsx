@@ -96,6 +96,7 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const loadedRef = useRef(false);
+  const glowFlashTimerRef = useRef<number | undefined>(undefined);
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
   const [buildings3D, setBuildings3D] = useState(false);
@@ -156,13 +157,82 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
         },
         FIRST_LABEL_LAYER_ID,
       );
+      // A thin road is genuinely hard to click - the visible line is only
+      // 2-7px wide (line-width above), a small fraction of a typical
+      // pointer's own margin of error, especially on a touchpad or at a
+      // whole-borough zoom. This invisible, much wider line shares the
+      // exact same source/geometry purely as a bigger hit target - the
+      // standard technique for thin-line click targets (the same idea
+      // behind e.g. mapbox-gl-draw's own hit-area layers). Hover/click
+      // listeners below bind to THIS layer, not the thin visible one;
+      // MapLibre still hit-tests a layer's rendered geometry even at
+      // opacity 0, since hit-testing works off the paint-computed
+      // geometry, not final pixel alpha.
+      map.addLayer(
+        {
+          id: "roads-hitbox",
+          type: "line",
+          source: "roads",
+          paint: {
+            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 14, 14, 20, 17, 28],
+            "line-opacity": 0,
+          },
+        },
+        FIRST_LABEL_LAYER_ID,
+      );
+
+      // Selected-segment highlight: 2026-09-08 redesign after live
+      // feedback that a single flat white outline all but disappeared
+      // against the basemap's own light greys/creams and white label
+      // halos (a screenshot showed it blending into "Tottenham Court
+      // Road Station" 's own light background). A single colour can
+      // never guarantee contrast against an unpredictable basemap
+      // underneath it - the standard cartographic fix is a dual-stroke
+      // (a dark casing so the highlight reads against ANY light
+      // background, with a bright core on top so it reads against the
+      // dark casing itself) plus a soft outer glow, the same "selected"
+      // language mapping tools from Google Maps to QGIS use, layered
+      // bottom (glow) to top (core) in this order:
+      map.addLayer(
+        {
+          id: "roads-selected-glow",
+          type: "line",
+          source: "roads",
+          filter: ["==", ["get", "segment_id"], ""],
+          paint: {
+            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 10, 14, 16, 17, 24],
+            "line-color": cssColor("--accent-hex", "#2e8a8b"),
+            "line-blur": 6,
+            "line-opacity": 0.5,
+            "line-opacity-transition": { duration: 300, delay: 0 },
+          },
+        },
+        FIRST_LABEL_LAYER_ID,
+      );
+      map.addLayer(
+        {
+          id: "roads-selected-casing",
+          type: "line",
+          source: "roads",
+          filter: ["==", ["get", "segment_id"], ""],
+          paint: {
+            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 5, 14, 8, 17, 13],
+            "line-color": cssColor("--selection-casing-hex", "#0e141c"),
+          },
+        },
+        FIRST_LABEL_LAYER_ID,
+      );
       map.addLayer(
         {
           id: "roads-selected-outline",
           type: "line",
           source: "roads",
           filter: ["==", ["get", "segment_id"], ""],
-          paint: { "line-width": 8, "line-color": cssColor("--selection-outline-hex", "#fdfbf9"), "line-opacity": 1 },
+          paint: {
+            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2, 14, 3.5, 17, 6],
+            "line-color": cssColor("--selection-outline-hex", "#fdfbf9"),
+            "line-opacity": 1,
+          },
         },
         FIRST_LABEL_LAYER_ID,
       );
@@ -239,7 +309,9 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
       // never clickable. Street View now lives in a fixed-position panel
       // (`selectedPoint`, set on click below) that never moves - trivially
       // clickable, at the cost of needing a click first.
-      map.on("mousemove", "roads-layer", (e: MapLayerMouseEvent) => {
+      // Bound to "roads-hitbox" (the wide invisible layer above), not the
+      // thin visible "roads-layer" - see that layer's own comment for why.
+      map.on("mousemove", "roads-hitbox", (e: MapLayerMouseEvent) => {
         const feature = e.features?.[0] as MapGeoJSONFeature | undefined;
         if (!feature) return;
         map.getCanvas().style.cursor = "pointer";
@@ -253,11 +325,11 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
           hasScore: Boolean(props.has_score),
         });
       });
-      map.on("mouseleave", "roads-layer", () => {
+      map.on("mouseleave", "roads-hitbox", () => {
         map.getCanvas().style.cursor = "";
         setHoverInfo(null);
       });
-      map.on("click", "roads-layer", (e) => {
+      map.on("click", "roads-hitbox", (e) => {
         const feature = e.features?.[0] as MapGeoJSONFeature | undefined;
         const props = feature?.properties ?? {};
         const segmentId = props.segment_id as string | undefined;
@@ -329,8 +401,28 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
     const map = mapRef.current;
     if (!map || !loadedRef.current) return;
     const id = selectedSegmentId ?? "";
-    if (map.getLayer("roads-selected-outline")) {
-      map.setFilter("roads-selected-outline", ["==", ["get", "segment_id"], id]);
+    for (const layerId of ["roads-selected-glow", "roads-selected-casing", "roads-selected-outline"]) {
+      if (map.getLayer(layerId)) {
+        map.setFilter(layerId, ["==", ["get", "segment_id"], id]);
+      }
+    }
+    // A brief flash on the glow layer when a NEW segment is selected - a
+    // filter change alone re-renders the matched feature at its resting
+    // paint values with no transition (transitions fire on a PAINT
+    // PROPERTY value change, not a filter change), so without this the
+    // highlight would just appear, giving no "something just happened"
+    // cue. Bump opacity up, then let the layer's own
+    // line-opacity-transition (300ms) ease it back down to rest - the
+    // same brief flash-then-settle language QGIS/Figma use for "this is
+    // now selected", not a distracting continuous pulse.
+    window.clearTimeout(glowFlashTimerRef.current);
+    if (selectedSegmentId && map.getLayer("roads-selected-glow")) {
+      map.setPaintProperty("roads-selected-glow", "line-opacity", 0.85);
+      glowFlashTimerRef.current = window.setTimeout(() => {
+        if (mapRef.current?.getLayer("roads-selected-glow")) {
+          mapRef.current.setPaintProperty("roads-selected-glow", "line-opacity", 0.5);
+        }
+      }, 60);
     }
     if (!selectedSegmentId) {
       // A borough switch resets selectedSegmentId to null (see App.tsx) -

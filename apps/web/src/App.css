@@ -69,7 +69,9 @@
   --risk-mid-hex: #dd7b2b;
   --risk-high-hex: #c92f33;
   --risk-none-hex: #82878c;
-  --selection-outline-hex: #fdfbf9; /* = --paper-1, used for the selected-segment outline on the map */
+  --selection-outline-hex: #fdfbf9; /* = --paper-1, the selection's bright core line on the map */
+  --selection-casing-hex: #0e141c; /* = --chassis-0, the selection's dark casing - see MapView.tsx's three-layer highlight */
+  --accent-hex: #2e8a8b; /* = --accent, the selection's outer glow */
 
   /* ---- Type -------------------------------------------------------------
      STIX Two Text (display) / Archivo (body+UI) / IBM Plex Mono (data) -
