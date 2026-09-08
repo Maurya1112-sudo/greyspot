@@ -6,7 +6,29 @@
   xmode=log, log basis x=10,
   xlabel={Lookback horizon of the crash-count sort (log scale)},
   ylabel={AccHR@20 (\%)},
-  xmin=25, xmax=3600, ymin=15, ymax=92,
+  % xmax was 3600 - only 3.9% further out than the last real data point
+  % (3285) in LOG space (log10(3600/3285) = 0.039), because a log axis
+  % compresses the high end far more than it looks on a linear ruler. The
+  % four `anchor=east` reference-line labels below were placed at
+  % x=3550, meaning "east" (their text's own right edge) sat there and
+  % the text extended LEFTWARD from it - on this axis, a "tiny"-font
+  % label's width corresponds to a much wider DATA range at the
+  % compressed high end than the same width would at the low end, so
+  % every label actually reached back well past x=3285. Three of the
+  % four escaped visible collision only because their y-value sits far
+  % from the curves' y-range up there (all curves are ~81-87 by 9yr);
+  % "our GNN (80.1%)" at y=82.08 does not, and rendered sitting directly
+  % on top of the "mean of 3 boroughs" line and its own 9yr marker
+  % (confirmed 2026-09-08 by actually compiling this figure with
+  % pdflatex for the first time and reading the rendered PDF page - the
+  % 39 static structural checks in verify_arxiv_package.py cannot catch
+  % a layout collision like this, only a real render can). Fixed at the
+  % root rather than nudging one label's y-value: pushed xmax out to
+  % 9000 (log10(9000/3285) = 0.437, more than 11x the old log-margin) so
+  % there is a genuinely empty region to anchor labels in, and moved
+  % every label's anchor to x=8600, safely inside that empty region on
+  % this scale.
+  xmin=25, xmax=9000, ymin=15, ymax=92,
   xtick={30,90,365,730,1095,1825,2555,3285},
   xticklabels={30d,90d,1yr,2yr,3yr,5yr,7yr,9yr},
   ytick={20,30,40,50,60,70,80,90},
@@ -25,14 +47,14 @@
 \addlegendentry{Tower Hamlets}
 \addplot[black, very thick, mark=*, mark size=1.6pt] coordinates {(30,22.71) (90,32.19) (180,41.61) (365,54.17) (730,66.35) (1095,73.78) (1825,80.99) (2555,83.53) (3285,83.94)};
 \addlegendentry{mean of 3 boroughs}
-\addplot[gray, densely dotted, forget plot] coordinates {(25,44.96) (3600,44.96)};
-\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:3550,46.96) {Gao et al.\ Historical Average\ (45.0\%)};
-\addplot[gray, densely dashed, forget plot] coordinates {(25,66.57) (3600,66.57)};
-\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:3550,68.57) {reference architecture\ (66.6\%)};
-\addplot[gray, densely dotted, forget plot] coordinates {(25,72.60) (3600,72.60)};
-\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:3550,74.60) {Gao et al.\ STZITD-GNN\ (72.6\%)};
-\addplot[gray, densely dashed, forget plot] coordinates {(25,80.08) (3600,80.08)};
-\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:3550,82.08) {our GNN\ (80.1\%)};
+\addplot[gray, densely dotted, forget plot] coordinates {(25,44.96) (9000,44.96)};
+\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:8600,46.96) {Gao et al.\ Historical Average\ (45.0\%)};
+\addplot[gray, densely dashed, forget plot] coordinates {(25,66.57) (9000,66.57)};
+\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:8600,68.57) {reference architecture\ (66.6\%)};
+\addplot[gray, densely dotted, forget plot] coordinates {(25,72.60) (9000,72.60)};
+\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:8600,74.60) {Gao et al.\ STZITD-GNN\ (72.6\%)};
+\addplot[gray, densely dashed, forget plot] coordinates {(25,80.08) (9000,80.08)};
+\node[anchor=east, font=\tiny, gray!50!black] at (axis cs:8600,82.08) {our GNN\ (80.1\%)};
 \end{axis}
 \end{tikzpicture}
 \caption{The same parameter-free crash-count sort, swept across lookback
