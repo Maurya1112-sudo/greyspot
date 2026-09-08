@@ -664,6 +664,51 @@ a:hover {
   color: var(--ink-2);
 }
 
+/* Model vs. baseline ranking toggle - a first-class control rather than a
+   footnote, because this project's own replication study found the
+   parameter-free baseline is not reliably beaten by the model. Styled as
+   a segmented control, not tabs, since both options view the SAME data
+   through a different ranking - there is no separate "page" per option. */
+.rank-toggle {
+  display: flex;
+  margin-top: var(--space-3);
+  border: 1px solid var(--paper-line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.rank-toggle-option {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+  background: var(--paper-1);
+  border: none;
+  border-right: 1px solid var(--paper-line-strong);
+  cursor: pointer;
+  transition: background var(--duration-fast, 120ms) ease, color var(--duration-fast, 120ms) ease;
+}
+
+.rank-toggle-option:last-child {
+  border-right: none;
+}
+
+.rank-toggle-option:hover {
+  background: var(--paper-2);
+}
+
+.rank-toggle-option--active {
+  background: var(--accent);
+  color: var(--paper-1);
+}
+
+.rank-toggle-option--active:hover {
+  background: var(--accent-strong);
+}
+
 /* --- Priority queue (paper) -------------------------------------------- */
 
 .priority-queue {
@@ -837,6 +882,22 @@ a:hover {
 .evidence-section:last-child {
   border-bottom: none;
   margin-bottom: 0;
+}
+
+/* Baseline comparison is the most important disclosure in this panel, not
+   an ordinary evidence section - it says the model above may not beat a
+   ranking with no parameters. A soft accent wash marks it as distinct
+   without competing with the RAG risk colours, which mean something else
+   entirely (severity, not "trust this section"). */
+.evidence-section--baseline {
+  padding: var(--space-4);
+  margin-left: calc(-1 * var(--space-3));
+  margin-right: calc(-1 * var(--space-3));
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+  background: var(--accent-wash);
+  border-radius: var(--radius-md);
+  border-bottom: none;
 }
 
 .evidence-section h3 {

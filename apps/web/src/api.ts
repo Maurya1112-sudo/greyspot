@@ -11,19 +11,22 @@ export interface BoroughSummary {
 
 export interface ModelInfo {
   borough: string;
-  ons_code: string;
   model_version: string;
-  test_year: number;
+  seed: number;
+  held_out_start: string;
+  held_out_horizon_days: number;
   n_segments: number;
-  metrics: Record<string, number | null>;
-  conformal: {
-    target_confidence_level: number;
-    empirical_coverage: number;
-    mean_interval_width: number;
-  };
+  this_run_acchr_at_20: number;
+  reported_acchr_at_20: number | null;
+  reported_acchr_source: string | null;
+  conformal_confidence_level: number;
   generated_at: string;
+  research_finding: string;
+  interval_note: string;
   non_negotiable_boundary: string;
 }
+
+export type RankBy = "model" | "baseline";
 
 export interface PriorityQueueRow {
   segment_id: string;
@@ -31,6 +34,7 @@ export interface PriorityQueueRow {
   model_score: number;
   prior_year_count: number | null;
   highway: string | null;
+  rank_by: RankBy;
 }
 
 export interface RoadEvidence {
@@ -43,14 +47,25 @@ export interface RoadEvidence {
     has_aadf: boolean;
   };
   model_evidence: {
-    model_version: string;
-    predicted_relative_risk: number | null;
-    conformal_interval_width_90pct: number | null;
+    model_version: string | null;
+    predicted_crashes_next_14_days: number | null;
+    conformal_interval_90pct: [number | null, number | null];
+    as_of_window: string | null;
+  };
+  baseline_evidence: {
+    method: string;
+    score: number | null;
+    research_note: string;
   };
   priority_score: {
-    score_0_100: number | null;
+    model_ranked: {
+      score_0_100: number | null;
+      components: Record<string, number | null>;
+    };
+    baseline_ranked: {
+      score_0_100: number | null;
+    };
     policy_profile: string;
-    components: Record<string, number | null>;
     data_confidence_is_default: boolean;
   };
   limitations: string[];
@@ -69,8 +84,10 @@ export const api = {
   boroughs: () => getJSON<BoroughSummary[]>("/boroughs"),
   modelInfo: (borough: string) => getJSON<ModelInfo>(`/boroughs/${encodeURIComponent(borough)}/model-info`),
   roadsGeoJSON: (borough: string) => getJSON<GeoJSON.FeatureCollection>(`/boroughs/${encodeURIComponent(borough)}/roads`),
-  priorityQueue: (borough: string, limit = 25) =>
-    getJSON<PriorityQueueRow[]>(`/boroughs/${encodeURIComponent(borough)}/priority-queue?limit=${limit}`),
+  priorityQueue: (borough: string, limit = 25, rankBy: RankBy = "model") =>
+    getJSON<PriorityQueueRow[]>(
+      `/boroughs/${encodeURIComponent(borough)}/priority-queue?limit=${limit}&rank_by=${rankBy}`
+    ),
   roadEvidence: (borough: string, segmentId: string) =>
     getJSON<RoadEvidence>(`/boroughs/${encodeURIComponent(borough)}/roads/${encodeURIComponent(segmentId)}`),
 };

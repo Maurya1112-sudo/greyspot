@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
-import type { PriorityQueueRow } from "../api";
+import type { PriorityQueueRow, RankBy } from "../api";
 
 interface PriorityQueueProps {
   rows: PriorityQueueRow[];
   selectedSegmentId: string | null;
   onSelect: (segmentId: string) => void;
   loading: boolean;
+  rankBy: RankBy;
+  onChangeRankBy: (rankBy: RankBy) => void;
 }
 
 // RAG (Red-Amber-Green) band, matching the map's colour scale exactly -
@@ -20,7 +22,14 @@ function ragBand(score: number): { className: string; label: string; color: stri
   return { className: "govuk-tag--red", label: "Higher", color: "var(--color-risk-high)" };
 }
 
-export function PriorityQueue({ rows, selectedSegmentId, onSelect, loading }: PriorityQueueProps) {
+export function PriorityQueue({
+  rows,
+  selectedSegmentId,
+  onSelect,
+  loading,
+  rankBy,
+  onChangeRankBy,
+}: PriorityQueueProps) {
   const selectedRowRef = useRef<HTMLButtonElement>(null);
 
   // The reverse of MapView's "pan to the selected segment" fix: a road
@@ -38,6 +47,33 @@ export function PriorityQueue({ rows, selectedSegmentId, onSelect, loading }: Pr
       <header className="panel-header">
         <h2>Priority queue</h2>
         <p className="panel-subtitle">Ranked by transparent priority score, highest first</p>
+        {/* This project's own replication study found that a
+            parameter-free crash-count sort is not reliably beaten by the
+            model (see the paper linked in the model-info audit trail).
+            Hiding that behind only the model's ranking would misrepresent
+            the research this product is built on, so the toggle is a
+            first-class control, not a footnote. */}
+        <div className="rank-toggle" role="radiogroup" aria-label="Ranking method">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={rankBy === "model"}
+            className={`rank-toggle-option${rankBy === "model" ? " rank-toggle-option--active" : ""}`}
+            onClick={() => onChangeRankBy("model")}
+          >
+            Model (GAT+GRU+ZIP)
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={rankBy === "baseline"}
+            className={`rank-toggle-option${rankBy === "baseline" ? " rank-toggle-option--active" : ""}`}
+            onClick={() => onChangeRankBy("baseline")}
+            title="A parameter-free ranking by cumulative past crash count — no model, no training. This project's own research found it is not reliably beaten by the model above."
+          >
+            Baseline (crash-count sort)
+          </button>
+        </div>
       </header>
       {loading && <p className="muted">Loading…</p>}
       {!loading && rows.length === 0 && <p className="muted">No scored segments for this borough yet.</p>}

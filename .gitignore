@@ -25,4 +25,15 @@ __pycache__/
 *.zip
 *.pdf
 cache/
-data/
+# Ignore every OTHER top-level data/ subdirectory, but not `data` itself -
+# `data/*` (no trailing content after the star) matches each child of
+# data/ individually rather than the `data` directory node, which is what
+# makes the `!data/served/` exception below actually work. A bare `data/`
+# rule ignores the directory itself; git then never re-examines anything
+# under it even given a later `!` rule (a documented, easy-to-hit
+# gitignore limitation - confirmed here with `git check-ignore -v`, which
+# kept reporting the `data/` rule as the match for `data/served` despite
+# an apparently-correct negation directly below it).
+data/*
+!data/served/
+!data/served/**

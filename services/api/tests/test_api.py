@@ -1,9 +1,9 @@
-"""Integration tests for the Greyspot API - these use the real, already
-processed Westminster data (run `python scripts/run_pipeline.py Westminster`
-first if `data/processed/westminster/` doesn't exist). Deliberately
-integration-style rather than mocked: the whole point of this backend is
-"do these real objects survive the trip from parquet -> pandas -> JSON
-without silently corrupting NaN/None handling", which a mock can't test.
+"""Integration tests for the Greyspot API against the precomputed serving
+artifacts. Run `python scripts/build_serving_artifacts.py Westminster` (and
+any other borough exercised below) first if `data/served/westminster/`
+doesn't exist. Deliberately integration-style rather than mocked: the
+point is "do these real objects survive parquet -> pandas -> JSON without
+corrupting NaN/None handling", which a mock can't test.
 """
 import sys
 from pathlib import Path
@@ -44,9 +44,8 @@ def test_model_info_westminster_has_expected_shape():
     assert resp.status_code == 200
     body = resp.json()
     assert body["borough"] == "Westminster"
-    assert body["ons_code"] == "E09000033"
-    assert "metrics" in body and "pr_auc" in body["metrics"]
-    assert "conformal" in body and 0 <= body["conformal"]["empirical_coverage"] <= 1
+    assert "held_out_start" in body
+    assert "research_finding" in body  # the trivial-baseline finding must always be present
     assert "non_negotiable_boundary" in body
 
 
@@ -70,12 +69,22 @@ def test_priority_queue_is_sorted_descending_and_respects_limit():
     assert scores == sorted(scores, reverse=True)
 
 
-def test_priority_queue_min_confidence_filter_excludes_default_confidence_rows():
-    resp_all = client.get("/boroughs/Westminster/priority-queue?limit=500")
-    resp_filtered = client.get("/boroughs/Westminster/priority-queue?limit=500&min_confidence=true")
-    assert resp_filtered.status_code == 200
-    # filtering can only ever reduce (or match) the candidate pool
-    assert len(resp_filtered.json()) <= len(resp_all.json())
+def test_priority_queue_baseline_ranking_is_a_different_but_valid_order():
+    """The research finding this API exists to be honest about: a
+    parameter-free baseline ranking must be servable through the identical
+    endpoint shape, not bolted on as a special case."""
+    model_ranked = client.get("/boroughs/Westminster/priority-queue?limit=20&rank_by=model").json()
+    baseline_ranked = client.get("/boroughs/Westminster/priority-queue?limit=20&rank_by=baseline").json()
+    assert len(model_ranked) == len(baseline_ranked) == 20
+    for row in baseline_ranked:
+        assert row["rank_by"] == "baseline"
+    scores = [row["priority_score"] for row in baseline_ranked]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_priority_queue_rejects_unknown_rank_by():
+    resp = client.get("/boroughs/Westminster/priority-queue?rank_by=nonsense")
+    assert resp.status_code == 422
 
 
 def test_road_evidence_for_a_real_segment_has_full_structure():
@@ -86,7 +95,8 @@ def test_road_evidence_for_a_real_segment_has_full_structure():
     assert resp.status_code == 200
     body = resp.json()
     assert body["segment_id"] == segment_id
-    for section in ["observed_evidence", "exposure", "model_evidence", "priority_score", "limitations"]:
+    for section in ["observed_evidence", "exposure", "model_evidence", "baseline_evidence",
+                     "priority_score", "limitations"]:
         assert section in body
 
 
@@ -96,8 +106,7 @@ def test_road_evidence_for_unknown_segment_is_404():
 
 
 def test_response_json_never_contains_bare_nan_tokens():
-    # A literal `NaN` in a JSON body is invalid JSON per spec and breaks
-    # strict parsers - this is exactly what _safe() in main.py exists to
-    # prevent silently reappearing.
+    # A literal `NaN` in a JSON body is invalid JSON per spec - exactly
+    # what `_safe()` in main.py exists to prevent silently reappearing.
     resp = client.get("/boroughs/Westminster/priority-queue?limit=500")
     assert "NaN" not in resp.text

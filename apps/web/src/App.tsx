@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api, type BoroughSummary, type ModelInfo, type PriorityQueueRow, type RoadEvidence } from "./api";
+import { api, type BoroughSummary, type ModelInfo, type PriorityQueueRow, type RankBy, type RoadEvidence } from "./api";
 import { Header } from "./components/Header";
 import { MapView } from "./components/MapView";
 import { PriorityQueue } from "./components/PriorityQueue";
@@ -12,6 +12,7 @@ export default function App() {
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [roadsGeoJSON, setRoadsGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
   const [queueRows, setQueueRows] = useState<PriorityQueueRow[]>([]);
+  const [rankBy, setRankBy] = useState<RankBy>("model");
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
   const [evidence, setEvidence] = useState<RoadEvidence | null>(null);
   const [loadingBorough, setLoadingBorough] = useState(true);
@@ -35,7 +36,7 @@ export default function App() {
     Promise.all([
       api.modelInfo(selectedBorough),
       api.roadsGeoJSON(selectedBorough),
-      api.priorityQueue(selectedBorough, 30),
+      api.priorityQueue(selectedBorough, 30, rankBy),
     ])
       .then(([info, roads, queue]) => {
         if (cancelled) return;
@@ -49,7 +50,27 @@ export default function App() {
     return () => {
       cancelled = true;
     };
+    // rankBy intentionally excluded: switching it re-fetches only the
+    // queue (see the effect below), not the whole borough - re-running
+    // this effect too would flash the map/model-info loading state for a
+    // change that doesn't affect either.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBorough]);
+
+  // Re-fetch just the priority queue when the ranking method changes,
+  // without touching the map or model-info (those are shared by both
+  // rankings - only which segments sort to the top differs).
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .priorityQueue(selectedBorough, 30, rankBy)
+      .then((queue) => !cancelled && setQueueRows(queue))
+      .catch((e) => !cancelled && setError(String(e)));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rankBy]);
 
   // Load evidence for the selected segment.
   //
@@ -106,7 +127,14 @@ export default function App() {
             Research signal only — not a safety guarantee. Grey roads have no recent modelled estimate.
           </div>
         </div>
-        <PriorityQueue rows={queueRows} selectedSegmentId={selectedSegmentId} onSelect={setSelectedSegmentId} loading={loadingBorough} />
+        <PriorityQueue
+          rows={queueRows}
+          selectedSegmentId={selectedSegmentId}
+          onSelect={setSelectedSegmentId}
+          loading={loadingBorough}
+          rankBy={rankBy}
+          onChangeRankBy={setRankBy}
+        />
         <EvidencePanel evidence={evidence} loading={loadingEvidence} error={evidenceError} />
       </main>
     </div>

@@ -33,23 +33,28 @@ export function Header({ boroughs, selectedBorough, onSelectBorough, modelInfo }
         </select>
       </div>
       {modelInfo && (
-        <div className="app-header-right" title="Audit trail — every number traceable to a model version and generation time">
+        <div
+          className="app-header-right"
+          title="Audit trail — every score traceable to a model version and the exact historical window it was evaluated on"
+        >
           <span className="audit-item">
             <span className="audit-label">Model</span>
-            <span className="audit-value">{modelInfo.model_version}</span>
+            <span className="audit-value mono">{modelInfo.model_version}</span>
           </span>
           <span className="audit-item">
-            <span className="audit-label">Test year</span>
-            <span className="audit-value">{modelInfo.test_year}</span>
+            <span className="audit-label">Evaluated as of</span>
+            <span className="audit-value">{modelInfo.held_out_start}</span>
           </span>
           <span className="audit-item">
             <span className="audit-label">Segments</span>
             <span className="audit-value">{modelInfo.n_segments.toLocaleString()}</span>
           </span>
-          <span className="audit-item">
-            <span className="audit-label">90% coverage</span>
-            <span className="audit-value">{(modelInfo.conformal.empirical_coverage * 100).toFixed(1)}%</span>
-          </span>
+          {modelInfo.reported_acchr_at_20 !== null && (
+            <span className="audit-item" title="AccHR@20 on this exact window, matching the published paper's figure">
+              <span className="audit-label">AccHR@20</span>
+              <span className="audit-value">{(modelInfo.reported_acchr_at_20 * 100).toFixed(1)}%</span>
+            </span>
+          )}
         </div>
       )}
     </header>

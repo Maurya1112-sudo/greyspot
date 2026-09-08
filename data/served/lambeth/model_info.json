@@ -1,0 +1,16 @@
+{
+  "borough": "Lambeth",
+  "model_version": "gat-gru-zip-final-v1",
+  "seed": 42,
+  "held_out_start": "2024-10-07",
+  "held_out_horizon_days": 14,
+  "n_segments": 11596,
+  "this_run_acchr_at_20": 0.7885,
+  "reported_acchr_at_20": 0.7885,
+  "reported_acchr_source": "headline_multiseed_per_window.csv",
+  "conformal_confidence_level": 0.9,
+  "generated_at": "2026-09-07T12:30:08.631639+00:00",
+  "research_finding": "A parameter-free ranking of segments by cumulative past crash count is statistically indistinguishable from this model at matched history depth, and beats it once given more history than the model was trained with. Both rankings are shown below; see the accompanying paper (paper/arxiv/main.tex) for the full comparison.",
+  "interval_note": "The 14-day interval is the sum of per-day conformal bounds, which is a conservative approximation to a jointly-calibrated 14-day interval, not one itself.",
+  "non_negotiable_boundary": "This is a research prototype. It does not predict a specific collision, does not label any location 'safe' or 'unsafe', and its ranking has not been validated as a policy tool."
+}

@@ -69,7 +69,8 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
     return () => cancelAnimationFrame(raf);
   }, [evidence?.segment_id]);
 
-  const animatedScore = useCountUp(evidence?.priority_score.score_0_100 ?? null, evidence?.segment_id ?? "");
+  const modelScore = evidence?.priority_score.model_ranked.score_0_100 ?? null;
+  const animatedScore = useCountUp(modelScore, evidence?.segment_id ?? "");
 
   if (loading) {
     return (
@@ -93,7 +94,8 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
     );
   }
 
-  const { observed_evidence, exposure, model_evidence, priority_score } = evidence;
+  const { observed_evidence, exposure, model_evidence, baseline_evidence, priority_score } = evidence;
+  const [intervalLow, intervalHigh] = model_evidence.conformal_interval_90pct;
 
   return (
     <aside className="evidence-panel" aria-label="Evidence panel">
@@ -103,17 +105,13 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
       </header>
 
       <div className="score-hero">
-        <span className="score-hero-number">
-          {priority_score.score_0_100 !== null ? Math.round(animatedScore) : "—"}
-        </span>
+        <span className="score-hero-number">{modelScore !== null ? Math.round(animatedScore) : "—"}</span>
         <span className="score-hero-label">
-          priority score
-          {priority_score.score_0_100 !== null && priority_score.score_0_100 !== undefined && (
+          priority score (model-ranked)
+          {modelScore !== null && (
             <>
               {" "}
-              <span className={`govuk-tag ${ragBand(priority_score.score_0_100).className}`}>
-                {ragBand(priority_score.score_0_100).label}
-              </span>
+              <span className={`govuk-tag ${ragBand(modelScore).className}`}>{ragBand(modelScore).label}</span>
             </>
           )}
           <br />
@@ -121,10 +119,29 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
         </span>
       </div>
 
+      <section className="evidence-section evidence-section--baseline">
+        <h3>Baseline comparison</h3>
+        {/* This is the single most important disclosure in this panel:
+            this project's own paper found the model does not reliably
+            beat a ranking with no parameters and no training. Shown as a
+            direct number-for-number comparison, not buried in prose. */}
+        <dl className="evidence-grid">
+          <div>
+            <dt>Model score (0–100)</dt>
+            <dd>{formatNumber(modelScore, 0)}</dd>
+          </div>
+          <div>
+            <dt>Baseline score (0–100)</dt>
+            <dd>{formatNumber(priority_score.baseline_ranked.score_0_100, 0)}</dd>
+          </div>
+        </dl>
+        <p className="caveat">{baseline_evidence.research_note}</p>
+      </section>
+
       <section className="evidence-section">
-        <h3>Score breakdown</h3>
+        <h3>Score breakdown (model-ranked)</h3>
         <ul className="component-bars">
-          {Object.entries(priority_score.components).map(([key, value]) => (
+          {Object.entries(priority_score.model_ranked.components).map(([key, value]) => (
             <li key={key}>
               <span className="component-label">{COMPONENT_LABELS[key] ?? key}</span>
               <span className="component-bar-track">
@@ -196,16 +213,24 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
         <h3>Model evidence</h3>
         <dl className="evidence-grid">
           <div>
-            <dt>Predicted relative risk</dt>
-            <dd>{formatNumber(model_evidence.predicted_relative_risk, 2)}</dd>
+            <dt>Predicted crashes, next 14 days</dt>
+            <dd>{formatNumber(model_evidence.predicted_crashes_next_14_days, 3)}</dd>
           </div>
           <div>
-            <dt>90% interval width</dt>
-            <dd>{formatNumber(model_evidence.conformal_interval_width_90pct, 2)}</dd>
+            <dt>90% interval</dt>
+            <dd>
+              {intervalLow !== null && intervalHigh !== null
+                ? `${formatNumber(intervalLow, 3)} – ${formatNumber(intervalHigh, 3)}`
+                : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt>Scored as of</dt>
+            <dd>{model_evidence.as_of_window ?? "—"}</dd>
           </div>
           <div>
             <dt>Model version</dt>
-            <dd className="mono small">{model_evidence.model_version}</dd>
+            <dd className="mono small">{model_evidence.model_version ?? "—"}</dd>
           </div>
         </dl>
       </section>
