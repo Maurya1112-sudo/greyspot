@@ -86,6 +86,62 @@ def inline(md: str) -> str:
     return s
 
 
+def merge_wrapped_blocks(lines: list[str]) -> list[str]:
+    """Join a few construct types back into one line before the per-line
+    dispatch loop below runs.
+
+    BUG FOUND AND FIXED (2026-09-08, from a reader report that "the graph
+    in the paper is broken"): the main loop dispatches purely on a LINE's
+    own leading token (`ln.startswith("![")`, `ln.startswith("*Figure")`,
+    ...). That works only when the whole construct fits on one source
+    line. `DRAFT_preprint.md` wraps long lines for readability, so
+    Figure 1's image tag - `![Figure 1: ...long alt text...
+    ](../reports/figures/fig1_horizon_curve.svg)` - actually spans four
+    source lines. The loop correctly recognised the FIRST line
+    (`![Figure 1: ...`) as an image and rendered the SVG, but the three
+    continuation lines don't start with `![` either, so they fell through
+    to the generic "plain paragraph" branch and were rendered as ordinary
+    body text - literal markdown remnant and all: the closing
+    `](../reports/figures/fig1_horizon_curve.svg)` appeared as visible
+    text in the PDF, immediately after the chart. The same line-wrapping
+    also broke the *Figure 1. ...* caption immediately below it: only the
+    caption's first line matched `ln.startswith("*Figure")` and got its
+    leading `*` stripped; the wrapped second line kept its own trailing
+    `*` as a literal character, because `inline()`'s italic regex needs a
+    matching pair of `*` markers within the SAME string it processes.
+
+    Fixed the general case, not just this one occurrence: absorb any
+    following non-blank lines into an image tag or a `*Figure`/`*Data`
+    caption until the construct's own terminator (`)` for an image, `*`
+    for a caption) appears - the same way a real markdown parser treats a
+    soft line break inside one block as a space, not a paragraph
+    boundary. Stops at a blank line or EOF even if unterminated, so a
+    genuinely malformed source cannot swallow the rest of the document.
+    """
+    merged: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        is_image = line.startswith("![")
+        is_caption = line.startswith("*Figure") or line.startswith("*Data:")
+        if is_image or is_caption:
+            block = [line]
+
+            def _closed(text: str, _is_image: bool = is_image) -> bool:
+                return text.rstrip().endswith(")") if _is_image else text.rstrip().endswith("*")
+
+            j = i
+            while not _closed(block[-1]) and j + 1 < len(lines) and lines[j + 1].strip():
+                j += 1
+                block.append(lines[j])
+            merged.append(" ".join(part.strip() for part in block))
+            i = j + 1
+        else:
+            merged.append(line)
+            i += 1
+    return merged
+
+
 def build_table(rows: list[list[str]], st) -> Table:
     head, body = rows[0], rows[1:]
     data = [[Paragraph(inline(c), st["cellb"]) for c in head]]
@@ -141,7 +197,7 @@ def main() -> None:
         author="Maurya Patel", subject="Road-level crash prediction: replication study",
     )
 
-    lines = md.splitlines()
+    lines = merge_wrapped_blocks(md.splitlines())
     i, para, tbl = 0, [], []
 
     def flush_para():
