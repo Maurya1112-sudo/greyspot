@@ -83,6 +83,25 @@ def test_compute_priority_score_applies_minimum_data_rule_for_trend():
     assert out.loc[out["segment_id"] == "a", "component_trend"].iloc[0] == 0.5
 
 
+def test_compute_priority_score_vulnerable_share_is_bounded_by_one():
+    """2026-09-08 regression: the vulnerable-users component used to
+    divide pedestrian/cyclist casualties by the COLLISION count, not the
+    casualty count - a segment with one collision but multiple casualties
+    (a single crash injuring several pedestrians) produced a "share" over
+    1.0 (surfaced as a nonsensical 400% in the evidence panel). One
+    collision, four pedestrian casualties: share must be a real
+    proportion, never a value that implies more vulnerable casualties
+    than casualties."""
+    table = _toy_table()
+    table.loc[0, "prior_year_count"] = 1  # one collision...
+    table.loc[0, "prior_year_n_pedestrian_casualties"] = 4  # ...but four people hurt in it
+    table.loc[0, "prior_year_n_slight_casualties"] = 4  # (consistent: 4 casualties total, all slight+pedestrian)
+    out = compute_priority_score(table, risk_score_col="model_score")
+    share_a = out.loc[out["segment_id"] == "a", "component_vulnerable_users"].iloc[0]
+    assert 0.0 <= share_a <= 1.0
+    assert share_a == pytest.approx(1.0)  # all 4 casualties were pedestrians
+
+
 def test_compute_priority_score_records_policy_profile_name():
     table = _toy_table()
     out = compute_priority_score(table, risk_score_col="model_score")

@@ -129,12 +129,30 @@ def compute_priority_score(
     )
     component_severity = _minmax_normalise(severity_index)
 
-    # 3. Vulnerable users: share of prior-year casualties who were
+    # 3. Vulnerable users: share of prior-year CASUALTIES who were
     #    pedestrians/cyclists (0 when there's no prior history, not "safe").
+    #
+    #    BUG FOUND AND FIXED (2026-09-08, via the evidence panel's own
+    #    "what does this number mean" explanation surfacing it): this used
+    #    to divide by `prior_year_count` - a COLLISION count, not a
+    #    casualty count. One collision can injure several people, so a
+    #    segment with 1 collision and 4 pedestrian casualties produced a
+    #    "share" of 4.0 (400%), which is not a share of anything. The
+    #    correct denominator is the total casualty count (fatal + serious
+    #    + slight), the same population `vulnerable_count` is drawn from -
+    #    every casualty has exactly one severity band and one road-user
+    #    type per STATS19, so this ratio is structurally bounded to [0, 1].
     vulnerable_count = out["prior_year_n_pedestrian_casualties"].fillna(0.0) + out["prior_year_n_cyclist_casualties"].fillna(0.0)
-    total_prior = out["prior_year_count"].fillna(0.0)
-    vulnerable_share = np.where(total_prior > 0, vulnerable_count / total_prior.replace(0, np.nan), 0.0)
-    component_vulnerable = pd.Series(np.nan_to_num(vulnerable_share), index=out.index)
+    total_casualties = (
+        out["prior_year_n_fatal_casualties"].fillna(0.0)
+        + out["prior_year_n_serious_casualties"].fillna(0.0)
+        + out["prior_year_n_slight_casualties"].fillna(0.0)
+    )
+    vulnerable_share = np.where(total_casualties > 0, vulnerable_count / total_casualties.replace(0, np.nan), 0.0)
+    # Defensive clip, not load-bearing given the STATS19 guarantee above -
+    # cheap insurance against a future denominator change reintroducing
+    # an out-of-range "share".
+    component_vulnerable = pd.Series(np.clip(np.nan_to_num(vulnerable_share), 0.0, 1.0), index=out.index)
 
     # 4. Trend: is the latest year higher than the recent average? Gated
     #    by a minimum-data rule (dossier Section 5.6) - too little history

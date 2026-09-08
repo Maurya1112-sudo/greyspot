@@ -113,6 +113,8 @@ def road_evidence(borough_name: str, segment_id: str) -> dict:
     return {
         "segment_id": segment_id,
         "borough": data.borough.name,
+        "name": _safe(r.get("name")),
+        "highway": r.get("highway"),
         "observed_evidence": {
             "prior_year_collision_count": _safe(r.get("prior_year_count")),
             "prior_2yr_avg": _safe(r.get("prior_2yr_avg")),
@@ -179,6 +181,7 @@ def priority_queue(
     return [
         {
             "segment_id": row["segment_id"],
+            "name": _safe(row.get("name")),
             "priority_score": _safe(row[priority_col]),
             "model_score": _safe(row[score_col]),
             "prior_year_count": _safe(row.get("prior_year_count")),

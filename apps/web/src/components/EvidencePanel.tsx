@@ -16,6 +16,69 @@ const COMPONENT_LABELS: Record<string, string> = {
   data_confidence: "Data confidence",
 };
 
+// What each component actually measures, and its weight in the 0-100
+// priority score (see src/greyspot/product/priority_score.py's
+// DEFAULT_WEIGHTS - kept in sync with that module by hand, since it's a
+// small, rarely-changed policy table, not worth importing into a
+// frontend bundle). 2026-09-08 fix: the panel previously showed six bare
+// 0-1 numbers with a bar and nothing else - a reported "I don't know
+// what these numbers mean" usability bug.
+const COMPONENT_INFO: Record<string, { weight: number; description: string }> = {
+  risk_signal: {
+    weight: 0.35,
+    description: "The model's own predicted relative risk, scaled 0-1 against every other scored segment in this borough this window.",
+  },
+  severity: {
+    weight: 0.25,
+    description: "How severe prior-year casualties here were (fatal counts weighted most, slight least), scaled against every segment.",
+  },
+  vulnerable_users: {
+    weight: 0.15,
+    description: "Share of this segment's own prior-year casualties who were pedestrians or cyclists - not scaled against other segments.",
+  },
+  trend: {
+    weight: 0.10,
+    description: "Is the latest year's collision count above or below the recent 2-year average? A flat 0.50 means too little history to call a trend, not a neutral risk finding.",
+  },
+  network_importance: {
+    weight: 0.10,
+    description: "How connected this segment's endpoints are (junction degree) relative to other segments - a rough proxy for how much traffic passes through, not measured directly.",
+  },
+  data_confidence: {
+    weight: 0.05,
+    description: "How narrow the model's 90% uncertainty interval is here - narrower means more confident. Never used to imply the road is safe.",
+  },
+};
+
+// A plain-language read of the CURRENT value, not just its definition -
+// this is the part a bare number and a bar can't give a reader on its
+// own ("what does 0.00 out of 1.00 actually mean for THIS road?").
+function componentInterpretation(
+  key: string,
+  value: number | null,
+  evidence: RoadEvidence,
+): string {
+  if (value === null) return "Not available for this segment.";
+  if (key === "trend" && value === 0.5) {
+    return "Not enough prior-year history on this segment to call a trend either way.";
+  }
+  if (key === "data_confidence" && evidence.priority_score.data_confidence_is_default) {
+    return "No interval-based confidence data for this batch - shown as neutral, not computed.";
+  }
+  if (key === "vulnerable_users") {
+    const priorCount = evidence.observed_evidence.prior_year_collision_count;
+    if (!priorCount) return "No prior-year collisions recorded, so no vulnerable-user share to report.";
+    return `${Math.round(value * 100)}% of this segment's prior-year casualties were pedestrians or cyclists.`;
+  }
+  // The five batch-normalised components (everything except
+  // vulnerable_users) all share the same 0-1 "rank within this batch"
+  // reading, so one banding covers them.
+  if (value >= 0.8) return "Among the highest in this borough's batch.";
+  if (value >= 0.5) return "Above the middle of this borough's batch.";
+  if (value >= 0.2) return "Below the middle of this borough's batch.";
+  return "Among the lowest in this borough's batch.";
+}
+
 function formatNumber(value: number | null | undefined, digits = 1): string {
   if (value === null || value === undefined) return "—";
   return value.toFixed(digits);
@@ -101,7 +164,13 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
     <aside className="evidence-panel" aria-label="Evidence panel">
       <header className="panel-header">
         <h2>Why this road?</h2>
-        <p className="panel-subtitle mono">{evidence.segment_id}</p>
+        {/* Real street name (OS Open Roads name_1) as the actual heading -
+            2026-09-08 fix: this panel previously led with nothing but the
+            raw segment UUID, a reported usability bug. A genuinely
+            unnamed segment still falls back to its road class rather than
+            a blank heading. */}
+        <p className="panel-subtitle">{evidence.name ?? `Unnamed ${evidence.highway ?? "road"}`}</p>
+        <p className="mono small evidence-segment-id">{evidence.segment_id}</p>
       </header>
 
       <div className="score-hero">
@@ -140,25 +209,39 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
 
       <section className="evidence-section">
         <h3>Score breakdown (model-ranked)</h3>
+        <p className="section-intro">
+          The priority score is a weighted blend of six components, each scaled 0.00-1.00. Weights (how much each
+          one counts toward the final 0-100 score) are shown in brackets.
+        </p>
         <ul className="component-bars">
-          {Object.entries(priority_score.model_ranked.components).map(([key, value]) => (
-            <li key={key}>
-              <span className="component-label">{COMPONENT_LABELS[key] ?? key}</span>
-              <span className="component-bar-track">
-                <span
-                  className="component-bar-fill"
-                  // Animates via transform (GPU-composited), not width -
-                  // see App.css's .component-bar-fill comment. Starts at
-                  // scale 0 and is flipped to the real fraction one frame
-                  // after this segment's evidence mounts (barsFilled).
-                  style={{
-                    transform: `scaleX(${barsFilled ? Math.max(0, Math.min(1, value ?? 0)) : 0})`,
-                  }}
-                />
-              </span>
-              <span className="component-value">{formatNumber(value, 2)}</span>
-            </li>
-          ))}
+          {Object.entries(priority_score.model_ranked.components).map(([key, value]) => {
+            const info = COMPONENT_INFO[key];
+            return (
+              <li key={key}>
+                <div className="component-row">
+                  <span className="component-label">
+                    {COMPONENT_LABELS[key] ?? key}
+                    {info && <span className="component-weight"> ({Math.round(info.weight * 100)}%)</span>}
+                  </span>
+                  <span className="component-value">{formatNumber(value, 2)}</span>
+                </div>
+                <span className="component-bar-track">
+                  <span
+                    className="component-bar-fill"
+                    // Animates via transform (GPU-composited), not width -
+                    // see App.css's .component-bar-fill comment. Starts at
+                    // scale 0 and is flipped to the real fraction one frame
+                    // after this segment's evidence mounts (barsFilled).
+                    style={{
+                      transform: `scaleX(${barsFilled ? Math.max(0, Math.min(1, value ?? 0)) : 0})`,
+                    }}
+                  />
+                </span>
+                {info && <p className="component-description">{info.description}</p>}
+                <p className="component-interpretation">{componentInterpretation(key, value, evidence)}</p>
+              </li>
+            );
+          })}
         </ul>
         {priority_score.data_confidence_is_default && (
           <p className="caveat">No conformal interval available for this row — confidence shown as neutral, not computed.</p>
@@ -233,6 +316,11 @@ export function EvidencePanel({ evidence, loading, error }: EvidencePanelProps) 
             <dd className="mono small">{model_evidence.model_version ?? "—"}</dd>
           </div>
         </dl>
+        <p className="section-intro">
+          The prediction is an <em>expected count</em>, not a whole-road forecast - most 14-day windows on most
+          segments see zero collisions, so a typical value is a small fraction (e.g. 0.015 means roughly 1 in 65
+          such windows sees one). The interval is this project&rsquo;s 90% confidence range for that count.
+        </p>
       </section>
 
       <section className="evidence-section evidence-section--limitations">

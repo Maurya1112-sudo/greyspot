@@ -30,6 +30,7 @@ export type RankBy = "model" | "baseline";
 
 export interface PriorityQueueRow {
   segment_id: string;
+  name: string | null;
   priority_score: number;
   model_score: number;
   prior_year_count: number | null;
@@ -40,6 +41,8 @@ export interface PriorityQueueRow {
 export interface RoadEvidence {
   segment_id: string;
   borough: string;
+  name: string | null;
+  highway: string | null;
   observed_evidence: Record<string, number | null>;
   exposure: {
     aadf_all_motor_vehicles: number | null;

@@ -180,6 +180,36 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
       // at its default) - reusing the style's own working layer rather
       // than layering a second, competing extrusion layer on the same
       // source (which would z-fight and double-render).
+      // Street-name labels were still effectively invisible after the
+      // 2026-09-01 z-ordering fix above (which only stopped the risk
+      // overlay from painting over labels - it never affected whether a
+      // label draws at all). Inspecting the "liberty" style JSON directly
+      // shows why: "highway-name-minor" (ordinary residential streets -
+      // the vast majority of this project's segments, which score as
+      // "unclassified road" in the priority queue) has minzoom 15, and
+      // "highway-name-path" has minzoom 15.5, while a whole-borough
+      // fitBounds view (see the roadsGeoJSON effect below) lands well
+      // below that, around zoom 12-13. Only "highway-name-major"
+      // (minzoom 12.2 - trunk/primary/secondary roads, a small minority)
+      // was ever visible at the default view - reading as "no street
+      // names" for a borough dominated by residential segments. Lowering
+      // these two thresholds to match major roads' 12.2 makes the
+      // labelling correct for this product's actual data, not a style
+      // fixed up for a generic all-road-types web map.
+      if (map.getLayer("highway-name-minor")) {
+        map.setLayerZoomRange("highway-name-minor", 12.2, 24);
+        // The vendor style only sets text-halo-blur on this layer, with no
+        // text-halo-color - MapLibre's default halo colour is fully
+        // transparent, so the #666 grey text got no actual contrast
+        // boost, just a soft blur. A solid light halo is what makes the
+        // text read on both parkland green and building beige.
+        map.setPaintProperty("highway-name-minor", "text-halo-color", "#f8f4f0");
+        map.setPaintProperty("highway-name-minor", "text-halo-width", 1.4);
+      }
+      if (map.getLayer("highway-name-path")) {
+        map.setLayerZoomRange("highway-name-path", 13, 24);
+      }
+
       if (map.getLayer("building-3d")) {
         map.setLayoutProperty("building-3d", "visibility", "none");
         map.setPaintProperty("building-3d", "fill-extrusion-height", ["coalesce", ["get", "render_height"], 6]);
@@ -265,7 +295,22 @@ export function MapView({ roadsGeoJSON, selectedSegmentId, onSelectSegment, load
           }
         }
       }
-      if (any) map.fitBounds(bounds, { padding: 40, duration: 500 });
+      if (any) {
+        map.fitBounds(bounds, { padding: 40, duration: 500 });
+        // fitBounds picks whatever zoom fits the WHOLE borough - for a
+        // borough the size of Westminster that measured at zoom ~11.1 on
+        // the real data (confirmed via queryRenderedFeatures during the
+        // 2026-09-08 label-visibility fix), which is below even
+        // "highway-name-major"'s own minzoom of 12.2: no street name,
+        // major or minor, rendered anywhere on the default view - the
+        // labelling fix above only helps once the user has already zoomed
+        // in some. A floor here means the view a user actually lands on
+        // reads as a real street map from the first paint, not just after
+        // they discover they need to zoom in.
+        map.once("moveend", () => {
+          if (map.getZoom() < 13) map.easeTo({ zoom: 13, duration: 300 });
+        });
+      }
     };
     if (loadedRef.current) applyData();
     else map.once("load", applyData);

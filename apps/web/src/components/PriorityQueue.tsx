@@ -100,8 +100,17 @@ export function PriorityQueue({
               >
                 <span className="queue-rank">{index + 1}</span>
                 <span className="queue-details">
-                  <span className="queue-road-type">{row.highway ?? "unclassified road"}</span>
-                  <span className="queue-segment-id">{row.segment_id}</span>
+                  {/* OS Open Roads carries a real street name for most
+                      segments (name_1) - shown here as the primary line,
+                      2026-09-08 fix for a reported bug where every row
+                      showed nothing but a raw segment UUID. A genuinely
+                      unnamed segment (service roads, tracks, some minor
+                      residential stubs) falls back to its road-class
+                      label instead of an empty row. */}
+                  <span className="queue-road-name">{row.name ?? `Unnamed ${row.highway ?? "road"}`}</span>
+                  <span className="queue-road-type">
+                    {row.highway ?? "unclassified road"} · <span className="queue-segment-id">{row.segment_id}</span>
+                  </span>
                 </span>
                 <span className="queue-score-group">
                   <span className={`govuk-tag ${band.className}`}>{band.label}</span>

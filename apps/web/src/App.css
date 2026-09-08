@@ -430,19 +430,16 @@ a:hover {
   inset: 0;
   /* OpenFreeMap's "liberty" style has no dark variant - a CSS filter is a
      well-known, cheap technique for tinting a light vector basemap toward
-     a dark theme without forking the style JSON. Kept modest (not
-     inverted) so the RAG line colours drawn on top stay recognisably
-     red/amber/green, just deepened to match the chassis zone's glass.
-     Strengthened 2026-09-01 (verification pass): brightness(0.8) still
-     read as a barely-tinted light basemap on screen (near-white tiles *
-     0.8 is still near-white) - failed the brief's explicit "should NOT
-     look like a plain untouched light basemap" check. Lowered brightness
-     further and added a small hue-rotate to push the residual cream tone
-     toward the chassis zone's cool graphite rather than a darkened beige;
-     saturate/contrast raised slightly to keep the RAG road lines (already
-     mid-tone, not near-white) visually separated from the now-darker
-     background instead of also flattening toward black. */
-  filter: brightness(0.55) saturate(1.15) contrast(1.12) hue-rotate(3deg);
+     a dark theme without forking the style JSON. The earlier
+     brightness(0.55) pass (2026-09-01) went too far the other way: direct
+     user feedback (2026-09-08) was that the map read as under "some kind
+     of filter" and its already-modest-contrast street labels (#666 grey
+     text, only a soft halo-blur, no solid text-halo-color - see
+     highway-name-minor/-major in the style JSON) became hard to read on
+     top of it. Backed off to a light tint that still reads as
+     deliberately toned for the chassis zone rather than a raw untouched
+     basemap, without fighting label legibility. */
+  filter: brightness(0.9) saturate(1.04) contrast(1.02);
 }
 
 .map-legend {
@@ -799,20 +796,34 @@ a:hover {
   gap: 2px;
 }
 
-.queue-road-type {
+/* Real street name (OS Open Roads' name_1) - the primary line, added
+   2026-09-08: every row previously showed nothing but a raw segment
+   UUID here, a reported usability bug (see queue-road-type below, its
+   former role). */
+.queue-road-name {
   font-size: var(--text-base);
-  text-transform: capitalize;
   font-weight: 600;
   color: var(--ink-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.queue-segment-id {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xs);
+/* Secondary line: road class + segment ID, muted - identifying detail
+   for cross-referencing against the map/API, not the headline text. */
+.queue-road-type {
+  font-size: var(--text-xs);
+  text-transform: capitalize;
+  font-weight: 500;
   color: var(--ink-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.queue-segment-id {
+  font-family: var(--font-mono);
+  text-transform: none;
 }
 
 .queue-score-group {
@@ -916,19 +927,43 @@ a:hover {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
+/* Restructured 2026-09-08 from a single label|bar|value row to a small
+   stack (label+value, bar, then two lines of plain-language explanation)
+   - a bare number and an unlabelled bar were a reported "I don't know
+   what these mean" usability bug; the description/interpretation lines
+   are the fix, so they need real vertical room, not a cramped 3-column
+   row. */
 .component-bars li {
-  display: grid;
-  grid-template-columns: 132px 1fr 40px;
-  align-items: center;
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-size: var(--text-sm);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--paper-line);
+}
+.component-bars li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.component-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .component-label {
-  color: var(--ink-2);
+  color: var(--ink-1);
+  font-weight: 600;
+}
+
+.component-weight {
+  color: var(--ink-3);
+  font-weight: 500;
 }
 
 .component-bar-track {
@@ -960,6 +995,38 @@ a:hover {
   font-size: var(--text-xs);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.component-description {
+  margin: 2px 0 0;
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+
+/* The plain-language read of THIS segment's actual value - distinct
+   (accent-tinted, not just muted grey) from the component-description
+   above it because it's the answer to "what does this mean for THIS
+   road", the actual thing a reader wants, not the metric's definition. */
+.component-interpretation {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--accent-strong);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.section-intro {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.evidence-segment-id {
+  color: var(--ink-3);
+  margin-top: 2px;
 }
 
 .evidence-grid {

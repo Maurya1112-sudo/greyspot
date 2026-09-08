@@ -242,6 +242,26 @@ def serve_borough(borough_name: str, seed: int = SEED) -> None:
                      "n_pedestrian_casualties", "n_cyclist_casualties"]
     prior_year_casualties = window.groupby("segment_id")[casualty_cols].sum().reindex(segment_order).fillna(0.0)
 
+    # Road name, straight from OS Open Roads' own "name_1" attribute (see
+    # ingest/os_open_roads.py's graph_to_edges_gdf) - present for every
+    # Westminster segment when checked directly, but was never carried
+    # past `edges` into the served output until this fix (2026-09-08 user
+    # report: the priority queue and evidence panel showed nothing but a
+    # raw segment UUID, on every row, for every borough). `edges` can have
+    # duplicate segment_id rows (hence edges_geo's own drop_duplicates
+    # below), so build the lookup the same way rather than a plain
+    # set_index, which would raise on a non-unique index.
+    name_lookup = edges.drop_duplicates(subset="segment_id").set_index("segment_id")["name"]
+    # A genuinely unnamed segment (service roads, tracks, some minor stubs
+    # - about 7% of Westminster) comes back from OS Open Roads as float
+    # NaN, not None. Left as NaN, both pyarrow (parquet) and Fiona/GDAL
+    # (GeoJSON) were observed to stringify it to the literal text "nan"
+    # rather than emit a real null (2026-09-08: caught in the served
+    # output itself - a priority-queue row read "nan" as its road name).
+    # `.where(notna, None)` swaps in real Python `None`, which both
+    # writers correctly serialise as null.
+    name_lookup = name_lookup.where(name_lookup.notna(), None)
+
     assert len(model_score) == len(segment_order), (
         f"model_score length {len(model_score)} != segment_order length {len(segment_order)} - "
         f"held_out_pred shape was {held_out_pred.shape}, check which axis is N vs H"
@@ -256,6 +276,7 @@ def serve_borough(borough_name: str, seed: int = SEED) -> None:
         "u_degree": asof_rows["u_degree"].to_numpy(),
         "v_degree": asof_rows["v_degree"].to_numpy(),
         "highway": asof_rows["highway"].to_numpy() if "highway" in asof_rows.columns else None,
+        "name": name_lookup.reindex(segment_order).to_numpy(),
         "length": asof_rows["length"].to_numpy() if "length" in asof_rows.columns else None,
         "prior_year_count": asof_rows["collision_count_365d"].to_numpy(),
         "prior_2yr_avg": asof_rows["collision_count_730d"].to_numpy() / 2.0,
@@ -293,8 +314,14 @@ def serve_borough(borough_name: str, seed: int = SEED) -> None:
     # otherwise have to special-case.
     merged["has_score"] = merged["priority_score"].notna().astype(int)
     merged.to_file(out_dir / "segments.geojson", driver="GeoJSON")
-    scored.drop(columns=[c for c in ["highway"] if c in scored.columns], errors="ignore") \
-        .to_parquet(out_dir / "segments.parquet", index=False)
+    # `highway` used to be dropped here on the (undocumented, and wrong)
+    # assumption that the geojson was the only place the API needed it -
+    # data_service.py loads `scored_table` from THIS parquet, not from the
+    # geojson, so every priority-queue row and evidence response was
+    # silently getting `highway: None` and falling back to "Unclassified
+    # Road" regardless of the segment's real class (2026-09-08 user
+    # report: every single row showed "Unclassified Road"). Kept now.
+    scored.to_parquet(out_dir / "segments.parquet", index=False)
 
     # Historical performance for this exact window, from the already
     # validated per-window CSVs - not re-derived, so the product's stated

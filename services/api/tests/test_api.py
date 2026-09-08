@@ -69,6 +69,23 @@ def test_priority_queue_is_sorted_descending_and_respects_limit():
     assert scores == sorted(scores, reverse=True)
 
 
+def test_priority_queue_rows_carry_a_real_street_name():
+    """2026-09-08 regression test: every row previously showed nothing but
+    a raw segment UUID (the `name` column was computed in `edges` but
+    dropped before it reached the served artifact - see
+    scripts/build_serving_artifacts.py). OS Open Roads names the large
+    majority of segments, so most rows in a real batch must carry one -
+    not just "the field exists and is null everywhere", which would pass
+    a shallower `"name" in row` check just as easily."""
+    body = client.get("/boroughs/Westminster/priority-queue?limit=20").json()
+    assert all("name" in row for row in body)
+    named = [row for row in body if row["name"]]
+    assert len(named) >= len(body) * 0.5, (
+        f"only {len(named)}/{len(body)} rows had a name - expected most OS Open Roads "
+        "segments to be named; check build_serving_artifacts.py's name_lookup merge."
+    )
+
+
 def test_priority_queue_baseline_ranking_is_a_different_but_valid_order():
     """The research finding this API exists to be honest about: a
     parameter-free baseline ranking must be servable through the identical
@@ -95,6 +112,7 @@ def test_road_evidence_for_a_real_segment_has_full_structure():
     assert resp.status_code == 200
     body = resp.json()
     assert body["segment_id"] == segment_id
+    assert "name" in body  # may be null for a genuinely unnamed segment, but the key must exist
     for section in ["observed_evidence", "exposure", "model_evidence", "baseline_evidence",
                      "priority_score", "limitations"]:
         assert section in body
