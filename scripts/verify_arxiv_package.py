@@ -49,6 +49,74 @@ def check(ok: bool, label: str, detail: str = "") -> None:
     results.append((ok, label, detail))
 
 
+def _collapse(s: str) -> str:
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _braced_after(text: str, macro: str) -> str | None:
+    """Contents of the {...} group following `macro`, balancing nested braces."""
+    i = text.find(macro)
+    if i < 0:
+        return None
+    i += len(macro)
+    while i < len(text) and text[i] != "{":
+        i += 1
+    depth = 0
+    for j in range(i, len(text)):
+        if text[j] == "{":
+            depth += 1
+        elif text[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[i + 1:j]
+    return None
+
+
+def form_field_mismatches(tex: str, submission_md: str) -> list[str]:
+    """Compare the arXiv web-form fields recorded in ARXIV_SUBMISSION.md with
+    what main.tex actually says. `tex` must already have comments stripped.
+
+    The form differs from the source in exactly two sanctioned ways: the
+    title's `\\\\` line break becomes a space (a web form has no TeX line
+    breaks), and `\\%` becomes `%` in the abstract (the form is plain text
+    with optional $...$ math, so an escaped percent would show a stray
+    backslash). Anything else - a reworded sentence, a stale number, a
+    changed author - is a mismatch. Returns human-readable problems; an
+    empty list means the form fields match.
+    """
+    problems: list[str] = []
+    f_title = re.search(r"\*\*Title\*\*: `([^`]+)`", submission_md)
+    f_auth = re.search(r"\*\*Authors\*\*: `([^`]+)`", submission_md)
+    f_abs = re.search(r"```text\n(.*?)\n```", submission_md, re.S)
+    tex_title = _braced_after(tex, "\\title")
+    tex_auth = re.search(r"\\IEEEauthorblockN\{([^}]*)\}", tex)
+    a = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", tex, re.S)
+
+    if not (f_title and f_auth and f_abs):
+        return ["ARXIV_SUBMISSION.md is missing a Title, Authors or ```text abstract block"]
+    if tex_title is None or tex_auth is None or a is None:
+        return ["main.tex is missing \\title, \\IEEEauthorblockN or the abstract"]
+
+    want_title = _collapse(tex_title.replace("\\\\", " "))
+    if _collapse(f_title.group(1)) != want_title:
+        problems.append("title: form %r != tex %r" % (_collapse(f_title.group(1)), want_title))
+    if f_auth.group(1).strip() != _collapse(tex_auth.group(1)):
+        problems.append("authors: form %r != tex %r" % (f_auth.group(1).strip(), _collapse(tex_auth.group(1))))
+
+    form_abs = f_abs.group(1).strip()
+    want_abs = _collapse(a.group(1)).replace("\\%", "%")
+    if form_abs != want_abs:
+        n = next((k for k, (x, y) in enumerate(zip(form_abs, want_abs)) if x != y),
+                 min(len(form_abs), len(want_abs)))
+        problems.append("abstract differs at char %d: form ...%r vs tex ...%r"
+                        % (n, form_abs[max(0, n - 20):n + 30], want_abs[max(0, n - 20):n + 30]))
+    if len(form_abs) >= 1920:
+        problems.append("form abstract is %d chars (limit 1,920)" % len(form_abs))
+    if "\\%" in form_abs or "\\\\" in form_abs:
+        problems.append("form abstract contains a TeX-only escape (\\% or \\\\)")
+    return problems
+
+
 def main() -> None:
     if not MAIN.exists():
         print("no package at %s" % PKG)
@@ -70,6 +138,13 @@ def main() -> None:
         check(len(body) < 1920, "abstract under 1920 chars", "%d chars" % len(body))
         check("abstract" not in body.lower()[:40],
               "abstract does not open with the word 'Abstract'", "")
+
+    # --- web-form fields must match the source exactly ----------------
+    sub_md = ROOT / "paper" / "ARXIV_SUBMISSION.md"
+    if sub_md.exists():
+        problems = form_field_mismatches(t, sub_md.read_text(encoding="utf-8"))
+        check(not problems, "form title/authors/abstract match main.tex",
+              "; ".join(problems))
 
     # --- forbidden constructs ----------------------------------------
     for pat, label in [
