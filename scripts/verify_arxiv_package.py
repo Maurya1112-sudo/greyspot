@@ -13,7 +13,14 @@ pages (retrieved 2026-09-06):
 - abstract under 1,920 characters, and not containing the word "Abstract"
 - figures only in JPEG, PNG or PDF (SVG is *not* accepted) — we sidestep
   this by emitting the figure as pgfplots source
-- no `\\pdfoutput` (arXiv forbids forcing the output format)
+- no `\\pdfoutput` (arXiv forbids forcing the output format). Re-checked
+  2026-09-26 against the primary source after a secondary summary
+  recommended ADDING `\\pdfoutput=1`: the current page
+  (info.arxiv.org/help/submit_tex.html) says "You should not use
+  `\\pdfoutput` to change the output format" and that the processor is
+  chosen in the web form (select PDFLaTeX). The `\\pdfoutput=1`-in-first-
+  5-lines advice comes from the *legacy* submission page
+  (submit_legacy_differences.html) and is superseded. Do not re-add it.
 - no `psfig` (unsupported)
 - no custom `.sty` beyond TeX Live
 - no line numbers, watermarks or margin notes
