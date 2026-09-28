@@ -469,27 +469,29 @@ The horizon result above rests on three boroughs of one city and
 approximately $10^{4}$ crashes, which is the narrowest evidence base in
 this paper. We therefore repeated the sweep on the ML4RoadSafety
 benchmark~\cite{nippani2023}, using its Delaware subset: 458,282 crashes
-over 36,466 edges and 166 months (2009--2022) on a network of 109,107
-undirected edges, approximately 45 times the crash volume of the London
-data. That benchmark records monthly rather than daily counts, so the
+over 166 months (2009--2022), falling on 36,466 distinct edges (those that
+recorded at least one crash) of a full network of 109,107 undirected
+edges, approximately 45 times the crash volume of the London data. That benchmark records monthly rather than daily counts, so the
 sweep is over months and the metric averages over evaluation months; the
 quantity measured is otherwise unchanged.
 
 \begin{table}[t]
 \caption{Horizon sweep on the Delaware subset of ML4RoadSafety at four
-selection thresholds. The dependence appears only where the task retains
+selection thresholds (AccHR, \%). Range is Best minus the 1-month value,
+where Best is the maximum over all ten lookbacks, not necessarily the
+10-year value. The dependence appears only where the task retains
 headroom.}
 \label{tab:usrep}
 \centering
 \small
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Threshold & 1 month & 10 years & Range \\
+Threshold & 1 mo & 10 yr & Best (lookback) & Range \\
 \midrule
-Top 20\% & 87.75 & 93.04 & 5.3 \\
-Top 5\% & 46.18 & 64.57 & \textbf{18.4} \\
-Top 1\% & 16.16 & 30.10 & 14.5 \\
-Top 0.2\% & 8.78 & 12.48 & 3.8 \\
+Top 20\% & 87.75 & 93.04 & 93.04 (10 yr) & 5.3 \\
+Top 5\% & 46.18 & 64.57 & 64.62 (7 yr) & \textbf{18.4} \\
+Top 1\% & 16.16 & 30.10 & 30.63 (5 yr) & 14.5 \\
+Top 0.2\% & 8.78 & 12.48 & 12.62 (3 yr) & 3.8 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -628,13 +630,13 @@ acquisition instructions are provided.
 \begin{thebibliography}{9}
 
 \bibitem{gao2024}
-X.~Gao, X.~Jiang, D.~Haworth, D.~Zhuang, S.~Wang, H.~Li, et al.,
+X.~Gao, X.~Jiang, J.~Haworth, D.~Zhuang, S.~Wang, H.~Chen, and S.~Law,
 ``Uncertainty-aware probabilistic graph neural networks for road-level
 traffic crash prediction,'' \emph{Accident Analysis \& Prevention}, vol.
-208, p. 107801, 2024.
+208, art.\ no.\ 107801, 2024, doi:10.1016/j.aap.2024.107801.
 
 \bibitem{nippani2023}
-A.~Nippani, D.~Li, H.~Ju, H.~Koutsopoulos, and H.~R. Zhang, ``Graph neural
+A.~Nippani, D.~Li, H.~Ju, H.~N. Koutsopoulos, and H.~R. Zhang, ``Graph neural
 networks for road safety modeling: Datasets and evaluations for accident
 analysis,'' in \emph{Advances in Neural Information Processing Systems 36
 (NeurIPS), Datasets and Benchmarks Track}, 2023.

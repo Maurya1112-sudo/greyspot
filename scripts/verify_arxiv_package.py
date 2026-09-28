@@ -34,6 +34,7 @@ Exit code 1 on any failure.
 """
 from __future__ import annotations
 
+import csv
 import re
 import sys
 from pathlib import Path
@@ -117,6 +118,61 @@ def form_field_mismatches(tex: str, submission_md: str) -> list[str]:
     return problems
 
 
+USREP_CSV = ROOT / "reports" / "horizon_us_de_thresholds.csv"
+
+
+def usrep_table_problems(tex: str, csv_text: str) -> list[str]:
+    """Table IV (tab:usrep, the Delaware horizon sweep) against its source.
+
+    Two separate things are checked, because a reviewer will do both:
+
+    1. every cell reproduces from reports/horizon_us_de_thresholds.csv,
+       which scripts/run_horizon_us_replication.py writes (a reviewer who
+       recomputes the table from the data must get the same numbers), and
+    2. the table is self-consistent at its own displayed precision: Range is
+       Best minus the 1-month value. A reader doing that subtraction on the
+       printed cells must land on the printed Range. The first version of
+       this table printed "1 month", "10 years" and "Range" with Range
+       defined as best-minus-first but best != the 10-year value at the 1%
+       and 0.2% cuts, so 30.10 - 16.16 = 13.94 sat next to a printed 14.5.
+       Every number was right; the column just did not say what it was.
+
+    `tex` must have comments stripped. Returns problems; empty means OK.
+    """
+    m = re.search(r"\\label\{tab:usrep\}(.*?)\\end\{tabular\}", tex, re.S)
+    if not m:
+        return ["Table tab:usrep not found in main.tex"]
+    row_re = re.compile(
+        r"Top\s+([\d.]+)\\%\s*&\s*([\d.]+)\s*&\s*([\d.]+)\s*&\s*([\d.]+)\s*"
+        r"\((\d+)\s*yr\)\s*&\s*(?:\\textbf\{)?([\d.]+)\}?\s*\\\\")
+    rows = {float(r[0]) / 100: r for r in row_re.findall(m.group(1))}
+
+    series: dict[float, dict[int, float]] = {}
+    for rec in csv.DictReader(csv_text.splitlines()):
+        series.setdefault(round(float(rec["top_fraction"]), 6), {})[int(rec["lookback_months"])] = \
+            100 * float(rec["AccHR"])
+    if set(round(f, 6) for f in rows) != set(series):
+        return ["cuts in table %s != cuts in CSV %s" % (sorted(rows), sorted(series))]
+
+    problems: list[str] = []
+    for f, s in series.items():
+        key = next(k for k in rows if round(k, 6) == f)
+        _, one, ten, best, best_yr, rng = (float(x) for x in rows[key])
+        b_lb = max(s, key=s.get)
+        want = {"1 mo": (one, s[1]), "10 yr": (ten, s[120]), "best": (best, s[b_lb]),
+                "range": (rng, s[b_lb] - s[1])}
+        for name, (shown, exact) in want.items():
+            dp = 1 if name == "range" else 2
+            if abs(shown - round(exact, dp)) > 1e-9:
+                problems.append("top-%g%% %s: table %s vs source %.*f" % (f * 100, name, shown, dp, exact))
+        if abs(best_yr - b_lb / 12) > 1e-9:
+            problems.append("top-%g%% best lookback: table %g yr vs source %g yr" % (f * 100, best_yr, b_lb / 12))
+        if abs((best - one) - rng) > 0.06:
+            problems.append("top-%g%% Range %s is not Best-1mo (%.2f) at displayed precision"
+                            % (f * 100, rng, best - one))
+    return problems
+
+
 def main() -> None:
     if not MAIN.exists():
         print("no package at %s" % PKG)
@@ -145,6 +201,15 @@ def main() -> None:
         problems = form_field_mismatches(t, sub_md.read_text(encoding="utf-8"))
         check(not problems, "form title/authors/abstract match main.tex",
               "; ".join(problems))
+
+    # --- Delaware table must trace to its source CSV ------------------
+    if USREP_CSV.exists():
+        problems = usrep_table_problems(t, USREP_CSV.read_text(encoding="utf-8"))
+        check(not problems, "Table IV (Delaware) traces to source CSV, Range self-consistent",
+              "; ".join(problems))
+    else:
+        check(False, "Table IV (Delaware) traces to source CSV, Range self-consistent",
+              "missing %s - run scripts/run_horizon_us_replication.py" % USREP_CSV.name)
 
     # --- forbidden constructs ----------------------------------------
     for pat, label in [

@@ -28,11 +28,17 @@ PW, PH = W - L - R, H - T - B
 BOROUGHS = ["Lambeth", "Westminster", "Tower Hamlets"]
 COLOURS = {"Lambeth": "#4c72b0", "Westminster": "#dd8452", "Tower Hamlets": "#55a868"}
 # Published / measured reference levels, and whose data each is on.
+# "our data" levels are the current 5-seed means: pooled GNN 80.08
+# (reports/headline_table.csv) and the reference architecture 66.57
+# (83.94 - 17.37, reports/headtohead_multiseed_analysis.csv). They were
+# 0.8014 and 0.6445 - earlier V8/V11 and single-seed figures - so the
+# preprint's chart contradicted its own Table 3 by 2.1 points on the
+# reference architecture until this was found on 2026-09-28.
 REFERENCES = [
     (0.4496, "Gao et al. Historical Average", "their data"),
-    (0.6445, "reference architecture", "our data"),
+    (0.6657, "reference architecture", "our data"),
     (0.7260, "Gao et al. STZITD-GNN", "their data"),
-    (0.8014, "our GNN (5 seeds)", "our data"),
+    (0.8008, "our GNN (5 seeds)", "our data"),
 ]
 YMIN, YMAX = 0.15, 0.90
 

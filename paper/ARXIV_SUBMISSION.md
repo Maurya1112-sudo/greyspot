@@ -8,11 +8,12 @@ subdirectories. (arXiv itself *does* accept multi-file submissions via
 
 ## Before uploading
 
-1. **Compiled and checked (2026-09-26).** Fresh empty directory containing
+1. **Compiled and checked (2026-09-28).** Fresh empty directory containing
    only `main.tex`, `pdflatex` run twice with MiKTeX 25.12: both passes exit
-   0, no errors, no undefined references, no rerun warning; 5 pages, US
+   0, no errors, no undefined references, no rerun warning, no overfull
+   boxes; 6 pages (the last holds only the final two references), US
    Letter; every font embedded Type 1. `scripts/verify_arxiv_package.py`
-   (40 static checks) also passes. **Caveat:** arXiv builds with TeX Live,
+   (41 static checks) also passes. **Caveat:** arXiv builds with TeX Live,
    not MiKTeX, so arXiv's own preview is still the authoritative render.
 2. **Upload the source, not a PDF.** arXiv detects TeX-produced PDFs and
    rejects them.
@@ -40,7 +41,7 @@ backslash). `$...$` math is left as-is; arXiv renders TeX math in abstracts.
 Graph neural networks are increasingly applied to road-level crash prediction, but the stability of their reported gains has received little scrutiny. We independently reconstruct the data pipeline of a recent uncertainty-aware model and evaluate eleven of its design decisions across three London boroughs under an expanding-window protocol. Four survive replication on a second borough; seven do not, and four of those reverse sign rather than attenuate. Multi-seed evaluation is decisive: one effect reverses sign between random seeds within a single borough, and the reference architecture exhibits per-borough seed spreads of up to 35.7 points against 4 points for ours. We further compare both networks against a parameter-free baseline that ranks segments by cumulative past crash count. At matched history depth our model is statistically indistinguishable from that baseline ($-0.90$ points, $p=0.61$), and the reference architecture loses to it on 18 of 18 held-out windows ($-17.37$, $p<10^{-6}$). Sweeping the baseline's lookback horizon shows it spans 22.71% to 83.94% accuracy on that variable alone, and that every published figure in this line of work is matched by the baseline at a horizon of one to five years. We argue that the apparent margin of graph networks over historical baselines in this task is substantially an artefact of the short horizons those baselines were computed over, and recommend horizon-matched baselines and multi-seed reporting as minimum practice.
 ```
 
-- **Comments**: `5 pages, 4 tables, 1 figure. Code: https://github.com/Maurya1112-sudo/greyspot`
+- **Comments**: `6 pages, 4 tables, 1 figure. Code: https://github.com/Maurya1112-sudo/greyspot`
 - **Primary category**: `cs.LG` (machine learning). The contribution is
   methodological — replication behaviour and baseline design — rather than
   a transport-domain result.

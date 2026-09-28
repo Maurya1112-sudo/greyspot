@@ -7584,3 +7584,125 @@ is an artefact of one city.
 The argument about Gao et al.'s single-year dataset is unaffected: their
 baseline is bounded at a one-year horizon regardless of the magnitude the
 horizon effect takes in their regime.
+
+## 2026-09-28 - External review of the arXiv source: one real citation error, one undefined column, one missing generator
+
+A pasted review listed six items. Each was tested against the primary
+source rather than applied as written; two of the six were wrong or
+incomplete in their details, and one found something worse than it said.
+
+**1. The Gao et al. reference had invented authors - real, fixed.** The
+entry read "X. Gao, X. Jiang, D. Haworth, D. Zhuang, S. Wang, H. Li, et
+al." There is no "H. Li"; the real co-authors include Huanfa Chen and
+Stephen Law, both missing, and Haworth's initial is J., not D. Verified
+twice. The paper's own title page lists Gao, Jiang, Zhuang, Chen, Wang,
+Law, Haworth (the review's proposed order). But the entry cites the
+*published journal article* (Accident Analysis & Prevention 208, 107801),
+and the publisher-deposited record (Crossref, doi:10.1016/j.aap.2024.107801)
+orders them Gao, Jiang, **Haworth**, Zhuang, Wang, Chen, Law. The preprint
+order is wrong for a journal citation, so the entry follows the journal and
+carries the DOI. (PubMed was behind a CAPTCHA and ScienceDirect returned
+403; Crossref is the machine-readable route.) Same failure class checked on
+the other references: Nippani et al. was missing Koutsopoulos's middle
+initial (Haris N.; confirmed on arXiv 2311.00164) - added.
+
+**2. Table IV (Delaware) "does not add up" - the numbers were right, the
+column was undefined, and three rows had no generator.** Recomputing
+10-year minus 1-month gives 13.94 (top-1%) and 3.70 (top-0.2%) against a
+printed 14.5 and 3.8. Regenerated from the raw ML4RoadSafety data: **all
+eight endpoint values reproduce exactly**, so nothing was mistyped. Range
+was silently *best over all lookbacks minus the 1-month value*, and the
+curve peaks before 10 years at the 1% cut (30.63 at 5 yr) and the 0.2% cut
+(12.62 at 3 yr), so the two definitions diverge there. The table now shows
+a Best (lookback) column so the printed arithmetic closes. The larger
+finding: `scripts/run_horizon_us_replication.py` hard-coded top-20% and wrote
+only that row - the 5%, 1% and 0.2% rows were quoted from an earlier session
+with no committed generator, the exact violation of "every number needs a
+script" this project holds others to. The script now sweeps all four cuts
+through the identical code path and writes
+`reports/horizon_us_de_thresholds.csv`; its 20% rows are **bit-identical**
+to the previously committed CSV, which doubles as the regression check.
+`verify_arxiv_package.py` now recomputes Table IV from that CSV and checks
+Range against Best minus 1-month at the printed precision; 7 negative
+controls in `tests/test_arxiv_table_usrep.py` (including the reviewer's
+exact reading of the old table).
+
+**3. "Two different edge counts" - confirmed and clarified.** From the raw
+CSV: 374,987 rows, none with a zero count, 36,466 unique undirected edges
+each with at least one crash, 458,282 crashes, 166 months; the network is
+218,214 directed = 109,107 undirected edges. The text now says so.
+
+**4. "The GitHub link doesn't resolve" - it does.** HTTP 200 with no
+credentials on the web page, the REST API (`"private": false`) and the raw
+`main.tex`. The reviewer's fetch failing says something about the fetcher,
+not the repository.
+
+**5. "Add `\pdfoutput=1`" - declined.** arXiv's current TeX page says not to
+use `\pdfoutput` to change the output format and to choose PDFLaTeX in the
+web form; the advice comes from the retired legacy page. Rationale is in
+`verify_arxiv_package.py`'s docstring (2026-09-26 commit).
+
+**6. Recompile fresh and re-check the figure.** Done from an empty directory,
+two passes: no errors, no undefined references, no overfull boxes, fonts
+Type 1 and embedded. The additions pushed the paper from 5 to 6 pages (the
+last holds only the final two references); shortening the Table IV caption
+did not recover it and trimming prose to hit a page count was not worth it,
+so the submission notes now say 6.
+
+**Found while verifying, not by the review: stale single-seed figures still
+live in three places after the paper had moved to 5-seed numbers.** The
+README quoted the reference architecture at 64.45% (paired p=0.000001); the
+paper, from `headtohead_multiseed_analysis.csv`, has 66.57% (83.94 - 17.37,
+5 seeds, paired t-test p=3.7e-10). `docs/sop_paragraph.md`'s evidence table
+still had -0.85 / p=0.6398 (paper: -0.90 / p=0.6102) and a pooled 80.14%
+(paper: 80.08%). Most visibly, `make_horizon_figure.py` hard-coded 0.6445 and
+0.8014, so the readable preprint's Figure 1 labelled the reference
+architecture 64.5% while the same PDF's Table 3 said 66.57%. All three
+corrected, SVG and PDF regenerated. `verify_cross_document.py` did not catch
+this: it checks the headline and trivial-sort figures across documents but
+not the reference-architecture score, which is exactly where the drift was.
+
+The lesson worth keeping: a review is a set of claims to test, not a list
+of instructions. Here it was right about the citation and the arithmetic
+symptom, wrong about the author order it proposed, and did not notice that
+the table's underlying rows had no generator at all.
+
+## 2026-09-28 - Zero-inflation figures reconciled: three sources, three target constructions, no contradiction, one gap still open
+
+A statement-of-purpose context file cited "98.7% zero-inflation ... in one
+borough" as published precedent, next to this repo's "99.97% vs their
+95.72-96.71%", and flagged that the two had never been reconciled. Nothing in
+this repository contained 98.7, so it was traced to the papers themselves and
+read on the page, not taken from a summary:
+
+- **98.7%** - Gao, Haworth, Zhuang, Chen, Jiang, *STZINB-GNN* (arXiv:2307.13816,
+  2023, UCL SpaceTimeLab), Section 3. Lambeth only: 5,659 road segments,
+  1,335 accidents in 2019. The daily risk level combines accident count with
+  severity and applies spillover onto first- and second-order neighbouring
+  roads. Verbatim: "the zero-inflation rate for road-level accident risk in
+  Lambeth Borough is 98.7%".
+- **95.72 / 96.71 / 96.28%** - Gao et al., *STZITD-GNN* (Accident Analysis &
+  Prevention 208:107801, 2024; arXiv:2309.05072v4), Table 3, 2019 data.
+  Westminster 4,822 roads, Lambeth 5,659, Tower Hamlets 4,688. The target is a
+  severity-weighted crash risk score (Eq. 1, severities weighted 1/2/3, each
+  crash assigned to its nearest road).
+- **99.97% (Westminster, Tower Hamlets) / 99.98% (Lambeth)** - this project:
+  the plain daily crash-occurred indicator on OS Open Roads segments
+  (Westminster: 11,098 directed edges).
+
+These are different papers, different target constructions and different
+aggregation, so there is no contradiction. Two things follow. First, the same
+group reports **two different rates for the same borough, year and segment
+count** (Lambeth, 2019, 5,659 segments): 98.7% in 2023 and 96.71% in 2024,
+and neither paper states its construction precisely enough to reconcile them.
+So 98.7% may be cited only as "the STZINB-GNN paper reports", never as "Gao
+et al. report": the better-known 2024 paper gives 96.71% for Lambeth, and a
+reader who checks it will not find 98.7. Second, the gap this project cannot
+explain is unchanged: its target is 99.97-99.98% zero, about 3 points
+sparser than the 2024 paper's 95.72-96.71% and about 1.3 points sparser than
+the 2023 paper's 98.7%. Already tested and ruled out (see the 2026-09-01 and
+2026-09-03 entries):
+severity weighting (the exact TCR formula), directed/undirected duplication
+(99.97% to 99.94%), and spillover (99.96% to 99.08% on Westminster with a
+disclosed 0.5/0.25 decay, which cut AccHR@20 from 49.57% to 34.57% on that
+protocol while still not reaching 95.72%).

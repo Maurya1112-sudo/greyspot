@@ -266,9 +266,9 @@ model's side (`scripts/run_s2_paired_comparison.py`).
 
 | Model vs | Δ (points) | paired *t* | Wilcoxon | model wins |
 |---|---|---|---|---|
-| Empirical Bayes (HSM method) | **−3.76** | 0.0146 | 0.0182 | 6/18 |
-| Cumulative crash count | **−3.85** | 0.0289 | 0.0342 | 5/18 |
-| Same count, capped to the 5-yr horizon | −0.90 | 0.6398 | 0.7660 | 9/18 |
+| Empirical Bayes (HSM method) | **−3.76** | 0.0116 | 0.0182 | 6/18 |
+| Cumulative crash count | **−3.85** | 0.0227 | 0.0342 | 5/18 |
+| Same count, capped to the 5-yr horizon | −0.90 | 0.6102 | 0.7660 | 9/18 |
 
 **At matched history depth the model and a parameter-free sort are
 statistically indistinguishable** (−0.90, p=0.6102, 9/18 windows).

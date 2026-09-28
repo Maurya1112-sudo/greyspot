@@ -55,9 +55,9 @@ def _canonical_from_artefacts() -> dict[str, list[str]]:
     check still runs on a fresh clone before anything has been computed.
     """
     fallback = {
-        "pooled headline": ["80.14"],
-        "Westminster headline": ["80.03"],
-        "Tower Hamlets headline": ["82.63"],
+        "pooled headline": ["80.08"],
+        "Westminster headline": ["79.75"],
+        "Tower Hamlets headline": ["82.75"],
         "Lambeth headline": ["77.75"],
     }
     path = ROOT / "reports" / "headline_table.csv"
@@ -74,21 +74,52 @@ def _canonical_from_artefacts() -> dict[str, list[str]]:
     return out if len(out) == 4 else fallback
 
 
+def _matched_horizon_gap() -> list[str]:
+    """The pooled GNN-vs-sort gap at matched history depth, from the artefact.
+
+    This was hard-coded as -0.85, which was itself STALE: it was the figure
+    from an earlier, smaller seed set, and the paper had already moved to
+    -0.90 (p=0.6102, `reports/s2_paired_comparison.csv`). Because the checker
+    pinned the old number, it kept "confirming" it in the one document that
+    still carried it (`sop_paragraph.md`) and failed the moment that document
+    was corrected to match the paper (found 2026-09-28). Same mistake the
+    headline figures above were already fixed for; this one had been missed.
+    """
+    fallback = ["-0.90", "−0.90"]
+    path = ROOT / "reports" / "s2_paired_comparison.csv"
+    if not path.exists():
+        return fallback
+    import pandas as pd
+    d = pd.read_csv(path)
+    row = d[(d.baseline.str.contains("CAPPED", na=False)) & (d.borough == "POOLED")]
+    if len(row) != 1:
+        return fallback
+    v = "%.2f" % float(row.iloc[0]["diff"])
+    return [v, v.replace("-", "−")]
+
+
 # Figures that must read identically wherever they appear at all. A document
 # that does not mention one is fine; a document that contradicts it is not.
 CANONICAL = {
     **_canonical_from_artefacts(),
     "trivial sort (uncapped)": ["83.94"],
-    "matched-horizon gap": ["-0.85", "−0.85"],
+    "matched-horizon gap": _matched_horizon_gap(),
 }
 
 # Values that were superseded. Any appearance outside a correction note is a
 # document still asserting a withdrawn number.
 SUPERSEDED = {
-    "80.76": "single-seed pooled headline, replaced by 80.14 (V8/V11)",
-    "78.92%": "single-seed Westminster, replaced by 80.03",
-    "83.93%": "single-seed Tower Hamlets, replaced by 82.63",
-    "79.44%": "single-seed Lambeth, replaced by 77.75",
+    "80.76": "single-seed pooled headline, replaced by the 5-seed pooled mean (80.08)",
+    "78.92%": "single-seed Westminster, replaced by the 5-seed mean (79.75)",
+    "83.93%": "single-seed Tower Hamlets, replaced by the 5-seed mean (82.75)",
+    "79.44%": "single-seed Lambeth, replaced by the 5-seed mean (77.75)",
+    # Added 2026-09-28 after all three were found still live in the README,
+    # docs/sop_paragraph.md and make_horizon_figure.py, contradicting the
+    # paper - a drift this checker could not see because it did not know
+    # these values were withdrawn.
+    "64.45%": "single-seed reference-architecture score, replaced by 66.57% (5-seed head-to-head)",
+    "0.6398": "earlier matched-horizon p-value, replaced by 0.6102",
+    "80.14%": "pre-regeneration pooled headline, replaced by 80.08%",
 }
 
 # Claims the ledger records as overturned; their old wording must not recur.

@@ -47,15 +47,15 @@ than the impressive one.
 |---|---|
 | "seven of eleven … failed to replicate" | `scripts/check_effect_size_heuristic.py`; MASTER_PLAN §2b scoreboard |
 | "four … by reversing sign" | road class (−6.87 → +2.25), rank scaling (+5.80 → −39.7), architecture×history, feature count (−0.99/−4.08 → +0.77) |
-| "matched my model" | `run_s2_paired_comparison.py`: −0.85, p=0.6398, 9/18 windows at matched horizon |
-| "beat the reference architecture on 18 of 18" | `run_reference_vs_trivial.py`: 64.45% vs 83.94%, p=0.000001, 0/18 wins |
+| "matched my model" | `run_s2_paired_comparison.py`: −0.90, p=0.6102, 9/18 windows at matched horizon (5-seed mean) |
+| "beat the reference architecture on 18 of 18" | `run_headtohead_multiseed_analysis.py`: 66.57% vs 83.94% (−17.37), paired p<10⁻⁶, 0/18 wins, 5 seeds. (An earlier single-seed run gave 64.45%; superseded.) |
 | "spans 23% to 84%" | `run_baseline_horizon_curve.py`: 22.71% at 30 days, 83.94% at 9 years |
 | "their single-year dataset" | Gao et al. use STATS19 2019 only; their Historical Average scores 0.4496 |
 
 ## Lines deliberately NOT used
 
 - **"I beat a published model."** True on two of three boroughs
-  (80.14% vs 72.60% pooled) but the protocols differ, no paired test
+  (80.08% vs 72.60% pooled, 5 seeds) but the protocols differ, no paired test
   against them is possible, and the same work shows a trivial baseline
   beats mine. Leading with it invites exactly the question that undoes it.
 - **"I showed GNNs don't work for crash prediction."** Not supported. The

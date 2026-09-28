@@ -54,7 +54,16 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 DATA = ROOT / "data" / "raw" / "ml4rs"
-TOP_FRACTION = 0.20
+TOP_FRACTION = 0.20  # the paper's own cut; drives the verdict and horizon_us_<state>.csv
+# Extra selection cuts, added 2026-09-28. The paper's Table IV reports the
+# horizon range at top-20/5/1/0.2%, but until now this script produced ONLY
+# the 20% row: the other three were quoted from a session with no committed
+# generator, which is exactly the "every number needs a script" rule this
+# project holds everyone else to. A reviewer's arithmetic check on the
+# table's own Range column then had nothing to be traced back to. Every cut
+# below goes through the identical ranking code path, so the 20% row is also
+# a built-in regression check against the previously committed CSV.
+TOP_FRACTIONS = [0.20, 0.05, 0.01, 0.002]
 # Lookbacks in MONTHS. Chosen to mirror the London sweep's coverage
 # (1 month to ~10 years) so the two curves are comparable in shape.
 LOOKBACKS = [1, 3, 6, 12, 24, 36, 60, 84, 108, 120]
@@ -92,7 +101,8 @@ def main(state: str = "DE") -> None:
     # ever crashed. Using the latter would inflate every score by hiding
     # the segments the ranker most easily gets right.
     n_undirected = n_edges // 2
-    top_k = int(round(TOP_FRACTION * n_undirected))
+    top_ks = {f: int(round(f * n_undirected)) for f in TOP_FRACTIONS}
+    top_k = top_ks[TOP_FRACTION]
 
     tmax = int(acc.t.max())
     eval_months = [t for t in range(tmax - N_EVAL_MONTHS + 1, tmax + 1)]
@@ -120,9 +130,10 @@ def main(state: str = "DE") -> None:
     cum = np.concatenate([np.zeros((n_crash_edges, 1), dtype=np.int64),
                           np.cumsum(mat, axis=1, dtype=np.int64)], axis=1)
 
-    rows = []
+    rows = []       # top-20% only - schema unchanged, so existing consumers are safe
+    all_rows = []   # every cut in TOP_FRACTIONS, long format
     for lb in LOOKBACKS:
-        hits = []
+        hits = {f: [] for f in TOP_FRACTIONS}
         for t in eval_months:
             ti = t - tmin
             future = mat[:, ti]
@@ -135,14 +146,19 @@ def main(state: str = "DE") -> None:
             # crash set all have zero and would fill the remainder of the
             # top-k arbitrarily, so a zero-count edge contributes nothing
             # either way and the cut is applied to the real ranking.
-            k = min(top_k, len(past))
-            idx = np.argpartition(-past, k - 1)[:k]
-            hits.append(future[idx].sum() / total)
-        m = float(np.mean(hits))
-        rows.append({"state": state, "lookback_months": lb,
-                     "lookback_years": lb / 12.0, "AccHR": m, "n_months": len(hits)})
-        label = "%d mo" % lb if lb < 12 else "%.0f yr" % (lb / 12)
-        print("  %-8s AccHR@20 = %.4f   (%d months)" % (label, m, len(hits)))
+            for f in TOP_FRACTIONS:
+                k = min(top_ks[f], len(past))
+                idx = np.argpartition(-past, k - 1)[:k]
+                hits[f].append(future[idx].sum() / total)
+        for f in TOP_FRACTIONS:
+            m = float(np.mean(hits[f]))
+            rec = {"state": state, "lookback_months": lb,
+                   "lookback_years": lb / 12.0, "AccHR": m, "n_months": len(hits[f])}
+            all_rows.append({"top_fraction": f, **rec})
+            if f == TOP_FRACTION:
+                rows.append(rec)
+                label = "%d mo" % lb if lb < 12 else "%.0f yr" % (lb / 12)
+                print("  %-8s AccHR@20 = %.4f   (%d months)" % (label, m, len(hits[f])))
 
     df = pd.DataFrame(rows)
     lo_v, hi_v = df.AccHR.iloc[0], df.AccHR.max()
@@ -169,6 +185,25 @@ def main(state: str = "DE") -> None:
     df.to_csv(out, index=False)
     print()
     print("Written to %s" % out)
+
+    # ---- every selection cut: the source of the paper's Table IV --------
+    dfa = pd.DataFrame(all_rows)
+    out_t = ROOT / "reports" / ("horizon_us_%s_thresholds.csv" % state.lower())
+    dfa.to_csv(out_t, index=False)
+    first_lb, last_lb = LOOKBACKS[0], LOOKBACKS[-1]
+    print()
+    print("-" * 74)
+    print("HORIZON RANGE BY SELECTION CUT (percent; AccHR at each cut)")
+    print("  'span' = value at %d months minus value at %d month(s)" % (last_lb, first_lb))
+    print("  'best' = best value over all lookbacks minus value at %d month(s)" % first_lb)
+    print("  %-7s %8s %9s %8s %8s" % ("cut", "%d mo" % first_lb, "%d mo" % last_lb, "span", "best"))
+    for f in TOP_FRACTIONS:
+        s = dfa[dfa.top_fraction == f].set_index("lookback_months").AccHR * 100
+        print("  %-7s %8.2f %9.2f %8.2f %8.2f" % (
+            "top-%g%%" % (f * 100), s[first_lb], s[last_lb],
+            s[last_lb] - s[first_lb], s.max() - s[first_lb]))
+    print()
+    print("Written to %s" % out_t)
 
 
 if __name__ == "__main__":

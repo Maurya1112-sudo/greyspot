@@ -91,8 +91,8 @@ beside it.
 
 Run on the same data with its own tuned settings, the **reference
 architecture loses to the crash-count sort on 18 of 18 held-out windows**
-(64.45% vs 83.94%, paired p=0.000001). Neither graph network in this study
-clears the trivial baseline.
+(66.57% vs 83.94%, 5-seed mean, paired p < 10⁻⁶). Neither graph network in
+this study clears the trivial baseline.
 
 ### Almost all of the baseline's strength is its horizon
 
@@ -113,8 +113,9 @@ are on their data, not ours — but the implication is cheap to check and we
 found no paper in this line that reports it.
 
 **Tested on independent US data, and it only partly held.** The same sweep
-on the ML4RoadSafety benchmark (Delaware: 458,282 crashes, 36,466 edges,
-166 months — roughly 45× the London crash volume) gives only **5.3 points**
+on the ML4RoadSafety benchmark (Delaware: 458,282 crashes over 166 months,
+falling on 36,466 distinct edges of a 109,107-edge network — roughly 45× the
+London crash volume) gives only **5.3 points**
 at this 20% threshold, because a one-month lookback there already scores
 87.75% and the task is saturated. At thresholds with headroom the
 dependence returns: **18.4 points at top-5%**, 14.5 at top-1%.

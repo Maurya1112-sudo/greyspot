@@ -116,10 +116,16 @@ def main() -> None:
     print("    at %-4d days          %.4f  (best measured)" % (best_lb, best))
     print("    gain from horizon     %+.4f (%.1f points)" % (best - one_yr, 100 * (best - one_yr)))
     print()
-    print("Our GNN scores 0.8014 (5-seed) and the reference architecture 0.6445")
+    # Current 5-seed means (reports/headline_table.csv pooled = 80.08;
+    # reports/headtohead_multiseed_analysis.csv: reference = 83.94 - 17.37 =
+    # 66.57). These were 0.8014 and 0.6445 - the earlier V8/V11 and
+    # single-seed figures - until 2026-09-28, when they were found still
+    # printed here and in make_horizon_figure.py after the paper had moved on.
+    GNN_5SEED, REF_5SEED = 0.8008, 0.6657
+    print("Our GNN scores %.4f (5-seed) and the reference architecture %.4f" % (GNN_5SEED, REF_5SEED))
     print("on these windows. A crash-count sort overtakes both once its")
-    print("horizon exceeds roughly %d days." % int(df[df["mean"] > 0.8014].lookback_days.min())
-          if (df["mean"] > 0.8014).any() else "  (never overtakes on this curve)")
+    print("horizon exceeds roughly %d days." % int(df[df["mean"] > GNN_5SEED].lookback_days.min())
+          if (df["mean"] > GNN_5SEED).any() else "  (never overtakes on this curve)")
 
     out = ROOT / "reports" / "baseline_horizon_curve.csv"
     df.to_csv(out, index=False)
