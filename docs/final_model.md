@@ -464,9 +464,9 @@ Test suite: **207 passing** (`python -m pytest tests/ -q`).
    are one-run results; paired comparisons are unaffected because both
    arms run under identical conditions.
 
-7. **Most single-borough findings do not replicate.** Of ten findings
-   that appeared significant on one borough, three survived a second
-   (seven failed). Effect size predicts non-replication
+7. **Most single-borough findings do not replicate.** Of eleven findings
+   that appeared significant on one borough, four survived a second
+   (seven failed, four of them by reversing sign). Effect size predicts non-replication
    only: below the ~4-point seed-noise band 0 of 4 replicated, above it
    just 4 of 6 (`scripts/check_effect_size_heuristic.py`). Two supra-noise
    MAIN effects failed — road class (−6.87, sign reversed) and

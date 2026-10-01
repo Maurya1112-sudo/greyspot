@@ -7,11 +7,15 @@ conformal prediction intervals, evaluated against
 traffic crash prediction"* (Accident Analysis & Prevention), on three
 London boroughs.
 
+**Preprint:** [arXiv:2609.35917](https://arxiv.org/abs/2609.35917),
+*Replication Failure and Trivial Baselines in Road-Level Crash Prediction*
+(cs.LG, submitted 28 September 2026; not peer reviewed). The headline
+numbers below match that paper.
+
 **Status: research code under active verification.** Numbers below are
-current as of 2026-09-06 and are stated with the caveats that apply to
-them. Seven of eleven single-borough findings failed replication on a second
-borough, four of them by reversing sign; those are reported here alongside
-the three that survived. See [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the live
+stated with the caveats that apply to them. Four of eleven single-borough
+findings survived replication on a second borough; the other seven failed,
+four of them by reversing sign, and all eleven are reported here. See [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) for the live
 verification ledger and [`docs/decision_log.md`](docs/decision_log.md)
 for every experiment run, including the negative and invalidated ones.
 
@@ -241,8 +245,9 @@ and comparing — a truncated response cannot be reproducible.
 
 ## Why the decision log is part of the contribution
 
-Of **ten** findings that looked significant on a single borough, only
-**three survived replication on a second** (seven failed).
+Of **eleven** findings that looked significant on a single borough, only
+**four survived replication on a second** (seven failed, four of them by
+reversing sign).
 
 Effect size predicts non-replication, but not replication. Every effect
 below the measured ~4-point seed-noise band failed (4 of 4), so a small
